@@ -1,33 +1,35 @@
 #define NewSelector_cxx
-// The class definition in NewSelector.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector(). This class is derived
-// from the ROOT class TSelector. For more information on the TSelector
-// framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
-
-// The following methods are defined in this file:
-//    Begin():        called every time a loop on the tree starts,
-//                    a convenient place to create your histograms.
-//    SlaveBegin():   called after Begin(), when on PROOF called only on the
-//                    slave servers.
-//    Process():      called for each event, in this function you decide what
-//                    to read and fill your histograms.
-//    SlaveTerminate: called at the end of the loop on the tree, when on PROOF
-//                    called only on the slave servers.
-//    Terminate():    called at the end of the loop on the tree,
-//                    a convenient place to draw/fit your histograms.
-//
-// To use this file, try the following session on your Tree T:
-//
-// Root > T->Process("NewSelector.C")
-// Root > T->Process("NewSelector.C","some options")
-// Root > T->Process("NewSelector.C+")
-//
-
 #include "NewSelector.h"
 #include "Riostream.h"
 #include <TH2.h>
+#include "TCanvas.h"
 #include <TStyle.h>
+#include <TSystem.h>
+#include "Punto.h"
 
+Bool_t NewSelector::Notify()
+{
+   // The Notify() function is called when a new file is opened. 
+   return kTRUE;
+}
+
+void NewSelector::Init(TTree *tree)
+{
+   // The Init() function is called when the selector needs to initialize
+   // a new tree or chain. Typically here the branch addresses and branch
+   // pointers of the tree will be set.
+   
+   if (!tree) return;
+   fChain = tree;
+
+   Printf("Changed file!");
+
+   //fChain->SetMakeClass(1);
+
+   fChain->SetBranchAddress("VertMult", /*(Double_t *)*/&fVertMult);
+   fChain->SetBranchAddress("Hits", &fHits);
+
+}
 
 void NewSelector::Begin(TTree * /*tree*/)
 {
@@ -40,6 +42,8 @@ void NewSelector::Begin(TTree * /*tree*/)
    //////////////////////////////////////////////////////////////////
    //Personal code and source of errors
    //////////////////////////////////////////////////////////////////
+
+   Printf("Ciao da %s", gSystem->HostName());
 
 }
 
@@ -55,37 +59,50 @@ void NewSelector::SlaveBegin(TTree * /*tree*/)
    //Personal code and source of errors
    //////////////////////////////////////////////////////////////////
 
+   fHits = new TClonesArray("Punto");
+   fVertMult = new Punto();
 
+   fHistX = new TH1I("fHistX", "X Hits Histogram", 100, -10, 10);
+   fHistVerZ = new TH1I("fHistVerZ", "Z Vert Histogram", 100, -10, 10);
+   fOutput->Add( fHistX );
+   fOutput->Add( fHistVerZ );
 
 }
 
 Bool_t NewSelector::Process(Long64_t entry)
 {
    // The Process() function is called for each entry in the tree (or possibly
-   // keyed object in the case of PROOF) to be processed. The entry argument
-   // specifies which entry in the currently loaded tree is to be processed.
-   // It can be passed to either NewSelector::GetEntry() or TBranch::GetEntry()
-   // to read either all or the required parts of the data. When processing
-   // keyed objects with PROOF, the object is already loaded and is available
-   // via the fObject pointer.
-   //
-   // This function should contain the "body" of the analysis. It can contain
-   // simple or elaborate selection criteria, run algorithms on the data
-   // of the event and typically fill histograms.
-   //
-   // The processing can be stopped by calling Abort().
-   //
-   // Use fStatus to set the return value of TTree::Process().
-   //
-   // The return value is currently not used.
+   // keyed object in the case of PROOF) to be processed. 
 
    //////////////////////////////////////////////////////////////////
    //Personal code and source of errors
    //////////////////////////////////////////////////////////////////
    
-   printf("Processing Entry number %lld\n", entry);
-   //increase the total number of entries
+   if (gDebug)
+      Printf("Processing Entry number %lld [%s]", entry, fChain->ClassName());
+
    ++fNumberOfEvents;
+
+   fChain->GetTree()->GetEvent(entry);
+
+   Int_t num = fHits->GetEntries();
+   Int_t num2 = fVertMult->GetMult();
+
+   if (gDebug)
+      Printf("Ev=%lld Mult=%d(%d) X=%lf Y=%lf Z=%lf",
+         entry,
+         num, num2,
+         fVertMult->GetX(), fVertMult->GetY(), fVertMult->GetZ());
+
+   Punto *tst;
+   for (Int_t j=0; j<num; j++){
+      tst=(Punto*)fHits->At(j);
+      if (gDebug)
+         Printf("  #%d: X=%lf Y=%lf Z=%lf",
+         j, tst->GetX(), tst->GetY(), tst->GetZ());
+         fHistX->Fill( tst->GetX() );
+         fHistVerZ->Fill( fVertMult->GetZ() ); 
+   }
 
    return kTRUE;
 }
@@ -95,6 +112,9 @@ void NewSelector::SlaveTerminate()
    // The SlaveTerminate() function is called after all entries or objects
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
+
+   delete fHits;
+   printf("\nTotal Number of Events: %d\n", fNumberOfEvents);
 
 }
 
@@ -107,8 +127,13 @@ void NewSelector::Terminate()
    //////////////////////////////////////////////////////////////////
    //Personal code and source of errors
    //////////////////////////////////////////////////////////////////
-
-   printf("\nTotal Number of Events: %d\n", fNumberOfEvents);
-
+   TCanvas *c1 = new TCanvas("c1","Canvas Supercool",700,500);
+   c1->Divide(2);
+   c1->cd(1);
+   fHistX = dynamic_cast<TH1I *>( fOutput->FindObject("fHistX") );
+   if (fHistX) fHistX->Draw();
+   c1->cd(2);
+   fHistVerZ = dynamic_cast<TH1I *>( fOutput->FindObject("fHistVerZ") );
+   if (fHistVerZ) fHistVerZ->Draw();
 
 }

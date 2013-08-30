@@ -16,7 +16,7 @@ Punto::Punto(): TObject(),
   Theta(0.),
   Phi(0.),
   CRadius(0.),
-  SRadius(0.){}
+  SRadius(0.) { }
 
 
 
