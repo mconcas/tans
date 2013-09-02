@@ -1,10 +1,10 @@
-//#if !defined (__CINT__) || defined (__MAKECINT__)
+#if !defined (__CINT__) || defined (__MAKECINT__)
 #include "TMath.h"
 #include "Riostream.h"
 #include "Punto.h"
 #include "TObject.h"
 #include "TString.h"
-//#endif
+#endif
 
 ClassImp(Punto)
 
