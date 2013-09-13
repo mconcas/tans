@@ -8,7 +8,8 @@
 class Retta : public TObject {
  public:
   Retta(Double_t gm1, Double_t gm2, Double_t gm3);
-  Retta(TString gRname, const Punto &gorigin, Double_t gm1, Double_t gm2, Double_t gm3);
+  Retta(TString gRname, const Punto &gorigin, Double_t gm1, 
+    Double_t gm2, Double_t gm3);
   virtual ~Retta();
 
   //_____________Setters__________________

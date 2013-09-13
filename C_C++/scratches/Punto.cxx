@@ -24,11 +24,11 @@ Punto::Punto(TString fName, Double_t fX, Double_t fY, Double_t fZ):
       X(fX),
       Y(fY),
       Z(fZ) { 
-         CartesiantoSpherical();   
-         CartesiantoCylindrical();
+         CartesiantoSpherical();   // Evaluate Spherical coords.
+         CartesiantoCylindrical(); // Evaluate Cylindrical coords.
       }
 Punto::~Punto() { 
-   if (gDebug) Printf("*** \"%s\" Punto  object was destroyed *** ", 
+   if (gDebug) Printf("*** \"%s\" Punto object was destroyed *** ", 
                   Name.Data()); }
 //_________Setters________________________________
 void Punto::SetPuntoCartesians(const Double_t fX, const Double_t fY, 

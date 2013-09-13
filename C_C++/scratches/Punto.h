@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //Punto class: basic geometry class.
-//Written by Matteo Concas: mett1990@gmail.com Sep 2013
+//Written by Matteo Concas: mett1990@gmail.com 
 //Exam: «Tecniche di analisi numerica e simulazione»
 //////////////////////////////////////////////////////////////////////
 
@@ -49,15 +49,15 @@ class Punto : public TObject {
       TString  GetPuntoName() const {return Name;}
       
    protected:
-      TString Name;
-      Double_t X;
-      Double_t Y;
-      Double_t Z;
-      Double_t Theta;
-      Double_t Phi;
-      Double_t CRadius;
-      Double_t SRadius;
+      TString Name;      // Name of the 3D point
+      Double_t X;        // Cartesian coordinate "Y"
+      Double_t Y;        // Cartesian coordinate "Z"
+      Double_t Z;        // Cartesian coordinate "Z"
+      Double_t Theta;    // Spherical coordinate "φ"
+      Double_t Phi;      // Spherical and Cylindrical coordinate "ϑ"
+      Double_t CRadius;  // Cylindrical Radius
+      Double_t SRadius;  // Spherical Radius
 
-   ClassDef(Punto,1)        
+      ClassDef(Punto,1)        
 };
 #endif

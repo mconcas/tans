@@ -7,7 +7,8 @@
 
 
 
-void steer(const TString avecProof="noProof", const TString proofString="workers=4", const Int_t NUM =9) {
+void steer(const TString avecProof="noProof", 
+  const TString proofString="workers=4", const Int_t NUM =9) {
   TFile *f = TFile::Open("htree/htree_000.root");
   if (!f) {
     Printf("no can do");
