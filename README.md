@@ -28,7 +28,7 @@ versatile as possible.
 
 From there physics classes will be derived (e.g. *Vertice Class*), 
 keeping in mind that this is a quite trivial example, so a purposal 
-coult be to structure the code and the topology thinking to build 
+could be to structure the code and the topology thinking to build 
 modular classes and «physics» wrapper easily customizable.
 
 
