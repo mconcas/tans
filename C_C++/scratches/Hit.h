@@ -28,9 +28,8 @@ class Hit : public Punto {
       static Hit *HitOnCylFromVertex(Vertice fOrigin, Double_t fTheta,
                                     Double_t fPhi, Double_t fRadius, 
                                     Int_t fLayno);
-      //Hit* HitOnCylFromHit(Hit &fOrigin, Double_t fTheta,
-      //                            Double_t fPhi, Double_t fRadius);
-
+      static Hit *HitOnCylFromHit(Hit fOrigin, Double_t fTheta,
+               Double_t fPhi, Double_t fRadius, Int_t fLayno);
    protected:
       Int_t layernum;       // It keeps track of the layer hit
       TString detectorshape;// It keeps memory of the detector's shape

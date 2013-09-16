@@ -50,8 +50,8 @@ class Punto : public TObject {
       
    protected:
       TString Name;      // Name of the 3D point
-      Double_t X;        // Cartesian coordinate "Y"
-      Double_t Y;        // Cartesian coordinate "Z"
+      Double_t X;        // Cartesian coordinate "X"
+      Double_t Y;        // Cartesian coordinate "Y"
       Double_t Z;        // Cartesian coordinate "Z"
       Double_t Theta;    // Spherical coordinate "φ"
       Double_t Phi;      // Spherical and Cylindrical coordinate "ϑ"
