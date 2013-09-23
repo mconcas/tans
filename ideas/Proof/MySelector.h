@@ -18,9 +18,10 @@
 // Header file for the classes stored in the TTree if any.
 #include <TClonesArray.h>
 #include <TObject.h>
-#include "./Punto.h"
+#include "Punto.h"
 
-// Fixed size dimensions of array or collections stored in the TTree if any.
+// Fixed size dimensions of array or collections stored in the TTree,
+// if any.
 const Int_t kMaxHits = 103;
 
 class MySelector : public TSelector {
