@@ -18,85 +18,102 @@ Punto::Punto(): TObject(),
    Phi(0.),
    CRadius(0.),
    SRadius(0.) { }
+
 Punto::Punto(TString fName, Double_t fX, Double_t fY, Double_t fZ): 
-      TObject(),
-      Name(fName),
-      X(fX),
-      Y(fY),
-      Z(fZ) { 
-         CartesiantoSpherical();   // Evaluate Spherical coords.
-         CartesiantoCylindrical(); // Evaluate Cylindrical coords.
-      }
+   TObject(),
+   Name(fName),
+   X(fX),
+   Y(fY),
+   Z(fZ) { 
+      CartesiantoSpherical();   // Evaluate Spherical coords.
+      CartesiantoCylindrical(); // Evaluate Cylindrical coords.
+   }
+
 Punto::~Punto() { 
    if (gDebug) Printf("*** \"%s\" Punto object was destroyed *** ", 
-                  Name.Data()); }
+      Name.Data()); 
+}
+
 //_________Setters________________________________
 void Punto::SetPuntoCartesians(const Double_t fX, const Double_t fY, 
    const Double_t fZ) {
-   X=fX;
-   Y=fY;
-   Z=fZ;
-   CartesiantoSpherical();
-   CartesiantoCylindrical();
+      X=fX;
+      Y=fY;
+      Z=fZ;
+      CartesiantoSpherical();
+      CartesiantoCylindrical();
 }
+
 void Punto::SetPuntoCylindricals(const Double_t fZ, 
    const Double_t fCRadius, const Double_t fPhi) {
-   Z=fZ;
-   Phi=fPhi;
-   CRadius=fCRadius;
-   CylindricaltoCartesian();
-   CartesiantoSpherical();
+      Z=fZ;
+      Phi=fPhi;
+      CRadius=fCRadius;
+      CylindricaltoCartesian();
+      CartesiantoSpherical();
 }
+
 void Punto::SetPuntoSphericals(const Double_t fTheta, 
    const Double_t fPhi, const Double_t fSRadius) {
-   Theta=fTheta;
-   Phi=fPhi;
-   SRadius=fSRadius;
-   SphericaltoCartesian();
-   CartesiantoCylindrical();
+      Theta=fTheta;
+      Phi=fPhi;
+      SRadius=fSRadius;
+      SphericaltoCartesian();
+      CartesiantoCylindrical();
 }
+
 void Punto::SetPuntoX(const Double_t fX) {
    X=fX;
    CartesiantoSpherical();
    CartesiantoCylindrical();
 }
+
 void Punto::SetPuntoY(const Double_t fY) {
    Y=fY;
    CartesiantoSpherical();
    CartesiantoCylindrical();
 }
+
 void Punto::SetPuntoZ(const Double_t fZ) {
    Z=fZ;
    CartesiantoSpherical();
-   /*Please note that is not necessary to update cylindrical 
-   coordinates because Z is common. 
-   */
+   // Please note that is not necessary to update cylindrical 
+   // coordinates because Z is common.    
 }
+
 void Punto::SetPuntoTheta(const Double_t fTheta) {
-   /*Theta is a spherical parameter. We have to invert the spherical 
-   relations due to be effective the cartesian coords update. 
-   For some reason one might have to modify just one spherical 
-   coordinate. It is fine, if just working with sph coordinates. 
-   To keep consistency it is necessary to update the cartesian ones.
-   Then it's possible apply a CartesiantoCylindrical conversion for 
-   an update to cylindrical coords.*/
+
+   ///////////////////////////////////////////////////////////////////
+   //Theta is a spherical parameter. We have to invert the spherical 
+   //relations due to be effective the cartesian coords update. 
+   //For some reason one might have to modify just one spherical 
+   //coordinate. It is fine, if just working with sph coordinates. 
+   //To keep consistency it is necessary to update the cartesian ones.
+   //Then it's possible apply a CartesiantoCylindrical conversion for 
+   //an update to cylindrical coords.
+   ///////////////////////////////////////////////////////////////////
    Theta=fTheta;
    SphericaltoCartesian();
    CartesiantoCylindrical();
 }
+
 void Punto::SetPuntoPhi(const Double_t fPhi) {
-   /*Phi is a spherical and a cylindrical parameter. 
-   We have to invert the cylindrical relations due to make effective 
-   the cartesian coords update. 
-   For some reason one might have to modify just a cylindrical 
-   coordinate. It is fine, if just working with cyl coordinates. 
-   To keep consistency it is necessary to update the cartesian ones.
-   Then it's possible apply a CartesiantoCylindrical conversion for 
-   an update to cylindrical coords.*/
+
+   ///////////////////////////////////////////////////////////////////
+   //fPhi is a spherical and a cylindrical parameter. 
+   //We have to invert the cylindrical relations due to make effective 
+   //the cartesian coords update. 
+   //For some reason one might have to modify just a cylindrical 
+   //coordinate. It is fine, if just working with cyl coordinates. 
+   //To keep consistency it is necessary to update the cartesian ones.
+   //Then it's possible apply a CartesiantoCylindrical conversion for 
+   //an update to cylindrical coords.
+   ///////////////////////////////////////////////////////////////////
    Phi=fPhi;
    CylindricaltoCartesian();
    CartesiantoSpherical();
 }
+
 void Punto::SetPuntoCRadius(const Double_t fCRadius) {
    CRadius=fCRadius;
    if (gDebug && X==0 && Y==0) 
@@ -108,6 +125,7 @@ void Punto::SetPuntoCRadius(const Double_t fCRadius) {
    CartesiantoSpherical();
    if (gDebug) Printf("Debug: \n X=%f\n Y=%f\n Z=%f",X,Y,Z); 
 }
+
 void Punto::SetPuntoSRadius(const Double_t fSRadius) {
    SRadius=fSRadius;
    if (gDebug && X==0 && Y==0 && Z==0) 
@@ -119,9 +137,11 @@ void Punto::SetPuntoSRadius(const Double_t fSRadius) {
    CartesiantoCylindrical();
    if (gDebug) Printf("Debug: \n X=%f\n Y=%f\n Z=%f",X,Y,Z);
 }
+
 void Punto::SetPuntoName(const TString fName){
    Name=fName;
 }
+
 //___________Coordinates_Tools__________
 void Punto::CartesiantoSpherical() { 
    /* Update spherical coordinates, managing exceptions and 
@@ -160,6 +180,7 @@ void Punto::CartesiantoSpherical() {
          Theta=0.;
    }
 }
+
 void Punto::CartesiantoCylindrical() { 
    /* Update spherical coordinates, managing exceptions and 
    singularities. Note that the third component [i.e "Z"] is not
@@ -192,11 +213,13 @@ void Punto::CartesiantoCylindrical() {
       }
    }
 }
+
 void Punto::SphericaltoCartesian() {
    X=SRadius*TMath::Sin(Theta)*TMath::Cos(Phi);
    Y=SRadius*TMath::Sin(Theta)*TMath::Sin(Phi);
    Z=SRadius*TMath::Cos(Theta);
 }
+
 void Punto::CylindricaltoCartesian() {
    X=CRadius*TMath::Cos(Phi);
    Y=CRadius*TMath::Sin(Phi);

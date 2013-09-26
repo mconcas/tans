@@ -12,15 +12,14 @@ ClassImp(Vertice)
 //___________{De,Con}structors_______________
 Vertice::Vertice(): Punto(),
    multiplicity(0.) { }
+
 Vertice::Vertice(TString fName, Double_t fX, Double_t fY, Double_t fZ,
-   Int_t fMult): Punto(fName,fX,fY,fZ),
-   multiplicity(fMult) { }
+   Int_t fMult): Punto(fName,fX,fY,fZ), multiplicity(fMult) { }
+
 Vertice::~Vertice() {
    if (gDebug) Printf("*** \"%s\" Vertex object was destroyed *** ", 
-                  this->GetPuntoName().Data());
+      this->GetPuntoName().Data());
 }
 
 //____________Multiplicity_Setter____________
-void Vertice::SetVerticeMult(Int_t fMult){ 
-   multiplicity=fMult; 
-}
+void Vertice::SetVerticeMult(Int_t fMult) { multiplicity=fMult; }

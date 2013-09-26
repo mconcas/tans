@@ -1,89 +1,60 @@
-#define SimulationSelector.C_cxx
-// The class definition in SimulationSelector.C.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector(). This class is derived
-// from the ROOT class TSelector. For more information on the TSelector
-// framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
-
-// The following methods are defined in this file:
-//    Begin():        called every time a loop on the tree starts,
-//                    a convenient place to create your histograms.
-//    SlaveBegin():   called after Begin(), when on PROOF called only on the
-//                    slave servers.
-//    Process():      called for each event, in this function you decide what
-//                    to read and fill your histograms.
-//    SlaveTerminate: called at the end of the loop on the tree, when on PROOF
-//                    called only on the slave servers.
-//    Terminate():    called at the end of the loop on the tree,
-//                    a convenient place to draw/fit your histograms.
-//
-// To use this file, try the following session on your Tree T:
-//
-// Root > T->Process("SimulationSelector.C.C")
-// Root > T->Process("SimulationSelector.C.C","some options")
-// Root > T->Process("SimulationSelector.C.C+")
-//
-
-#include "SimulationSelector.C.h"
+#define SimulationSelector_cxx
+#include "SimulationSelector.h"
+#include <TH1F.h>
 #include <TH2.h>
 #include <TStyle.h>
 
-
-void SimulationSelector.C::Begin(TTree * /*tree*/)
+void SimulationSelector::Init(TTree *tree)
 {
-   // The Begin() function is called at the start of the query.
-   // When running with PROOF Begin() is only called on the client.
-   // The tree argument is deprecated (on PROOF 0 is passed).
-
-   TString option = GetOption();
-
+   if (!tree) return;
+   fChain = tree;
+   fChain->SetBranchAddress("Vertices", &fAnalyzedVert, &b_vertices);
 }
 
-void SimulationSelector.C::SlaveBegin(TTree * /*tree*/)
+Bool_t SimulationSelector::Notify()
 {
-   // The SlaveBegin() function is called after the Begin() function.
-   // When running with PROOF SlaveBegin() is called on each slave server.
-   // The tree argument is deprecated (on PROOF 0 is passed).
-
-   TString option = GetOption();
-
-}
-
-Bool_t SimulationSelector.C::Process(Long64_t entry)
-{
-   // The Process() function is called for each entry in the tree (or possibly
-   // keyed object in the case of PROOF) to be processed. The entry argument
-   // specifies which entry in the currently loaded tree is to be processed.
-   // It can be passed to either SimulationSelector.C::GetEntry() or TBranch::GetEntry()
-   // to read either all or the required parts of the data. When processing
-   // keyed objects with PROOF, the object is already loaded and is available
-   // via the fObject pointer.
-   //
-   // This function should contain the "body" of the analysis. It can contain
-   // simple or elaborate selection criteria, run algorithms on the data
-   // of the event and typically fill histograms.
-   //
-   // The processing can be stopped by calling Abort().
-   //
-   // Use fStatus to set the return value of TTree::Process().
-   //
-   // The return value is currently not used.
-
-
+   if (gDebug) Printf("New File/TTree was opened.");
    return kTRUE;
 }
 
-void SimulationSelector.C::SlaveTerminate()
+void SimulationSelector::Begin(TTree * /*tree*/)
 {
-   // The SlaveTerminate() function is called after all entries or objects
-   // have been processed. When running with PROOF SlaveTerminate() is called
-   // on each slave server.
+   // The Begin() function is called at the start of the query.
+   // With PROOF Begin() os only called on the client.
+   Printf("Session started from client %s", gSystem->HostName());
+   TFile *kinem=new TFile("kinem.root", "READ");
+   // Debugger
+   if (gDebug && kinem->IsZombie()) Printf("WARNING: there was some \
+      problem opening \"kinem.root\" file. ");
+
+   etahist=static_cast<TH1F*>(kinem->Get("heta"));
+}
+
+void SimulationSelector::SlaveBegin(TTree * /*tree*/)
+{
+   // SlaveBegin() is called for each entry in the tree/keyed object. 
+}
+
+Bool_t SimulationSelector::Process(Long64_t entry)
+{
+   // The Process() function is called for each entry in the tree 
+   // (or possibly keyed object in the case of PROOF) to be processed.
+   // The processing can be stopped by calling Abort().
+   return kTRUE;
+}
+
+void SimulationSelector::SlaveTerminate()
+{
+   // The SlaveTerminate() function is called after all entries or 
+   // objects have been processed. When running with PROOF 
+   // SlaveTerminate() is calledon each slave server.
 
 }
 
-void SimulationSelector.C::Terminate()
+void SimulationSelector::Terminate()
 {
-   // The Terminate() function is the last function to be called during
-   // a query. It always runs on the client, it can be used to present
-   // the results graphically or save the results to file.
+   // The Terminate() function is the last function to be called 
+   // during a query. It always runs on the client, it can be used to 
+   // present the results graphically or save the results to file.
 
 }
