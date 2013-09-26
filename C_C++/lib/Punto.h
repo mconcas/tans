@@ -6,8 +6,8 @@
 
 #ifndef PUNTO_H
 #define PUNTO_H
-#include "TObject.h"
-#include "TString.h"
+#include <TObject.h>
+#include <TString.h>
 
 class Punto : public TObject {
    

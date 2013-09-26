@@ -59,7 +59,6 @@ Hit *Hit::HitOnCylFromVertex(Vertice &fOrigin, Double_t fTheta,
       // Build item in return...
       Hit *OnCyl=new Hit(hitname, fShape, fLayno, vertname, coord[0], 
          coord[1], coord[2]);
-      Printf("[DEBUG]: CRadius= %lf, SRadius= %lf", OnCyl->GetPuntoCRadius(), OnCyl->GetPuntoSRadius());
       return OnCyl;
    }  
 }
@@ -89,7 +88,6 @@ Hit *Hit::HitOnCylFromHit(Hit &fOrigin, Double_t fTheta,
       const Double_t t=(-(xO*cosphi+yO*sinphi)+TMath::Sqrt((xO*cosphi
          +yO*sinphi)*(xO*cosphi+yO*sinphi)-xO*xO-yO*yO
          +fRadius*fRadius))/sintheta;
-      Printf("t value is: %lf", t); 
       Double_t coord[3];
       coord[0]=xO+t*sintheta*cosphi; 
       coord[1]=yO+t*sintheta*sinphi;
@@ -109,6 +107,8 @@ Hit *Hit::HitOnCylWithMScat(Hit &fOrigin, Double_t fRadius,
    ///////////////////////////////////////////////////////////////////
    // θo represents the rms of a gaussian distribution centred in 0.
    // Formula used for the MScattering θo evaluation:
+   // Dimensionalities:
+   // [x]=cm ; [X_0]=cm; [c]=3x10**8; [b]=#; [fP]=MeV/c
    // θo = (13.6 MeV/β*c*p)*Z*(√(x/X_0))[1+0.038*Ln(x/X_0)]
    // Get the Radiation Length: X_0
    ///////////////////////////////////////////////////////////////////
@@ -125,10 +125,8 @@ Hit *Hit::HitOnCylWithMScat(Hit &fOrigin, Double_t fRadius,
    gRandom=new TRandom3( time(NULL) );
 
    // Generate θ form Gaussian distr.
-   Double_t thetahit;
-   do thetahit=gRandom->Gaus(0.,fThetaZero);
-   while(thetahit<0);
-   Printf("Angolo thetazero: %lf \nEstratto: %lf",fThetaZero ,thetahit);
+   Double_t devthetahit=gRandom->Gaus(0.,fThetaZero);
+   Double_t thetahit=fOrigin.GetPuntoTheta()+devthetahit;
    // A uniformly-distributed φ angle. 
    Double_t phihit=gRandom->Rndm()*TMath::Pi()*2;
 

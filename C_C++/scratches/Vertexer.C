@@ -33,39 +33,6 @@ void Vertex_generator(const Int_t nVertices=10000,
    TH1F *hisMultptr=static_cast<TH1F*>(infile.Get(fMulDist.Data()));
    // Containters.
    TTree *tree=new TTree("Vertices","Tree with generated vertices.");
-   // TString vName;
-   // Int_t fM;
-   // Double_t fX,fY,fZ;
-   // tree->Branch("vName",&vName,"vName/S");
-   // tree->Branch("vM",&fM,"vM/I");
-   // tree->Branch("vX",&fX,"vX/F");
-   // tree->Branch("vY",&fY,"vY/F");
-   // tree->Branch("vZ",&fZ,"vZ/F");
-   // outfile.cd();
-   // // Loop on nVertices.   
-   // for(Int_t i=0;i<nVertices;++i) {
-   //    TString fName;
-   //    vName.Form("Vertice n°%d",i);
-   //    // Units used: millimeters
-   //    Vertice vertex=Vertice(vName, 
-   //       gRandom->Gaus(0,0.1),
-   //       gRandom->Gaus(0,0.1),
-   //       gRandom->Gaus(0,53),
-   //       (Int_t)(hisMultptr->GetRandom()));
-   //       fName=vertex.GetPuntoName().Data();
-   //       fM=vertex.GetVerticeMult();
-   //       fX=vertex.GetPuntoX();
-   //       fY=vertex.GetPuntoY();
-   //       fZ=vertex.GetPuntoZ();
-   //    if (gDebug) {
-   //       Printf("Vertex Name: %s", vertex.GetPuntoName().Data());
-   //       Printf("Vertex Mult: %d", vertex.GetVerticeMult());
-   //       Printf("Vertex X: %f",    vertex.GetPuntoX());
-   //       Printf("Vertex Y: %f",    vertex.GetPuntoY());
-   //       Printf("Vertex Z: %f",    vertex.GetPuntoZ());         
-   //    }
-   //   tree->Fill();
-   // }
    Vertice vertex;
    tree->Branch("Vertices", &vertex);
    TString vName;

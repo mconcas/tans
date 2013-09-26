@@ -2,8 +2,8 @@
 #include "Punto.h"
 #include "Vertice.h"
 #include "Hit.h"
-#include "TSystem.h"
-#include "TMath.h"
+#include <TSystem.h>
+#include <TMath.h>
 #include <TMaterial.h>
 #include <TRandom3.h>
 #endif
@@ -32,7 +32,7 @@ Hit *Hit::HitOnCylFromVertex(Vertice &fOrigin, Double_t fTheta,
    if(fTheta==0 || fTheta==TMath::Pi()) { 
       Hit *OnCyl=new Hit();
       if (gDebug) Printf("ϑ=0 exception, it will be no scattering.");
-      OnCyl->SetPuntoName("ϑ=0 exception, it will be no scattering.");
+      OnCyl->SetPuntoName("ϑ=0 exception, it didn't any scattering.");
       return OnCyl;
    }   
    else {
@@ -46,18 +46,17 @@ Hit *Hit::HitOnCylFromVertex(Vertice &fOrigin, Double_t fTheta,
       const Double_t costheta=TMath::Cos(fTheta);
       const Double_t cosphi=TMath::Cos(fPhi);
       const TString vertname=fOrigin.GetPuntoName();
-      /*Compute the "t" value from vertex coordinates and angles.*/
+      // Compute the "t" value from vertex coordinates and angles.
       const Double_t t=(-(xO*cosphi+yO*sinphi)+TMath::Sqrt((xO*cosphi
          +yO*sinphi)*(xO*cosphi+yO*sinphi)-xO*xO-yO*yO
-      +fRadius*fRadius))/TMath::Abs(sintheta); 
-         /*Abs is due the two possible results.*/
+         +fRadius*fRadius))/sintheta;
       Double_t coord[3];
       coord[0]=xO+t*sintheta*cosphi; 
       coord[1]=yO+t*sintheta*sinphi;
       coord[2]=zO+t*costheta;
       TString hitname;
       hitname.Form("From_%s_on_layno_%d",vertname.Data(),fLayno);
-      /*Build item in return...*/
+      // Build item in return...
       Hit *OnCyl=new Hit(hitname, fShape, fLayno, vertname, coord[0], 
          coord[1], coord[2]);
       return OnCyl;
@@ -67,12 +66,11 @@ Hit *Hit::HitOnCylFromVertex(Vertice &fOrigin, Double_t fTheta,
 Hit *Hit::HitOnCylFromHit(Hit &fOrigin, Double_t fTheta,
    Double_t fPhi, Double_t fRadius, Int_t fLayno) {
    // Please note: the reference system always referred to the Z axis.
-
    // Manage the ϑ=0 exception
-   if(fTheta==0 || fTheta==TMath::Pi()) { 
+   if(fTheta==0 || TMath::Abs(fTheta)==TMath::Pi()) { 
       Hit *OnCyl=new Hit();
       if (gDebug) Printf("ϑ=0 exception, it will be no scattering.");
-      OnCyl->SetPuntoName("ϑ=0 exception, it will be no scattering.");
+      OnCyl->SetPuntoName("ϑ=0 exception, it didn't any scattering.");
       return OnCyl;
    }   
    else {
@@ -89,8 +87,7 @@ Hit *Hit::HitOnCylFromHit(Hit &fOrigin, Double_t fTheta,
       // Compute the "t" value from vertex coordinates and angles.
       const Double_t t=(-(xO*cosphi+yO*sinphi)+TMath::Sqrt((xO*cosphi
          +yO*sinphi)*(xO*cosphi+yO*sinphi)-xO*xO-yO*yO
-      +fRadius*fRadius))/TMath::Abs(sintheta); 
-         // Abs is due the two possible results.
+         +fRadius*fRadius))/sintheta;
       Double_t coord[3];
       coord[0]=xO+t*sintheta*cosphi; 
       coord[1]=yO+t*sintheta*sinphi;
@@ -110,6 +107,8 @@ Hit *Hit::HitOnCylWithMScat(Hit &fOrigin, Double_t fRadius,
    ///////////////////////////////////////////////////////////////////
    // θo represents the rms of a gaussian distribution centred in 0.
    // Formula used for the MScattering θo evaluation:
+   // Dimensionalities:
+   // [x]=cm ; [X_0]=cm; [c]=3x10**8; [b]=#; [fP]=MeV/c
    // θo = (13.6 MeV/β*c*p)*Z*(√(x/X_0))[1+0.038*Ln(x/X_0)]
    // Get the Radiation Length: X_0
    ///////////////////////////////////////////////////////////////////
@@ -126,8 +125,8 @@ Hit *Hit::HitOnCylWithMScat(Hit &fOrigin, Double_t fRadius,
    gRandom=new TRandom3( time(NULL) );
 
    // Generate θ form Gaussian distr.
-   Double_t thetahit=gRandom->Gaus(0.,fThetaZero);
-
+   Double_t devthetahit=gRandom->Gaus(0.,fThetaZero);
+   Double_t thetahit=fOrigin.GetPuntoTheta()+devthetahit;
    // A uniformly-distributed φ angle. 
    Double_t phihit=gRandom->Rndm()*TMath::Pi()*2;
 

@@ -1,10 +1,10 @@
 #if !defined (__CINT__) || defined (__MAKECINT__)
-#include "TMath.h"
-#include "Riostream.h"
+#include <TMath.h>
+#include <Riostream.h>
 #include "Punto.h"
-#include "TObject.h"
-#include "TString.h"
-#include "TSystem.h"
+#include <TObject.h>
+#include <TString.h>
+#include <TSystem.h>
 #endif
 
 ClassImp(Punto)
@@ -25,8 +25,8 @@ Punto::Punto(TString fName, Double_t fX, Double_t fY, Double_t fZ):
    X(fX),
    Y(fY),
    Z(fZ) { 
-      CartesiantoSpherical();   // Evaluate Spherical coords.
-      CartesiantoCylindrical(); // Evaluate Cylindrical coords.
+      CartesiantoSpherical();   // Set Spherical coords.
+      CartesiantoCylindrical(); // Set Cylindrical coords.
    }
 
 Punto::~Punto() { 
@@ -78,7 +78,7 @@ void Punto::SetPuntoZ(const Double_t fZ) {
    Z=fZ;
    CartesiantoSpherical();
    // Please note that is not necessary to update cylindrical 
-   // coordinates because Z is common.    
+   // coordinates because Z is the same coord.    
 }
 
 void Punto::SetPuntoTheta(const Double_t fTheta) {
@@ -148,8 +148,10 @@ void Punto::CartesiantoSpherical() {
    singularities.*/
 
    if ( (SRadius=TMath::Sqrt(X*X+Y*Y+Z*Z))!=0 ) {
+      
       // Theta
       Theta=TMath::ACos(Z/SRadius);
+
       // Phi
       if (X>0.) {
          if (Y>0.) Phi=TMath::ATan(Y/X);               // X>0. et Y>0.
@@ -176,8 +178,8 @@ void Punto::CartesiantoSpherical() {
       }
    }
    else {
-         Phi=0.;
-         Theta=0.;
+      Phi=0.;
+      Theta=0.;
    }
 }
 
