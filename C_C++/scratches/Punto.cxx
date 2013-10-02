@@ -1,6 +1,5 @@
 #if !defined (__CINT__) || defined (__MAKECINT__)
 #include <TMath.h>
-#include <Riostream.h>
 #include "Punto.h"
 #include <TObject.h>
 #include <TString.h>
@@ -34,7 +33,7 @@ Punto::~Punto() {
       Name.Data()); 
 }
 
-//_________Setters________________________________
+//_________Setters___________________________
 void Punto::SetPuntoCartesians(const Double_t fX, const Double_t fY, 
    const Double_t fZ) {
       X=fX;
@@ -148,7 +147,7 @@ void Punto::CartesiantoSpherical() {
    singularities.*/
 
    if ( (SRadius=TMath::Sqrt(X*X+Y*Y+Z*Z))!=0 ) {
-      
+
       // Theta
       Theta=TMath::ACos(Z/SRadius);
 
