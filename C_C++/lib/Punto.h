@@ -1,5 +1,6 @@
 //////////////////////////////////////////////////////////////////////
-//Punto class: basic geometry class.
+//class Punto: basic geometic class.
+//
 //Written by Matteo Concas: mett1990@gmail.com 
 //Exam: «Tecniche di analisi numerica e simulazione»
 //////////////////////////////////////////////////////////////////////
@@ -12,6 +13,7 @@
 class Punto : public TObject {
    
    public:
+      //____________{Con,Des}tructors____________
       Punto();
       Punto(TString fName, Double_t fX, Double_t fY, Double_t fZ);
       virtual ~Punto();
@@ -53,8 +55,8 @@ class Punto : public TObject {
       Double_t X;        // Cartesian coordinate "X"
       Double_t Y;        // Cartesian coordinate "Y"
       Double_t Z;        // Cartesian coordinate "Z"
-      Double_t Theta;    // Spherical coordinate "φ"
-      Double_t Phi;      // Spherical and Cylindrical coordinate "ϑ"
+      Double_t Theta;    // Spherical coordinate "ϑ"
+      Double_t Phi;      // Spherical and Cylindrical coordinate "φ"
       Double_t CRadius;  // Cylindrical Radius
       Double_t SRadius;  // Spherical Radius
 

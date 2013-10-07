@@ -12,59 +12,67 @@
 ClassImp (Hit)
 
 Hit::Hit(): Punto(),
-   layernum(0) {
-      detectorshape="";
-      vtxname="";
-}
+   layernum(0),
+   detectorshape(""),
+   vtxname("") { }
 
 Hit::Hit(TString fId, TString fDetShape, Int_t fLayer, 
    TString fVtxName, Double_t fX, Double_t fY, Double_t fZ): 
       Punto(fId, fX, fY, fZ),
-      layernum(fLayer) { 
-      detectorshape=fDetShape;
-      vtxname=fVtxName;
-}
+      layernum(fLayer),
+      detectorshape(fDetShape),
+      vtxname(fVtxName) { }
 
 Hit::~Hit() {
    if (gDebug) Printf("*** \"%s\" Hit object was destroyed *** ", 
       this->GetPuntoName().Data());
 }
 
+Double_t Hit::ComputeT(Double_t fTheta, Double_t fPhi,
+   Double_t fXO, Double_t fYO, Double_t fRadius) {
+      const Double_t sintheta=TMath::Sin(fTheta);
+      const Double_t sinphi=TMath::Sin(fPhi);
+      const Double_t cosphi=TMath::Cos(fPhi);
+      const Double_t t=(-(fXO*cosphi+fYO*sinphi)
+            +TMath::Sqrt((fXO*cosphi+fYO*sinphi)*(fXO*cosphi
+            +fYO*sinphi)-fXO*fXO-fYO*fYO+fRadius*fRadius))/sintheta;
+   return t;
+}
 
 Hit *Hit::HitOnCylFromVertex(Vertice &fOrigin, Direzione &fDirect,
    Double_t fRadius, Int_t fLayno) {
 
-      // Extract theta and phi.
+      // Extract theta and phi from "Direzione".
       const Double_t fThe=fDirect.GetDirectTheta();
       const Double_t fPhi=fDirect.GetDirectPhi();
-   
-      // Manage the ϑ=0 exception*/
+      
+      ////////////////////////////////////////////////////////////////
+      // Manage the ϑ=0 exception
+      ////////////////////////////////////////////////////////////////
       if(fThe==0 || fThe==TMath::Pi()) { 
          Hit *OnCyl=new Hit();
          if (gDebug) Printf("ϑ=0 exception, \
             it will be no scattering.");
          OnCyl->SetPuntoName("ϑ=0 exception, \
-            it didn't any scattering.");
+            it didn't have any scattering.");
          
          return OnCyl;
       }   
       else {
 
-      // Get origin coordinates: xO and yO
+      ////////////////////////////////////////////////////////////////
+      // Get origin coordinates: xO and yO from "Vertice"
+      ////////////////////////////////////////////////////////////////
       const TString fShape="Cylindrical";
       const Double_t xO=fOrigin.GetPuntoX();
       const Double_t yO=fOrigin.GetPuntoY();
       const Double_t zO=fOrigin.GetPuntoZ();
-      const Double_t sintheta=TMath::Sin(fThe);
-      const Double_t sinphi=TMath::Sin(fPhi);
-      // const Double_t costheta=TMath::Cos(fThe);
-      const Double_t cosphi=TMath::Cos(fPhi);
       const TString vertname=fOrigin.GetPuntoName();
       
+      ////////////////////////////////////////////////////////////////
       // Compute the "t" value.
-      const Double_t t=(-(xO*cosphi+yO*sinphi)
-         +TMath::Sqrt((xO*cosphi+yO*sinphi)*(xO*cosphi
-         +yO*sinphi)-xO*xO-yO*yO+fRadius*fRadius))/sintheta;
+      ////////////////////////////////////////////////////////////////
+      const Double_t t=ComputeT(fThe,fPhi,xO,yO,fRadius);
 
       // Set Name.
       TString hitname;
@@ -95,7 +103,7 @@ Hit *Hit::GetHitOnCyl(Direzione &fDirect, Double_t fRadius,
          // θo = (13.6 MeV/β*c*p)*Z*(√(x/X_0))[1+0.038*Ln(x/X_0)]
          // Get the Radiation Length: X_0
          /////////////////////////////////////////////////////////////
-         Double_t X_0 = fMaterial.GetRadLength();
+         const Double_t X_0 = fMaterial.GetRadLength();
          
          /////////////////////////////////////////////////////////////  
          // WARNING!
@@ -103,55 +111,65 @@ Hit *Hit::GetHitOnCyl(Direzione &fDirect, Double_t fRadius,
          // [fP]= MeV/c it's obvious that "c" wouldn't appear in this 
          // computation.
          /////////////////////////////////////////////////////////////
-         Double_t fThetaZero=(13.6/(fBeta*fP))*fZ*\
+         const Double_t fThetaZero=(13.6/(fBeta*fP))*fZ*\
          TMath::Sqrt(fWidth/X_0)*(1+0.038*TMath::Log(fWidth/X_0));
-   
-         // Generate θ form Gaussian distr.
+         
+         /////////////////////////////////////////////////////////////
+         // Generate θ form Gaussian distribution with mean 0 and 
+         // rms θo. Phi is uniformely distributed between 0<=φ<2Pi
+         /////////////////////////////////////////////////////////////
          if (gRandom) gRandom->Delete();
          gRandom=new TRandom3( time(NULL) );
-         Double_t thetalocal=gRandom->Gaus(0.,fThetaZero); 
-         Double_t philocal=gRandom->Rndm()*2*TMath::Pi();
+         const Double_t thetalocal=gRandom->Gaus(0.,fThetaZero); 
+         const Double_t philocal=gRandom->Rndm()*2*TMath::Pi();
+         if (gDebug) Printf("ϑ= %f, φ= %f", thetalocal, philocal);
 
-         // Refer to the Laboratory Reference System.
+         /////////////////////////////////////////////////////////////
+         // Rotate direction in order to refer it to the Laboratory 
+         // Reference System.
+         /////////////////////////////////////////////////////////////
          fDirect.Direzione::Rotate(thetalocal, philocal, 
             "Multiple Scattering.");
+         if (gDebug) Printf("ϑ= %f, φ= %f", fDirect.GetDirectPhi(),
+            fDirect.GetDirectTheta());
       }  
 
-      // Extract theta and phi.
+      // Extract theta and phi from "Direzione".
       const Double_t fThe=fDirect.GetDirectTheta();
       const Double_t fPhi=fDirect.GetDirectPhi();
       
+      ////////////////////////////////////////////////////////////////
       // Manage the ϑ=0 exception
+      ////////////////////////////////////////////////////////////////
       if(fThe==0 || TMath::Abs(fThe)==TMath::Pi()) { 
          Hit *OnCyl=new Hit();
          if (gDebug) Printf("ϑ=0 exception, \
             it will be no scattering.");
          OnCyl->SetPuntoName("ϑ=0 exception, \
-            it didn't any scattering.");
+            it didn't have any scattering.");
 
          return OnCyl;
       } 
 
+      ////////////////////////////////////////////////////////////////
       // If ϑ!=0  
+      ////////////////////////////////////////////////////////////////
       else {
 
-         // Get origin coordinates: xO and yO 
+         // Set data
          const TString fShape="Cylindrical";
-         const Double_t sintheta=TMath::Sin(fThe);
-         const Double_t sinphi=TMath::Sin(fPhi);
-         // const Double_t costheta=TMath::Cos(fThe);
-         const Double_t cosphi=TMath::Cos(fPhi);
          const TString origname=Name;
-
-         // Compute the "t" value.
-         const Double_t t=(-(X*cosphi+Y*sinphi)
-            +TMath::Sqrt((X*cosphi+Y*sinphi)*(X*cosphi+Y*sinphi)
-            -X*X-Y*Y+fRadius*fRadius))/sintheta;
-         
-         // Set Name.
          TString hitname;
          hitname.Form("From_%s_on_layno_%d", origname.Data(), 
             fLayno);
+
+         /////////////////////////////////////////////////////////////
+         // Compute the "t" value.
+         /////////////////////////////////////////////////////////////
+         const Double_t t=ComputeT(fDirect.GetDirectTheta(),
+            fDirect.GetDirectPhi(),X,Y,fRadius);
+         
+         
             
          // Item in return.
          Hit *OnCyl=new Hit(hitname, fShape, fLayno, origname, 

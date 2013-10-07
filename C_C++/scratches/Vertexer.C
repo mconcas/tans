@@ -15,11 +15,14 @@
 #include "Vertice.h"
 #endif
 
-void Vertex_generator(const Int_t nVertices=10000, 
+void VerticesFileGenerator(const Int_t nVertices=10000, 
                const TString fInData="kinem.root",
                const TString fMulDist="hmul",
-               /*const TString fEtaDist="heta",*/ 
                const TString fOutData="vertices.root") {
+   
+   ///////////////////////////////////////////////////////////////////
+   // It creates output file.
+   ///////////////////////////////////////////////////////////////////
    TFile outfile(fOutData.Data(),"RECREATE");
    if (outfile.IsZombie()) Printf("There was a problem creating %s \
                                  file.", fOutData.Data());  
