@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-//class Direzione: basic geometic class.
+//class Direzione: basic geometric class.
 //
 //Written by Matteo Concas: mett1990@gmail.com 
 //Exam: «Tecniche di analisi numerica e simulazione»

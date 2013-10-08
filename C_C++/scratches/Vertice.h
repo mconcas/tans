@@ -19,20 +19,17 @@
 class Vertice : public Punto {
    public: 
       Vertice();
-
       Vertice(TString fName, Double_t fX, Double_t fY, Double_t fZ, 
          Int_t fMult);
-
       virtual ~Vertice();
-
       //____________Setters______________________
       void SetVerticeMult(Int_t fMult);
-      
       //____________Inline_Getters_______________
       Int_t GetVerticeMult() const {return multiplicity;}
       
    protected:
-      Int_t multiplicity; // Number of generated tracks. 
+      Int_t multiplicity; // Number of generated tracks.
+
    ClassDef(Vertice,1)
 };
 

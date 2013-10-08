@@ -1,8 +1,8 @@
 #if !defined (__CINT__) || defined (__MAKECINT__)
 #include "Direzione.h"
 #include <TMath.h>
-#include <TString.h>
 #include <TObject.h>
+#include <TString.h>
 #endif
 
 ClassImp(Direzione)

@@ -3,10 +3,10 @@
 #include "Vertice.h"
 #include "Hit.h"
 #include "Direzione.h"
-#include <TSystem.h>
 #include <TMath.h>
 #include <TMaterial.h>
 #include <TRandom3.h>
+#include <TSystem.h>
 #endif
 
 ClassImp (Hit)
@@ -166,12 +166,9 @@ Hit *Hit::GetHitOnCyl(Direzione &fDirect, Double_t fRadius,
          /////////////////////////////////////////////////////////////
          // Compute the "t" value.
          /////////////////////////////////////////////////////////////
-         const Double_t t=ComputeT(fDirect.GetDirectTheta(),
-            fDirect.GetDirectPhi(),X,Y,fRadius);
+         const Double_t t=ComputeT(fThe, fPhi, X, Y, fRadius);
          
-         
-            
-         // Item in return.
+         // Returned item.
          Hit *OnCyl=new Hit(hitname, fShape, fLayno, origname, 
                X+t*fDirect.GetDirCos1(), 
                Y+t*fDirect.GetDirCos2(),
