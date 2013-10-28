@@ -105,7 +105,7 @@ Bool_t NewSelector::Process(Long64_t entry)
 
    Printf("Ev=%lld Mult=%d(%d) X=%lf Y=%lf Z=%lf",
       entry,
-      fVertMult.GetM(), num, fVertMult.GetX(), fVertMult.GetY(), fVertMult.GetZ());
+      fVertMult.mult, num, fVertMult.X, fVertMult.Y, fVertMult.Z);
 
    Punto *tst;
    for (Int_t j=0; j<num; j++){

@@ -19,10 +19,10 @@
 #include <TObject.h>
 #include "./Punto.h"
 
-// typedef struct {
-   // Double_t X,Y,Z;
-   // Int_t mult;
-// } POINT;
+typedef struct {
+   Double_t X,Y,Z;
+   Int_t mult;
+} POINT;
 
 class NewSelector : public TSelector {
 public :
@@ -31,7 +31,7 @@ public :
    Int_t           fNumberOfEvents;
 
    // Declaration of leaf types
-   Punto          fVertMult;
+   POINT          fVertMult;
    TClonesArray   *fHits;
 
    TH1I           *fHistX;
