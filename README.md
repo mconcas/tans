@@ -1,7 +1,7 @@
 TANS
 ====
 
-This repository is a collection ofclasses and macro for a vertexer 
+This repository is a collection of classes and macro for a vertexer 
 simulation. These are going to run using the
 [ROOT](http://root.cern.ch/drupal) framework for data analysis. 
 
