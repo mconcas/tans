@@ -27,7 +27,8 @@ order to result as versatile as possible.
 
 From there will be derived physics classes  (e.g. *Vertice Class*), 
 keeping in mind that this is a quite trivial example, so a nice 
-purposal could be to structure the code thinking in building modular classes and physics «wrapper» easily customizable.
+purposal could be to structure the code thinking in building modular 
+classes and physics «wrapper» easily customizable.
 
 
 
