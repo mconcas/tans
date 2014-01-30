@@ -1,0 +1,286 @@
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//
+// This macro generates collision vertices and events propagation.
+// Written by Matteo Concas: mett1990@gmail.com 
+// Exam: «Tecniche di analisi numerica e simulazione»
+//
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+#if !defined (__CINT__) || defined (__MAKECINT__)
+#include "Direzione.h"
+#include "Hit.h"
+#include "Vertice.h"
+#include <TChain.h>
+#include <TClonesArray.h>
+#include <TFile.h>
+#include <TH1F.h>
+#include <TRandom3.h>
+#include <TMaterial.h>
+#include <TMath.h>
+#include <TSystem.h>
+#include <TTree.h>
+#endif
+
+Int_t EventGenerator( const Int_t   debug=0, 
+                      const Int_t   nVertices=100000,
+                      const TString fOutFileName="events.root",
+                      const Int_t   fCustomMult=0,
+                      const Bool_t  fMultiScat=kTRUE, 
+                      const TString fInData="kinem.root",
+                      const TString fMulDist="hmul",
+                      const TString fEtadist="heta" ) {
+
+   ///////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////
+   // Setup the environment.
+   // 
+   // ~ Create output file.
+   // ~ Reset gRandom global pointer.
+   // ~ Extract TH1F form input file.
+   // ~ Define and create the containers.
+   // ~ Define problems specifications, e.g. TMaterials.
+   //
+   ///////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////
+   
+   gDebug=debug;
+   TFile outfile(fOutFileName.Data(),"RECREATE");
+   if (outfile.IsZombie()) {
+      Printf("A problem occured creating %s file", 
+              fOutFileName.Data());
+      return 1; 
+   }
+   if ( gRandom ) delete gRandom;
+   gRandom=new TRandom3( time( NULL ) );
+   TFile infile(fInData.Data(),"READ");
+   TH1F *histEtaptr=static_cast<TH1F*>(infile.Get(fEtadist.Data()));
+
+   // If it's not a custom (or debug) run -> fCustomMult=0.
+   // Read input data and store them in a new histogram pointer.
+   TH1F *hisMulptr=static_cast<TH1F*>(infile.Get(fMulDist.Data()));
+   outfile.cd();
+
+   // Trees
+   TTree *MainTree=new TTree("Raw Generat.","Each event consists in a\
+      vertex and a multiplicity of hits.");
+   TTree *EventsTree=new TTree("Events Tree","This contains the true\
+      events.");
+
+   // TMaterials stock useful data source for multiple scattering.
+   TMaterial Beryllium("Berillio","Be",8,4,1.85,35.28,0);
+   TMaterial Silicon("Silicio","Si",28,14,2.33,9.37,0);
+
+   // Containers for MainTree
+   TClonesArray* hitsbpipeptr = new TClonesArray("Hit",100);
+   TClonesArray &hitsbpipe = *hitsbpipeptr;
+   TClonesArray* hitsfirstptr = new TClonesArray("Hit",100);
+   TClonesArray &hitsfirst = *hitsfirstptr;
+   TClonesArray* hitssecondptr= new TClonesArray("Hit",100);
+   TClonesArray &hitssecond = *hitssecondptr;
+   TClonesArray* direction1ptr = new TClonesArray("Direzione",100);
+   TClonesArray &direction1 = *direction1ptr;
+   TClonesArray* direction2ptr = new TClonesArray("Direzione",100);
+   TClonesArray &direction2 = *direction2ptr;
+   TClonesArray* direction3ptr = new TClonesArray("Direzione",100);
+   TClonesArray &direction3 = *direction3ptr;
+
+   // Containers for EventsTree
+   TClonesArray* rhitsbpipeptr = new TClonesArray("Hit",100);
+   TClonesArray &rhitsbpipe = *rhitsbpipeptr;
+   TClonesArray* rhitsfirstptr = new TClonesArray("Hit",100);
+   TClonesArray &rhitsfirst = *rhitsfirstptr;
+   TClonesArray* rhitssecondptr = new TClonesArray("Hit",100);
+   TClonesArray &rhitssecond = *rhitssecondptr;
+   TClonesArray* rdirection1ptr = new TClonesArray("Direzione",100);
+   TClonesArray &rdirection1 = *rdirection1ptr;
+   TClonesArray* rdirection2ptr = new TClonesArray("Direzione",100);
+   TClonesArray &rdirection2 = *rdirection2ptr;
+   TClonesArray* rdirection3ptr = new TClonesArray("Direzione",100);
+   TClonesArray &rdirection3 = *rdirection3ptr;
+
+   // «Reassuring» debug printing.
+   Printf("TClonesArrays succesfully created.");
+
+   Vertice* vertex=new Vertice();
+   
+   // MainTree branches.
+   MainTree->Branch("Vertices",    vertex);
+   MainTree->Branch("Beampipe",    &hitsbpipeptr);
+   MainTree->Branch("Firstlayer",  &hitsfirstptr);
+   MainTree->Branch("Secondlayer", &hitssecondptr);
+   MainTree->Branch("Direction1",  &direction1ptr);
+   MainTree->Branch("Direction2",  &direction2ptr);
+   MainTree->Branch("Direction3",  &direction3ptr);
+
+   // EventTree branches.
+   EventsTree->Branch("Vertices",    vertex);
+   EventsTree->Branch("Beampipe",    &rhitsbpipeptr);
+   EventsTree->Branch("Firstlayer",  &rhitsfirstptr);
+   EventsTree->Branch("Secondlayer", &rhitssecondptr);
+   EventsTree->Branch("Direction1",  &rdirection1ptr);
+   EventsTree->Branch("Direction2",  &rdirection2ptr);
+   EventsTree->Branch("Direction3",  &rdirection3ptr);
+
+
+   ///////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////
+   //
+   // Loop for events generation.
+   //
+   ///////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////
+
+   for(Int_t i=0;i<nVertices;++i) {
+      Int_t k = 0;
+      Int_t u = 0;
+      Int_t v = 0;
+      // Double_t mulRaw;
+      switch ( fCustomMult ) {
+         case -1:
+
+            //////////////////////////////////////////////////////////
+            // Pick an uniformly distributed multiplicity and set it 
+            // for the vertex instance.
+            //////////////////////////////////////////////////////////
+            vertex->SetVerticeMult( static_cast<Int_t>
+               (gRandom->Rndm()*52));
+            break;
+
+         case 0:
+
+            //////////////////////////////////////////////////////////         
+            // Pick athe multiplicity from a given distribution and 
+            // set it in the vertex instance.
+            //////////////////////////////////////////////////////////
+            if(gDebug) Printf("[debug] multiplicity picked from %s ",
+                fInData.Data());
+            
+            // mulRaw = hisMulptr->GetRandom();
+            vertex->SetVerticeMult( static_cast<Int_t>( hisMulptr->
+               GetRandom()+0.5) ); // static_cast<Int_t>() returns 
+                                   // rounded down values.
+            break;
+
+         default:
+            Printf("[debug]: entered in the default option.");
+
+            //////////////////////////////////////////////////////////            
+            // Multiplicity is manually set by the function invoker.
+            //////////////////////////////////////////////////////////
+            if( fCustomMult>0 ) vertex->SetVerticeMult( fCustomMult );
+            else return 1;
+            break;
+      }
+
+      ////////////////////////////////////////////////////////////////
+      // Generate random vertex position.
+      vertex->SetPuntoX(gRandom->Gaus(0,0.1));
+      vertex->SetPuntoY(gRandom->Gaus(0,0.1));
+      vertex->SetPuntoZ(gRandom->Gaus(0,53));
+
+      ////////////////////////////////////////////////////////////////
+      // Hits generation loop.
+      Int_t lim=vertex->GetVerticeMult();
+      for(Int_t j=0; j<lim; ++j) {
+
+         Double_t temp=2*gRandom->Rndm()*TMath::Pi();
+         Direzione* fDirect=new Direzione(2*TMath::ATan(TMath::Exp(
+            -histEtaptr->GetRandom())),temp,j);
+
+         // Fill TClonesArrays with a std CConstructor.
+         new(direction1[j]) Direzione(*fDirect);
+         new(rdirection1[j]) Direzione(*fDirect);
+
+         /////////////////////////////////////////////////////////////
+         // Propagate from vertex and add it to the TClonesArray.
+         Hit* tHitBPptr=Hit::HitOnCylFromVertex(*vertex,
+                              *fDirect,30,j);
+
+         if(TMath::Abs(tHitBPptr->GetPuntoZ())<=164.6/2) {
+            new(rdirection2[k]) Direzione(*fDirect);
+            new(rhitsbpipe[k]) Hit(*tHitBPptr);
+            k+=1;
+         }
+
+         new(direction2[j]) Direzione(*fDirect);
+         new(hitsbpipe[j]) Hit(*tHitBPptr);
+         
+                
+         /////////////////////////////////////////////////////////////
+         // Propagate to 1st detector and add it to the proper 
+         // TClonesArray.
+         Hit* tHitFLptr=tHitBPptr->GetHitOnCyl( *fDirect,40,Beryllium,
+                                                0.8,j,fMultiScat,1 );
+         
+         fDirect->FlipBit(); // Reset Rotation bit.
+      
+         if(TMath::Abs(tHitFLptr->GetPuntoZ())<=164.6/2) {
+            new(rdirection3[u]) Direzione(*fDirect);
+            new(rhitsfirst[u]) Hit(*tHitFLptr);
+            u+=1;
+         }
+         
+         new(direction3[j]) Direzione(*fDirect);
+         new(hitsfirst[j]) Hit(*tHitFLptr);
+            
+         /////////////////////////////////////////////////////////////
+         // Propagate to 2nd cylinder and add it to the TClonesArray
+         Hit *tHitSLptr=tHitFLptr->GetHitOnCyl( *fDirect,70,Silicon
+            ,0.2,j,fMultiScat,2 );
+   
+         if(TMath::Abs(tHitSLptr->GetPuntoZ())<=164.6/2) {
+            new(rdirection3[v]) Direzione(*fDirect);
+            new(rhitssecond[v]) Hit(*tHitSLptr);
+            v+=1;
+         }
+
+         new(direction3[j]) Direzione(*fDirect);
+         new(hitssecond[j]) Hit(*tHitSLptr);
+
+         // Clean up pointers    
+         delete tHitSLptr;
+         delete tHitBPptr;
+         delete tHitFLptr;
+         delete fDirect;        
+      }
+       
+      ////////////////////////////////////////////////////////////////
+      // Fill trees.
+      // Clear TClonesArrays.
+      ////////////////////////////////////////////////////////////////
+         
+         MainTree->Fill();
+         EventsTree->Fill();
+
+         hitsbpipeptr->Clear();
+         hitsfirstptr->Clear();
+         hitssecondptr->Clear();
+         direction1ptr->Clear();
+         direction2ptr->Clear();
+         direction3ptr->Clear();
+
+         rhitsbpipeptr->Clear();
+         rhitsfirstptr->Clear();
+         rhitssecondptr->Clear();
+         rdirection1ptr->Clear();
+         rdirection2ptr->Clear();
+         rdirection3ptr->Clear();
+   }
+   
+   ///////////////////////////////////////////////////////////////////
+   // Finalyze the simulation.
+   ///////////////////////////////////////////////////////////////////
+   outfile.Write();
+   Printf("Processo di simulazione terminato.");
+   histEtaptr->TH1F::~TH1F();
+   hisMulptr->TH1F::~TH1F();
+   
+   MainTree->TTree::~TTree();
+   vertex->Vertice::~Vertice();
+   outfile.Close();
+   infile.Close();
+   
+   return 0;
+}

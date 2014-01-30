@@ -1,10 +1,9 @@
 TANS
 ====
 
-This repository is a classes and macro collection for a trivial vertex 
-simulation. These are supposed to run with 
-[ROOT](http://root.cern.ch/drupal), the [CERN](https://cern.ch) 
-framework for data analysis.
+This repository is a collection ofclasses and macro for a vertexer 
+simulation. These are going to run using the
+[ROOT](http://root.cern.ch/drupal) framework for data analysis. 
 
 Below I will take note the various standard definitions, simulation 
 structures, as a reminder for myself and a read-key for eventually 
@@ -22,14 +21,13 @@ Standard declarations
 Rationale: Class hierarchy
 --------------------------
 
-The main idea is to create a geometrical backbone, intruducing almost
-trivial classes as *Punto Class* and more in order to remain as 
-versatile as possible.
+The main goal is to create a sort of «backbone» consisting in a set of
+trivial classes like *Punto Class, Direzione Class, whatever...* in 
+order to result as versatile as possible.
 
-From there physics classes will be derived (e.g. *Vertice Class*), 
-keeping in mind that this is a quite trivial example, so a purposal 
-could be to structure the code and the topology thinking to build 
-modular classes and «physics» wrapper easily customizable.
+From there will be derived physics classes  (e.g. *Vertice Class*), 
+keeping in mind that this is a quite trivial example, so a nice 
+purposal could be to structure the code thinking in building modular classes and physics «wrapper» easily customizable.
 
 
 
