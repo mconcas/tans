@@ -25,6 +25,8 @@
 
 Int_t EventGenerator( const Int_t   debug=0, 
                       const Int_t   nVertices=100000,
+                      const Bool_t  needlogfile=kTRUE,
+                      const Bool_t  dryRun=kFALSE,
                       const TString fOutFileName="events.root",
                       const Int_t   fCustomMult=0,
                       const Bool_t  fMultiScat=kTRUE, 
@@ -100,9 +102,6 @@ Int_t EventGenerator( const Int_t   debug=0,
    TClonesArray* rdirection3ptr = new TClonesArray("Direzione",100);
    TClonesArray &rdirection3 = *rdirection3ptr;
 
-   // «Reassuring» debug printing.
-   Printf("TClonesArrays succesfully created.");
-
    Vertice* vertex=new Vertice();
    
    // MainTree branches.
@@ -136,7 +135,7 @@ Int_t EventGenerator( const Int_t   debug=0,
       Int_t k = 0;
       Int_t u = 0;
       Int_t v = 0;
-      // Double_t mulRaw;
+      
       switch ( fCustomMult ) {
          case -1:
 
@@ -250,9 +249,10 @@ Int_t EventGenerator( const Int_t   debug=0,
       // Fill trees.
       // Clear TClonesArrays.
       ////////////////////////////////////////////////////////////////
-         
+      if(!(dryRun)) {
          MainTree->Fill();
          EventsTree->Fill();
+      }
 
          hitsbpipeptr->Clear();
          hitsfirstptr->Clear();

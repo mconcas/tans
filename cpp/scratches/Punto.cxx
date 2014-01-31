@@ -9,7 +9,7 @@
 ClassImp(Punto)
 
 //___________{De,Con}structors_______________
-Punto::Punto(): TObject(),
+Punto::Punto() : TObject(),
    X(0.),
    Y(0.),    
    Z(0.),
