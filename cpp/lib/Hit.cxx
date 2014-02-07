@@ -110,16 +110,11 @@ Hit *Hit::GetHitOnCyl(Direzione &fDirect, Double_t fRadius,
       const Double_t thetalocal=gRandom->Gaus(0.,fThetaZero); 
       const Double_t philocal=gRandom->Rndm()*2*TMath::Pi();
 
-      // Printf("[Before Rotate] ϑ= %f, φ= %f", fDirect.GetDirectTheta(),
-         // fDirect.GetDirectPhi());
-
       /////////////////////////////////////////////////////////////
       // Rotate direction in order to refer it to the Laboratory 
       // Reference System.
       fDirect.Direzione::Rotate(thetalocal, philocal);
 
-      // Printf("[After Rotate] ϑ= %f, φ= %f", fDirect.GetDirectTheta(), 
-         // fDirect.GetDirectPhi());
    }  
 
    // Extract theta and phi from "Direzione".

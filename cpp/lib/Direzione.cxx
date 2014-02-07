@@ -63,7 +63,7 @@ void Direzione::SetAllCos( const Double_t fC1, const Double_t fC2,
 void Direzione::UpdateAng() {
    
    ///////////////////////////////////////////////////////////////////
-   // Since D[ATan(x)] = [-Pi,+Pi] -> We have to discuss the cosines
+   // Since D[ATan(x)] = [-Pi,+Pi] -> One have to discuss the cosines
    // directors values in order to find the true value of Phi.
    ///////////////////////////////////////////////////////////////////
    theta=TMath::ACos(dc3);
@@ -128,6 +128,4 @@ void Direzione::Rotate(Double_t fTheta, Double_t fPhi) {
 
       // Update Theta and Phi
       this->UpdateAng();
-      // this->UpdateDirCos();
-      
 }

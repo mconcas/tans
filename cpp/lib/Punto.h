@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-//class Punto: basic geometic class.
+//class Punto: basic geometric class.
 //
 //Written by Matteo Concas: mett1990@gmail.com 
 //Exam: «Tecniche di analisi numerica e simulazione»
