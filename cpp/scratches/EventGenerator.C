@@ -75,17 +75,17 @@ Int_t EventGenerator( const Int_t   debug=0,
 
    // Containers for MainTree
    TClonesArray* hitsbpipeptr = new TClonesArray("Hit",100);
-   TClonesArray &hitsbpipe = *hitsbpipeptr;
+   // TClonesArray &hitsbpipe = *hitsbpipeptr;
    TClonesArray* hitsfirstptr = new TClonesArray("Hit",100);
-   TClonesArray &hitsfirst = *hitsfirstptr;
+   // TClonesArray &hitsfirst = *hitsfirstptr;
    TClonesArray* hitssecondptr= new TClonesArray("Hit",100);
-   TClonesArray &hitssecond = *hitssecondptr;
-   TClonesArray* direction1ptr = new TClonesArray("Direzione",100);
-   TClonesArray &direction1 = *direction1ptr;
-   TClonesArray* direction2ptr = new TClonesArray("Direzione",100);
-   TClonesArray &direction2 = *direction2ptr;
-   TClonesArray* direction3ptr = new TClonesArray("Direzione",100);
-   TClonesArray &direction3 = *direction3ptr;
+   // TClonesArray &hitssecond = *hitssecondptr;
+   // TClonesArray* direction1ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &direction1 = *direction1ptr;
+   // TClonesArray* direction2ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &direction2 = *direction2ptr;
+   // TClonesArray* direction3ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &direction3 = *direction3ptr;
 
    // Containers for EventsTree
    TClonesArray* rhitsbpipeptr = new TClonesArray("Hit",100);
@@ -94,12 +94,12 @@ Int_t EventGenerator( const Int_t   debug=0,
    TClonesArray &rhitsfirst = *rhitsfirstptr;
    TClonesArray* rhitssecondptr = new TClonesArray("Hit",100);
    TClonesArray &rhitssecond = *rhitssecondptr;
-   TClonesArray* rdirection1ptr = new TClonesArray("Direzione",100);
-   TClonesArray &rdirection1 = *rdirection1ptr;
-   TClonesArray* rdirection2ptr = new TClonesArray("Direzione",100);
-   TClonesArray &rdirection2 = *rdirection2ptr;
-   TClonesArray* rdirection3ptr = new TClonesArray("Direzione",100);
-   TClonesArray &rdirection3 = *rdirection3ptr;
+   // TClonesArray* rdirection1ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &rdirection1 = *rdirection1ptr;
+   // TClonesArray* rdirection2ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &rdirection2 = *rdirection2ptr;
+   // TClonesArray* rdirection3ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &rdirection3 = *rdirection3ptr;
 
    Vertice* vertex=new Vertice();
    
@@ -108,18 +108,18 @@ Int_t EventGenerator( const Int_t   debug=0,
    MainTree->Branch("Beampipe",    &hitsbpipeptr);
    MainTree->Branch("Firstlayer",  &hitsfirstptr);
    MainTree->Branch("Secondlayer", &hitssecondptr);
-   MainTree->Branch("Direction1",  &direction1ptr);
+   /*MainTree->Branch("Direction1",  &direction1ptr);
    MainTree->Branch("Direction2",  &direction2ptr);
-   MainTree->Branch("Direction3",  &direction3ptr);
+   MainTree->Branch("Direction3",  &direction3ptr);*/
 
    // EventTree branches.
    EventsTree->Branch("Vertices",    vertex);
    EventsTree->Branch("Beampipe",    &rhitsbpipeptr);
    EventsTree->Branch("Firstlayer",  &rhitsfirstptr);
    EventsTree->Branch("Secondlayer", &rhitssecondptr);
-   EventsTree->Branch("Direction1",  &rdirection1ptr);
+   /*EventsTree->Branch("Direction1",  &rdirection1ptr);
    EventsTree->Branch("Direction2",  &rdirection2ptr);
-   EventsTree->Branch("Direction3",  &rdirection3ptr);
+   EventsTree->Branch("Direction3",  &rdirection3ptr);*/
 
 
    ///////////////////////////////////////////////////////////////////
@@ -188,8 +188,8 @@ Int_t EventGenerator( const Int_t   debug=0,
             -histEtaptr->GetRandom())),temp,j);
 
          // Fill TClonesArrays with a std CConstructor.
-         new(direction1[j]) Direzione(*fDirect);
-         new(rdirection1[j]) Direzione(*fDirect);
+         // new(direction1[j]) Direzione(*fDirect);
+         // new(rdirection1[j]) Direzione(*fDirect);
 
          /////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
@@ -197,13 +197,13 @@ Int_t EventGenerator( const Int_t   debug=0,
                               *fDirect,30,j);
 
          if(TMath::Abs(tHitBPptr->GetPuntoZ())<=164.6/2) {
-            new(rdirection2[k]) Direzione(*fDirect);
+            // new(rdirection2[k]) Direzione(*fDirect);
             new(rhitsbpipe[k]) Hit(*tHitBPptr);
             k+=1;
          }
 
-         new(direction2[j]) Direzione(*fDirect);
-         new(hitsbpipe[j]) Hit(*tHitBPptr);
+         // new(direction2[j]) Direzione(*fDirect);
+         // new(hitsbpipe[j]) Hit(*tHitBPptr);
          
                 
          /////////////////////////////////////////////////////////////
@@ -215,13 +215,13 @@ Int_t EventGenerator( const Int_t   debug=0,
          fDirect->FlipBit(); // Reset Rotation bit.
       
          if(TMath::Abs(tHitFLptr->GetPuntoZ())<=164.6/2) {
-            new(rdirection3[u]) Direzione(*fDirect);
+            // new(rdirection3[u]) Direzione(*fDirect);
             new(rhitsfirst[u]) Hit(*tHitFLptr);
             u+=1;
          }
          
-         new(direction3[j]) Direzione(*fDirect);
-         new(hitsfirst[j]) Hit(*tHitFLptr);
+         // new(direction3[j]) Direzione(*fDirect);
+         // new(hitsfirst[j]) Hit(*tHitFLptr);
             
          /////////////////////////////////////////////////////////////
          // Propagate to 2nd cylinder and add it to the TClonesArray
@@ -229,13 +229,13 @@ Int_t EventGenerator( const Int_t   debug=0,
             ,0.2,j,fMultiScat,2 );
    
          if(TMath::Abs(tHitSLptr->GetPuntoZ())<=164.6/2) {
-            new(rdirection3[v]) Direzione(*fDirect);
+            // new(rdirection3[v]) Direzione(*fDirect);
             new(rhitssecond[v]) Hit(*tHitSLptr);
             v+=1;
          }
 
-         new(direction3[j]) Direzione(*fDirect);
-         new(hitssecond[j]) Hit(*tHitSLptr);
+         // new(direction3[j]) Direzione(*fDirect);
+         // new(hitssecond[j]) Hit(*tHitSLptr);
 
          // Clean up pointers    
          delete tHitSLptr;
@@ -256,16 +256,16 @@ Int_t EventGenerator( const Int_t   debug=0,
          hitsbpipeptr->Clear();
          hitsfirstptr->Clear();
          hitssecondptr->Clear();
-         direction1ptr->Clear();
-         direction2ptr->Clear();
-         direction3ptr->Clear();
+         // direction1ptr->Clear();
+         // direction2ptr->Clear();
+         // direction3ptr->Clear();
 
          rhitsbpipeptr->Clear();
          rhitsfirstptr->Clear();
          rhitssecondptr->Clear();
-         rdirection1ptr->Clear();
-         rdirection2ptr->Clear();
-         rdirection3ptr->Clear();
+         // rdirection1ptr->Clear();
+         // rdirection2ptr->Clear();
+         // rdirection3ptr->Clear();
    }
    
    ///////////////////////////////////////////////////////////////////
