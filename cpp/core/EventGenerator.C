@@ -22,16 +22,21 @@
 #include <TTree.h>
 #endif
 
-Int_t EventGenerator( const Int_t   debug=0, 
-                      const Int_t   nVertices=100000,
-                      /*const Bool_t  needforlogfile=kTRUE,*/
-                      const Bool_t  dryRun=kFALSE,
-                      const TString fOutFileName="events.root",
-                      const Int_t   fCustomMult=0,
-                      const Bool_t  fMultiScat=kTRUE, 
-                      const TString fInData="kinem.root",
-                      const TString fMulDist="hmul",
-                      const TString fEtadist="heta" ) {
+Int_t EventGenerator( const Int_t    debug=0, 
+                      const Int_t    nVertices=100000,
+                    /*const Bool_t   needforlogfile=kTRUE,*/
+                      const Bool_t   dryRun=kFALSE,
+                      const Int_t    fNoiseLevel=0,
+                      const Double_t fZetLen=164.6,
+                      const Double_t fBPipeRad=30.,  
+                      const Double_t fFirstRad=40.,  
+                      const Double_t fSecondRad=70.,  
+                      const TString  fOutFileName="events.root",
+                      const Int_t    fCustomMult=0,
+                      const Bool_t   fMultiScat=kTRUE, 
+                      const TString  fInData="kinem.root",
+                      const TString  fMulDist="hmul",
+                      const TString  fEtadist="heta" ) {
 
    ///////////////////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////////////
@@ -80,13 +85,15 @@ Int_t EventGenerator( const Int_t   debug=0,
    TClonesArray &hitsfirst = *hitsfirstptr;
    TClonesArray* hitssecondptr= new TClonesArray("Hit",100);
    TClonesArray &hitssecond = *hitssecondptr;
-   TClonesArray* direction1ptr = new TClonesArray("Direzione",100);
-   TClonesArray &direction1 = *direction1ptr;
-   TClonesArray* direction2ptr = new TClonesArray("Direzione",100);
-   TClonesArray &direction2 = *direction2ptr;
-   TClonesArray* direction3ptr = new TClonesArray("Direzione",100);
-   TClonesArray &direction3 = *direction3ptr;
-
+   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   // TClonesArray* direction1ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &direction1 = *direction1ptr;
+   // TClonesArray* direction2ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &direction2 = *direction2ptr;
+   // TClonesArray* direction3ptr = new TClonesArray("Direzione",100);
+   // TClonesArray &direction3 = *direction3ptr;
+   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   
    // Containers for EventsTree
    TClonesArray* rhitsbpipeptr = new TClonesArray("Hit",100);
    TClonesArray &rhitsbpipe = *rhitsbpipeptr;
@@ -94,13 +101,14 @@ Int_t EventGenerator( const Int_t   debug=0,
    TClonesArray &rhitsfirst = *rhitsfirstptr;
    TClonesArray* rhitssecondptr = new TClonesArray("Hit",100);
    TClonesArray &rhitssecond = *rhitssecondptr;
-   TClonesArray* rdirection1ptr = new TClonesArray("Direzione",100);
-   TClonesArray &rdirection1 = *rdirection1ptr;
-   TClonesArray* rdirection2ptr = new TClonesArray("Direzione",100);
-   TClonesArray &rdirection2 = *rdirection2ptr;
-   TClonesArray* rdirection3ptr = new TClonesArray("Direzione",100);
-   TClonesArray &rdirection3 = *rdirection3ptr;
-
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// TClonesArray* rdirection1ptr = new TClonesArray("Direzione",100);
+// TClonesArray &rdirection1 = *rdirection1ptr;
+// TClonesArray* rdirection2ptr = new TClonesArray("Direzione",100);
+// TClonesArray &rdirection2 = *rdirection2ptr;
+// TClonesArray* rdirection3ptr = new TClonesArray("Direzione",100);
+// TClonesArray &rdirection3 = *rdirection3ptr;
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Vertice* vertex=new Vertice();
    
    // MainTree branches.
@@ -108,18 +116,30 @@ Int_t EventGenerator( const Int_t   debug=0,
    MainTree->Branch("Beampipe",    &hitsbpipeptr);
    MainTree->Branch("Firstlayer",  &hitsfirstptr);
    MainTree->Branch("Secondlayer", &hitssecondptr);
-   MainTree->Branch("Direction1",  &direction1ptr);
-   MainTree->Branch("Direction2",  &direction2ptr);
-   MainTree->Branch("Direction3",  &direction3ptr);
-
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// MainTree->Branch("Direction1",  &direction1ptr);
+// MainTree->Branch("Direction2",  &direction2ptr);
+// MainTree->Branch("Direction3",  &direction3ptr);
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   
    // EventTree branches.
    EventsTree->Branch("Vertices",    vertex);
    EventsTree->Branch("Beampipe",    &rhitsbpipeptr);
    EventsTree->Branch("Firstlayer",  &rhitsfirstptr);
    EventsTree->Branch("Secondlayer", &rhitssecondptr);
-   EventsTree->Branch("Direction1",  &rdirection1ptr);
-   EventsTree->Branch("Direction2",  &rdirection2ptr);
-   EventsTree->Branch("Direction3",  &rdirection3ptr);
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// EventsTree->Branch("Direction1",  &rdirection1ptr);
+// EventsTree->Branch("Direction2",  &rdirection2ptr);
+// EventsTree->Branch("Direction3",  &rdirection3ptr);
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// Debug welcome and summary
+   Printf("\n\t++++++++++++++++++++++++++++++++++++++++++++++");
+   Printf("\t+                                            +");
+   Printf("\t+          Vertexer simulation  v0.1         +");
+   Printf("\t+                                            +");
+   Printf("\t++++++++++++++++++++++++++++++++++++++++++++++\n");
+
 
 
    ///////////////////////////////////////////////////////////////////
@@ -131,9 +151,9 @@ Int_t EventGenerator( const Int_t   debug=0,
    ///////////////////////////////////////////////////////////////////
 
    for(Int_t i=0;i<nVertices;++i) {
-      Int_t k = 0;
-      Int_t u = 0;
-      Int_t v = 0;
+      Int_t k=0;
+      Int_t u=0;
+      Int_t v=0;
       
       switch ( fCustomMult ) {
          case -1:
@@ -174,9 +194,9 @@ Int_t EventGenerator( const Int_t   debug=0,
 
       ////////////////////////////////////////////////////////////////
       // Generate random vertex position.
-      vertex->SetPuntoX(gRandom->Gaus(0,0.1));
-      vertex->SetPuntoY(gRandom->Gaus(0,0.1));
-      vertex->SetPuntoZ(gRandom->Gaus(0,53));
+      vertex->SetPuntoX( gRandom->Gaus(0,0.1) );
+      vertex->SetPuntoY( gRandom->Gaus(0,0.1) );
+      vertex->SetPuntoZ( gRandom->Gaus(0,53) );
 
       ////////////////////////////////////////////////////////////////
       // Hits generation loop.
@@ -188,54 +208,86 @@ Int_t EventGenerator( const Int_t   debug=0,
             -histEtaptr->GetRandom())),temp,j);
 
          // Fill TClonesArrays with a std CConstructor.
-         new(direction1[j]) Direzione(*fDirect);
-         new(rdirection1[j]) Direzione(*fDirect);
+      // new(direction1[j]) Direzione(*fDirect);
+      // new(rdirection1[j]) Direzione(*fDirect);
 
          /////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
-         Hit* tHitBPptr=Hit::HitOnCylFromVertex(*vertex,
-                              *fDirect,30,j);
+         Hit* tHitBPptr=Hit::HitOnCylFromVertex( *vertex,
+                              *fDirect,fBPipeRad,j );
 
-         if(TMath::Abs(tHitBPptr->GetPuntoZ())<=164.6/2) {
-            new(rdirection2[k]) Direzione(*fDirect);
+         if(TMath::Abs(tHitBPptr->GetPuntoZ())<=fZetLen/2) {
+         // new(rdirection2[k]) Direzione(*fDirect);
             new(rhitsbpipe[k]) Hit(*tHitBPptr);
             k+=1;
          }
 
-         new(direction2[j]) Direzione(*fDirect);
+      // new(direction2[j]) Direzione(*fDirect);
          new(hitsbpipe[j]) Hit(*tHitBPptr);
          
                 
          /////////////////////////////////////////////////////////////
          // Propagate to 1st detector and add it to the proper 
          // TClonesArray.
-         Hit* tHitFLptr=tHitBPptr->GetHitOnCyl( *fDirect,40,Beryllium,
-                                                0.8,j,fMultiScat,1 );
+         Hit* tHitFLptr=tHitBPptr->GetHitOnCyl( *fDirect,fFirstRad,
+            Beryllium,0.8,j,fMultiScat,1 );
          
          fDirect->FlipBit(); // Reset Rotation bit.
       
-         if(TMath::Abs(tHitFLptr->GetPuntoZ())<=164.6/2) {
-            new(rdirection3[u]) Direzione(*fDirect);
+         if(TMath::Abs(tHitFLptr->GetPuntoZ())<=fZetLen/2) {
+         // new(rdirection3[u]) Direzione(*fDirect);
             new(rhitsfirst[u]) Hit(*tHitFLptr);
             u+=1;
          }
          
-         new(direction3[j]) Direzione(*fDirect);
+         // new(direction3[j]) Direzione(*fDirect);
          new(hitsfirst[j]) Hit(*tHitFLptr);
             
          /////////////////////////////////////////////////////////////
          // Propagate to 2nd cylinder and add it to the TClonesArray
-         Hit *tHitSLptr=tHitFLptr->GetHitOnCyl( *fDirect,70,Silicon
-            ,0.2,j,fMultiScat,2 );
+         Hit *tHitSLptr=tHitFLptr->GetHitOnCyl( *fDirect,fSecondRad,
+            Silicon,0.2,j,fMultiScat,2 );
    
-         if(TMath::Abs(tHitSLptr->GetPuntoZ())<=164.6/2) {
-            new(rdirection3[v]) Direzione(*fDirect);
+         if(TMath::Abs(tHitSLptr->GetPuntoZ())<=fZetLen/2) {
+         // new(rdirection3[v]) Direzione(*fDirect);
             new(rhitssecond[v]) Hit(*tHitSLptr);
             v+=1;
          }
 
-         new(direction3[j]) Direzione(*fDirect);
+      // new(direction3[j]) Direzione(*fDirect);
          new(hitssecond[j]) Hit(*tHitSLptr);
+         /////////////////////////////////////////////////////////////
+         // Noise algorithm.
+         // We have to consider the electronic noise generated on the 
+         // two layers. We also assume that it is uniformely 
+         // distributed on layers surfaces.
+         // Noise sources:
+         // 
+         // ~ Electronic noise.
+         // ~ Untracked particles.
+
+         
+         const Int_t fNoiseLevelSec=(Int_t) 
+            (fNoiseLevel*(fSecondRad/fFirstRad));
+
+         // On the first layer   
+         for( Int_t n=0; n<fNoiseLevel; ++n ) {
+            Hit *tNoiseHitPtrF=Hit::EleNoiseOnCyl( fFirstRad,
+               -fZetLen/2,fZetLen/2);
+            new(rhitsfirst[u+n]) Hit( *tNoiseHitPtrF );
+            delete tNoiseHitPtrF;
+         }
+
+         // On the second layer.
+         for( Int_t m=0; m<fNoiseLevelSec; ++m ) {
+            Hit * tNoiseHitPtrS=Hit::EleNoiseOnCyl( fSecondRad,
+               -fZetLen/2,fZetLen/2);
+            new(rhitssecond[v+m]) Hit( *tNoiseHitPtrS );
+            delete tNoiseHitPtrS;
+         }
+
+
+
 
          // Clean up pointers    
          delete tHitSLptr;
@@ -256,16 +308,19 @@ Int_t EventGenerator( const Int_t   debug=0,
          hitsbpipeptr->Clear();
          hitsfirstptr->Clear();
          hitssecondptr->Clear();
-         direction1ptr->Clear();
-         direction2ptr->Clear();
-         direction3ptr->Clear();
-
+      // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      // direction1ptr->Clear();
+      // direction2ptr->Clear();
+      // direction3ptr->Clear();
+      // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
          rhitsbpipeptr->Clear();
          rhitsfirstptr->Clear();
          rhitssecondptr->Clear();
-         rdirection1ptr->Clear();
-         rdirection2ptr->Clear();
-         rdirection3ptr->Clear();
+      // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   
+      // rdirection1ptr->Clear();
+      // rdirection2ptr->Clear();
+      // rdirection3ptr->Clear();
+      // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   
    }
    
    ///////////////////////////////////////////////////////////////////

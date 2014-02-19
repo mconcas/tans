@@ -31,7 +31,7 @@ class Hit : public Punto {
       Int_t  GetHitID()        const { return idnumber; }
 
       //_____________Setter_______________________
-      void NowRealHit(); 
+      void NowRealHit();
       void SetHitID(Int_t fID);
       void SetHitLayno(Int_t fLay);
       
@@ -68,8 +68,17 @@ class Hit : public Punto {
                                 Double_t fYO, 
                                 Double_t fRadius );
 
-   protected:
+      //_____________Noise_Generators_________
+      ////////////////////////////////////////////////////////////////
+      // The first generator creates uniformely distrubuted hits on 
+      // a cylindrical surface (e.g. a Detector).
+      
+      static Hit *EleNoiseOnCyl( Double_t fCRadius, 
+                                 Double_t fZetamin,
+                                 Double_t fZetamax ); 
 
+
+   protected:
       Int_t  layernum;       // It keeps track of the layer hit
       Int_t  idnumber;
       Bool_t realhit;        // Is it a real hit? 

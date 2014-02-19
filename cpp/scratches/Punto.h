@@ -9,6 +9,7 @@
 #define PUNTO_H
 #include <TObject.h>
 
+Double_t CorrMachinePrecision(const Double_t fValue);
 class Punto : public TObject {
    
    public:

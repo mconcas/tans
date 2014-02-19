@@ -16,23 +16,21 @@ Hit::Hit(): Punto(),
    idnumber(0),
    realhit(kFALSE) { }
 
-Hit::Hit(Double_t fX, Double_t fY, Double_t fZ, Int_t fLayer, 
-         Int_t fIdnumber ): 
+Hit::Hit( Double_t fX, Double_t fY, Double_t fZ, Int_t fLayer, 
+   Int_t fIdnumber ): 
    Punto(fX, fY, fZ),
    layernum(fLayer),
    idnumber(fIdnumber),
    realhit(kFALSE) { }
 
-Hit::~Hit() {
-   if (gDebug) Printf( "*** hit object destroyed ***" );
-}
+Hit::~Hit() {if (gDebug) Printf( "*** hit object destroyed ***" ); }
 
 void Hit::NowRealHit() { realhit=kTRUE; }
-void Hit::SetHitID(Int_t fId) { idnumber=fId; }
-void Hit::SetHitLayno(Int_t fLay) { layernum=fLay; }
+void Hit::SetHitID( Int_t fId ) { idnumber=fId; }
+void Hit::SetHitLayno( Int_t fLay ) { layernum=fLay; }
 
-Double_t Hit::ComputeT(Double_t fTheta, Double_t fPhi,
-   Double_t fXO, Double_t fYO, Double_t fRadius) {
+Double_t Hit::ComputeT( Double_t fTheta, Double_t fPhi,
+   Double_t fXO, Double_t fYO, Double_t fRadius ) {
       const Double_t sintheta=TMath::Sin(fTheta);
       const Double_t sinphi=TMath::Sin(fPhi);
       const Double_t cosphi=TMath::Cos(fPhi);
@@ -43,8 +41,8 @@ Double_t Hit::ComputeT(Double_t fTheta, Double_t fPhi,
       return t;
 }
 
-Hit *Hit::HitOnCylFromVertex(Vertice &fOrigin, Direzione &fDirect,
-   Double_t fRadius, Int_t fIde, Int_t fLayno) {
+Hit *Hit::HitOnCylFromVertex( Vertice &fOrigin, Direzione &fDirect,
+   Double_t fRadius, Int_t fIde, Int_t fLayno ) {
 
       // Extract theta and phi from "Direzione".
       const Double_t fThe=fDirect.GetDirectTheta();
@@ -79,10 +77,10 @@ Hit *Hit::HitOnCylFromVertex(Vertice &fOrigin, Direzione &fDirect,
    }  
 }
 
-Hit *Hit::GetHitOnCyl(Direzione &fDirect, Double_t fRadius, 
+Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius, 
                       TMaterial &fMaterial, Double_t fWidth, 
                       Int_t fIde, Bool_t multscat, Int_t fLayno, 
-                      Double_t fP, Int_t fZ, Double_t fBeta) {
+                      Double_t fP, Int_t fZ, Double_t fBeta ) {
    if (multscat) {
 
       /////////////////////////////////////////////////////////////
@@ -143,4 +141,15 @@ Hit *Hit::GetHitOnCyl(Direzione &fDirect, Double_t fRadius,
             
          return OnCyl;
    }
-}    
+}  
+
+Hit *Hit::EleNoiseOnCyl( Double_t fCRadius, Double_t fZetaMin, 
+   Double_t fZetaMax) {
+   Hit* fNoise = new Hit();
+   fNoise->SetPuntoCRadius(fCRadius);
+   fNoise->SetPuntoZ( fZetaMin+(fZetaMax-fZetaMin)*gRandom->Rndm() );
+   fNoise->SetPuntoPhi( 2*TMath::Pi()*gRandom->Rndm() );
+   
+   return fNoise;
+}
+  

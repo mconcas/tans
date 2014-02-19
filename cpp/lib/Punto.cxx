@@ -6,6 +6,14 @@
 #include <TSystem.h>
 #endif
 
+
+const Double_t zero=1/TMath::Tan(TMath::Pi()/2)/*0.00000001*/;
+Double_t CorrMachinePrecision(const Double_t fValue) {
+   if(fValue-(Int_t)fValue>-zero||fValue-(Int_t)fValue<zero) 
+      return static_cast<Double_t>(static_cast<Int_t>(fValue+0.5));
+   else return fValue;
+}
+
 ClassImp(Punto)
 
 //___________{De,Con}structors_______________
@@ -70,6 +78,7 @@ void Punto::SetPuntoY(const Double_t fY) {
 void Punto::SetPuntoZ(const Double_t fZ) {
    Z=fZ;
    CartesiantoSpherical();
+   CartesiantoCylindrical();
    // Please note that is not necessary to update cylindrical 
    // coordinates because Z is the same coord.    
 }
@@ -177,7 +186,7 @@ void Punto::CartesiantoCylindrical() {
    singularities. Note that the third component [i.e "Z"] is not
    update, because is the same datamember used as cartesian coord.*/
    
-   CRadius=TMath::Sqrt(X*X+Y*Y);
+   CRadius=CorrMachinePrecision(TMath::Sqrt(X*X+Y*Y));
    /* Phi is the angular coordinate. Please note that is equal to 
    the spherical one. */
    if (X>0.) {
