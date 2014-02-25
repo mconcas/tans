@@ -24,11 +24,44 @@
 //
 
 #include "EventSelector.h"
+#include <Vertice.h>
+#include <Hit.h>
+#include <Direzione.h>
 #include <TH2.h>
+#include <TH1I.h>
+#include <TH1F.h>
 #include <TStyle.h>
 #include <TSystem.h>
 
+Bool_t EventSelector::Notify()
+{
+   // The Notify() function is called when a new file is opened. This
+   // can be either for a new TTree in a TChain or when when a new TTree
+   // is started when using PROOF. It is normally not necessary to make changes
+   // to the generated code, but the routine can be extended by the
+   // user if needed. The return value is currently not used.
 
+   return kTRUE;
+}
+
+void EventSelector::Init(TTree *tree)
+{
+   // The Init() function is called when the selector needs to initialize
+   // a new tree or chain. Typically here the branch addresses and branch
+   // pointers of the tree will be set.
+   // It is normally not necessary to make changes to the generated
+   // code, but the routine can be extended by the user if needed.
+   // Init() will be called many times when running on PROOF
+   // (once per file to be processed).
+
+   // Set branch addresses and branch pointers
+   if (!tree) return;
+   fChain = tree;
+   fChain->SetBranchAddress("Vertices",&fVertex);
+   fChain->SetBranchAddress("Firstlayer",&fHitsFirstLayer);
+   fChain->SetBranchAddress("Secondlayer",&fHitsSecondLayer);
+   
+}
 void EventSelector::Begin(TTree * /*tree*/)
 {
    // The Begin() function is called at the start of the query.
@@ -45,9 +78,11 @@ void EventSelector::SlaveBegin(TTree * /*tree*/)
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
+   // TString option = GetOption();
 
-   TString option = GetOption();
-
+   fHitsFirstLayer = new TClonesArray("Hit");
+   fPuppetHistIO = new TH1I("HistIO","Z Histogram",100,-30,30);
+   fOutput->Add( fPuppetHistIO );
 }
 
 Bool_t EventSelector::Process(Long64_t entry)
@@ -69,6 +104,24 @@ Bool_t EventSelector::Process(Long64_t entry)
    // Use fStatus to set the return value of TTree::Process().
    //
    // The return value is currently not used.
+   Printf("Processing Entry number %lld\n", entry);
+   ++fNumberOfEvents;
+
+   fChain->GetEvent( entry );
+   Int_t num = fHitsFirstLayer->GetEntries();
+
+   Printf("Ev=%lld Mult=%d(%d) X=%lf Y=%lf Z=%lf",
+      entry,
+      fVertex->GetVerticeMult(), num, fVertex->GetPuntoX(), 
+      fVertex->GetPuntoY(), fVertex->GetPuntoZ());
+   Hit *tst;
+   for (Int_t j=0; j<num; j++){
+      tst=(Hit*)fHitsFirstLayer->At(j);
+      Printf("  #%d: X=%lf Y=%lf Z=%lf",
+        j, tst->GetPuntoX(), tst->GetPuntoY(), tst->GetPuntoZ());
+      fPuppetHistIO->Fill( tst->GetPuntoX() );
+      if(fPuppetHistIO) Printf("-------------------------");
+   }
 
 
    return kTRUE;
@@ -79,6 +132,9 @@ void EventSelector::SlaveTerminate()
    // The SlaveTerminate() function is called after all entries or objects
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
+   delete fHitsFirstLayer;
+   printf("\nTotal Number of Events: %d\n", fNumberOfEvents);
+
 
 }
 
@@ -87,5 +143,10 @@ void EventSelector::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
+
+   fPuppetHistIO=dynamic_cast<TH1I*>( 
+      fOutput->FindObject("HistIO") );
+   if (fPuppetHistIO) 
+      fPuppetHistIO->Draw();
 
 }

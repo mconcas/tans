@@ -24,7 +24,6 @@
 
 Int_t EventGenerator( const Int_t    debug=0, 
                       const Int_t    nVertices=100000,
-                    /*const Bool_t   needforlogfile=kTRUE,*/
                       const Bool_t   dryRun=kFALSE,
                       const Int_t    fNoiseLevel=0,
                       const Double_t fZetLen=164.6,
@@ -36,7 +35,8 @@ Int_t EventGenerator( const Int_t    debug=0,
                       const Bool_t   fMultiScat=kTRUE, 
                       const TString  fInData="kinem.root",
                       const TString  fMulDist="hmul",
-                      const TString  fEtadist="heta" ) {
+                      const TString  fEtadist="heta"
+                    /*const Bool_t   needforlogfile=kTRUE,*/ ) {
 
    ///////////////////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////////////
