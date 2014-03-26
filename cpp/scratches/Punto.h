@@ -34,13 +34,13 @@ class Punto : public TObject {
       void SetPuntoSRadius(const Double_t fSRadius);
   
       //____________Inline_Getters_______________
-      Double_t GetPuntoX() const { return X; }
-      Double_t GetPuntoY() const { return Y; }
-      Double_t GetPuntoZ() const { return Z; }
-      Double_t GetPuntoTheta() const { return Theta; }
-      Double_t GetPuntoPhi() const { return Phi; }
-      Double_t GetPuntoSRadius() const { return SRadius; }
-      Double_t GetPuntoCRadius() const { return CRadius; }
+      Double_t GetPuntoX() { return X; }
+      Double_t GetPuntoY() { return Y; }
+      Double_t GetPuntoZ() { return Z; }
+      Double_t GetPuntoTheta() { return Theta; }
+      Double_t GetPuntoPhi() { return Phi; }
+      Double_t GetPuntoSRadius() { return SRadius; }
+      Double_t GetPuntoCRadius() { return CRadius; }
    
    private:
 

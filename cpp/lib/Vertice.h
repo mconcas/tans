@@ -29,9 +29,9 @@ class Vertice : public Punto {
       void SetVerticeNL(Double_t fNoiselvl);
 
       //____________Inline_Getters_______________
-      Int_t GetVerticeMult()  const { return multiplicity; }
-      Int_t GetVerticeID()    const { return idnumber; }
-      Double_t GetVerticeNL() const { return noiselevel; }
+      Int_t GetVerticeMult()   { return multiplicity; }
+      Int_t GetVerticeID()     { return idnumber; }
+      Double_t GetVerticeNL()  { return noiselevel; }
       
    protected:
       Int_t multiplicity;   // Number of generated tracks.

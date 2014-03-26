@@ -26,9 +26,9 @@ class Hit : public Punto {
       virtual ~Hit();
 
       // ____________Inline_Getters_______________
-      Int_t  GetLayerNumber()  const { return layernum; }
-      Bool_t IsReal()          const { return realhit;  }
-      Int_t  GetHitID()        const { return idnumber; }
+      Int_t  GetLayerNumber() { return layernum; }
+      Bool_t IsReal()         { return realhit;  }
+      Int_t  GetHitID()       { return idnumber; }
 
       //_____________Setter_______________________
       void NowRealHit();
@@ -68,9 +68,19 @@ class Hit : public Punto {
                                 Double_t fYO, 
                                 Double_t fRadius );
 
-      //_____________Noise_Generators_________
+      //_____________Smearing_Generator______
       ////////////////////////////////////////////////////////////////
-      // The first generator creates uniformely distrubuted hits on 
+      // Due to the finite resolution of detectors the coordinates are
+      // slightly modified by a Gaussian algorythm.
+      void GausSmearing( Double_t fDRadius,
+                        Double_t fSZeta,
+                        Double_t fSX      );
+      
+
+
+      //_____________Noise_Generator_________
+      ////////////////////////////////////////////////////////////////
+      // The first generator creates uniformly distributed hits on 
       // a cylindrical surface (e.g. a Detector).
       
       static Hit *EleNoiseOnCyl( Double_t fCRadius, 

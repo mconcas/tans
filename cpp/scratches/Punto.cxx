@@ -6,8 +6,8 @@
 #include <TSystem.h>
 #endif
 
-
-const Double_t zero=1/TMath::Tan(TMath::Pi()/2)/*0.00000001*/;
+// Redefine zero due to machine precision issues.
+const Double_t zero=1/TMath::Tan(TMath::Pi()/2);
 Double_t CorrMachinePrecision(const Double_t fValue) {
    if(fValue-(Int_t)fValue>-zero||fValue-(Int_t)fValue<zero) 
       return static_cast<Double_t>(static_cast<Int_t>(fValue+0.5));
@@ -94,6 +94,7 @@ void Punto::SetPuntoTheta(const Double_t fTheta) {
    //Then it's possible apply a CartesiantoCylindrical conversion for 
    //an update to cylindrical coords.
    ///////////////////////////////////////////////////////////////////
+   
    Theta=fTheta;
    SphericaltoCartesian();
    CartesiantoCylindrical();
@@ -111,6 +112,7 @@ void Punto::SetPuntoPhi(const Double_t fPhi) {
    //Then it's possible apply a CartesiantoCylindrical conversion for 
    //an update to cylindrical coords.
    ///////////////////////////////////////////////////////////////////
+   
    Phi=fPhi;
    CylindricaltoCartesian();
    CartesiantoSpherical();
@@ -142,9 +144,8 @@ void Punto::SetPuntoSRadius(const Double_t fSRadius) {
 
 //___________Coordinates_Tools__________
 void Punto::CartesiantoSpherical() { 
-   /* Update spherical coordinates, managing exceptions and 
-   singularities.*/
-
+   // Update spherical coordinates, managing exceptions and 
+   // singularities.
    if ( (SRadius=TMath::Sqrt(X*X+Y*Y+Z*Z))!=0 ) {
 
       // Theta
@@ -152,10 +153,9 @@ void Punto::CartesiantoSpherical() {
 
       // Phi
       if (X>0.) {
-         if (Y>0.) Phi=TMath::ATan(Y/X);               // X>0. et Y>0.
-         else {
-            if (Y==0.) Phi=0.;                         // X>0. et Y=0.
-            else Phi=2*TMath::Pi()+TMath::ATan(Y/X);   // X>0. et Y<0.
+         if (Y>0. || Y==0.) Phi=TMath::ATan(Y/X);     // X>0. et Y>=0.
+         else {                        
+            Phi=2*TMath::Pi()+TMath::ATan(Y/X);        // X>0. et Y<0.
          }
       }
       else {
@@ -167,33 +167,27 @@ void Punto::CartesiantoSpherical() {
             }
          }
          else { 
-            if (Y>0) Phi=TMath::Pi()+TMath::ATan(Y/X); // X<0. et Y>0.
-            else {
-               if (Y==0.) Phi=TMath::Pi();             // X<0. et Y=0. 
-               else Phi=TMath::Pi()+TMath::ATan(Y/X);  // X<0. et Y<0.
-            }
+            Phi=TMath::Pi()+TMath::ATan(Y/X);          // X<0. et ∀Y
          }
       }
    }
    else {
-      Phi=0.;
-      Theta=0.;
+      Phi=Theta=0.;    // Default value, to avoid non-initialization.
    }
 }
 
 void Punto::CartesiantoCylindrical() { 
-   /* Update spherical coordinates, managing exceptions and 
-   singularities. Note that the third component [i.e "Z"] is not
-   update, because is the same datamember used as cartesian coord.*/
-   
+   // Update spherical coordinates, managing exceptions and 
+   // singularities. Note that the third component [i.e "Z"] is not
+   // update, because is the same datamember used as cartesian coord.
    CRadius=CorrMachinePrecision(TMath::Sqrt(X*X+Y*Y));
-   /* Phi is the angular coordinate. Please note that is equal to 
-   the spherical one. */
+   
+   // Phi is the azimuthal angle. Please note that is equal to 
+   // the spherical one. 
    if (X>0.) {
-      if (Y>0.) Phi=TMath::ATan(Y/X);               // X>0. et Y>0.
-      else {
-         if (Y==0.) Phi=0.;                         // X>0. et Y=0.
-         else Phi=2*TMath::Pi()+TMath::ATan(Y/X);   // X>0. et Y<0.
+      if (Y>0. || Y==0.) Phi=TMath::ATan(Y/X);     // X>0. et Y>=0.
+      else {                        
+         Phi=2*TMath::Pi()+TMath::ATan(Y/X);        // X>0. et Y<0.
       }
    }
    else {
@@ -205,13 +199,9 @@ void Punto::CartesiantoCylindrical() {
          }
       }
       else { 
-         if (Y>0) Phi=TMath::Pi()+TMath::ATan(Y/X); // X<0. et Y>0.
-         else {
-            if (Y==0.) Phi=TMath::Pi();             // X<0. et Y=0. 
-            else Phi=TMath::Pi()+TMath::ATan(Y/X);  // X<0. et Y>0.
-         }
+         Phi=TMath::Pi()+TMath::ATan(Y/X);          // X<0. et ∀Y
       }
-   }
+   }   
 }
 
 void Punto::SphericaltoCartesian() {

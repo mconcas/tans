@@ -24,9 +24,8 @@
 
 Int_t EventGenerator( const Int_t    debug=0, 
                       const Int_t    nVertices=100000,
-                    /*const Bool_t   needforlogfile=kTRUE,*/
                       const Bool_t   dryRun=kFALSE,
-                      const Int_t    fNoiseLevel=0,
+                      const Int_t    fNoiseLevel=5,
                       const Double_t fZetLen=164.6,
                       const Double_t fBPipeRad=30.,  
                       const Double_t fFirstRad=40.,  
@@ -36,12 +35,13 @@ Int_t EventGenerator( const Int_t    debug=0,
                       const Bool_t   fMultiScat=kTRUE, 
                       const TString  fInData="kinem.root",
                       const TString  fMulDist="hmul",
-                      const TString  fEtadist="heta" ) {
+                      const TString  fEtadist="heta"
+                    /*const Bool_t   needforlogfile=kTRUE,*/ ) {
 
    ///////////////////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////////////
    // Setup the environment.
-   // 
+   //                
    // ~ Create output file.
    // ~ Reset gRandom global pointer.
    // ~ Extract TH1F form input file.
@@ -69,7 +69,7 @@ Int_t EventGenerator( const Int_t    debug=0,
    outfile.cd();
 
    // Trees
-   TTree *MainTree=new TTree("Raw Generat.","Each event consists in a\
+   TTree *MainTree=new TTree("Raw Generat","Each event consists in a\
       vertex and a multiplicity of hits.");
    TTree *EventsTree=new TTree("Events Tree","This contains the true\
       events.");
@@ -191,6 +191,9 @@ Int_t EventGenerator( const Int_t    debug=0,
             else return 1;
             break;
       }
+      ////////////////////////////////////////////////////////////////
+      // Set vertex Noiselevel
+      vertex->SetVerticeNL(fNoiseLevel);
 
       ////////////////////////////////////////////////////////////////
       // Generate random vertex position.
@@ -259,7 +262,7 @@ Int_t EventGenerator( const Int_t    debug=0,
          /////////////////////////////////////////////////////////////
          // Noise algorithm.
          // We have to consider the electronic noise generated on the 
-         // two layers. We also assume that it is uniformely 
+         // two layers. We also assume that it's uniformely 
          // distributed on layers surfaces.
          // Noise sources:
          // 
@@ -268,7 +271,7 @@ Int_t EventGenerator( const Int_t    debug=0,
 
          
          const Int_t fNoiseLevelSec=(Int_t) 
-            (fNoiseLevel*(fSecondRad/fFirstRad));
+            (vertex->GetVerticeNL()*(fSecondRad/fFirstRad));
 
          // On the first layer   
          for( Int_t n=0; n<fNoiseLevel; ++n ) {

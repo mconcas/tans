@@ -142,7 +142,15 @@ Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius,
          return OnCyl;
    }
 }  
+//////////////////////////////////////////////////////////////////////
+// We can find the theta RMS dividing RPhi by the detector radius.
 
+void Hit::GausSmearing( Double_t fDRadius, Double_t fRMSZeta, 
+   Double_t fRMSRTheta ) {
+      this->SetPuntoZ(this->GetPuntoZ()+gRandom->Gaus(0,fRMSZeta));
+      this->SetPuntoPhi(this->GetPuntoPhi()+gRandom->Gaus(0,
+         fRMSRTheta/fDRadius));
+}
 Hit *Hit::EleNoiseOnCyl( Double_t fCRadius, Double_t fZetaMin, 
    Double_t fZetaMax) {
    Hit* fNoise = new Hit();

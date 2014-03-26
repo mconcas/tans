@@ -1,0 +1,41 @@
+// --------- Start of element log -----------------
+
+// Ordinal: 0.0 (role: worker)
+
+// Path: /Users/matteoconcas/.proof/Documents-Universita-Tans-cpp-scratches/session-epsilon-1395763077-14245/worker-0.0-epsilon-1395763078-14306.log 
+// # of retrieved lines: 28 
+
+
+// ------------------------------------------------
+
+16:57:58 14306 Wrk-0.0 | Info in <TProofServLite::Setup>: fWorkDir: /Users/matteoconcas/.proof
+16:57:58 14306 Wrk-0.0 | Warning in <TClass::TClass>: no dictionary for class Vertice is available
+16:57:58 14306 Wrk-0.0 | Warning in <TClass::TClass>: no dictionary for class Punto is available
+16:57:58 14306 Wrk-0.0 | Warning in <TClass::TClass>: no dictionary for class Hit is available
+16:57:59 14306 Wrk-0.0 | Info in <TProofServLite::HandleProcess>: calling fPlayer->Process() with selector name: EventSelector.C+
+cp: ./EventSelector.C and /Users/matteoconcas/.proof/cache/EventSelector.C are identical (not copied).
+cp: ./EventSelector.h and /Users/matteoconcas/.proof/cache/EventSelector.h are identical (not copied).
+16:57:59 14306 Wrk-0.0 | Info in <TProofPlayerSlave::AssertSelector>: Processing via filename
+16:57:59 14306 Wrk-0.0 | Info in <TEventIter::TEventIter>: fPackets list 'ProcessedPackets_0.0' created
+16:57:59 14306 Wrk-0.0 | Info in <TProofPlayerSlave::Process>: save partial results? 0  per-packet? 0
+16:57:59 14306 Wrk-0.0 | SvcMsg in <TProofPlayerSlave::CheckMemUsage>: Memory 70036 virtual 29816 resident event 0
+16:57:59 14306 Wrk-0.0 | SvcMsg in <TProofPlayerSlave::CheckMemUsage>: Memory 70036 virtual 29896 resident event 0
+16:57:59 14306 Wrk-0.0 | *** Break ***: segmentation violation
+Generating stack trace...
+0x00000001073caa9d in TProofServ::HandleProcess(TMessage*, TString*) (in libProof.so) + 2461
+0x00000001073bc11a in TProofServ::HandleSocketInput(TMessage*, bool) (in libProof.so) + 2330
+0x00000001073bad82 in TProofServ::HandleSocketInput() (in libProof.so) + 258
+0x00000001073daae1 in TProofServLiteInputHandler::Notify() (in libProof.so) + 17
+0x00000001073dd0cd in TProofServLiteInputHandler::ReadNotify() (in libProof.so) + 13
+0x00000001023c001e in TUnixSystem::CheckDescriptors() (in libCore.5.34.so) + 318
+0x00000001023c933a in TMacOSXSystem::DispatchOneEvent(bool) (in libCore.5.34.so) + 346
+0x0000000102344d2a in TSystem::InnerLoop() (in libCore.5.34.so) + 26
+0x0000000102344c28 in TSystem::Run() (in libCore.5.34.so) + 424
+0x00000001022e2fb4 in TApplication::Run(bool) (in libCore.5.34.so) + 36
+0x00000001022d87d3 in main (in proofserv.exe) + 2387
+0x00007fff8f50f5fd in start (in libdyld.dylib) + 1
+16:58:00 14306 Wrk-0.0 | Error in <TProofServLite::HandleException>: caugth exception triggered by signal '1' <undef> -1
+
+// --------- End of element log -------------------
+
+

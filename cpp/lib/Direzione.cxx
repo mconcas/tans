@@ -76,7 +76,7 @@ void Direzione::UpdateAng() {
          if(dc2>=0) phi=TMath::Pi()+TMath::ATan(dc2/dc1);
          else phi=TMath::Pi()+TMath::ATan(dc2/dc1);
       }
-      else /*dc1=0*/ {
+      else { // dc1=0
          if(dc2>=0) phi=0.5*TMath::Pi();
          else phi=1.5*TMath::Pi();
       }
