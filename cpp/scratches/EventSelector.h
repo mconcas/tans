@@ -1,9 +1,9 @@
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Wed Feb 12 11:03:59 2014 by ROOT version 5.34/11
-// from TTree Events Tree/This contains the true      events.
+// from TTree Events Tree/This contains the true events.
 // found on file: events.root
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 #ifndef EVENTSELECTOR_H
 #define EVENTSELECTOR_H
@@ -23,7 +23,7 @@
 
 class EventSelector : public TSelector {
 public :
-   TTree          *fChain;  
+   TTree          *fChain;
    Vertice        *fVertex;
    TClonesArray   *fHitsFirstLayer;
    TClonesArray   *fHitsSecondLayer;
@@ -41,7 +41,7 @@ public :
    virtual void    Init(TTree *tree);
    virtual Bool_t  Notify();
    virtual Bool_t  Process(Long64_t entry);
-   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { 
+   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) {
       return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;}
    virtual void    SetOption(const char *option) { fOption = option; }
    virtual void    SetObject(TObject *obj) { fObject = obj; }
