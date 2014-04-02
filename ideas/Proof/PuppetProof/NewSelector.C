@@ -96,23 +96,23 @@ Bool_t NewSelector::Process(Long64_t entry)
    //Personal code and source of errors
    //////////////////////////////////////////////////////////////////
    
-   // Printf("Processing Entry number %lld\n", entry);
+   Printf("Processing Entry number %lld\n", entry);
    ++fNumberOfEvents;
 
    fChain->GetEvent(entry);
 
    Int_t num = fHits->GetEntries();
 
-   // Printf("Ev=%lld Mult=%d(%d) X=%lf Y=%lf Z=%lf",
-      // entry,
-      // fVertMult.mult, num, fVertMult.X, fVertMult.Y, fVertMult.Z);
+   Printf("Ev=%lld Mult=%d(%d) X=%lf Y=%lf Z=%lf",
+      entry,
+      fVertMult.mult, num, fVertMult.X, fVertMult.Y, fVertMult.Z);
 
    Punto *tst;
    for (Int_t j=0; j<num; j++){
       tst=(Punto*)fHits->At(j);
-      // Printf("  #%d: X=%lf Y=%lf Z=%lf",
-        // j, tst->GetX(), tst->GetY(), tst->GetZ());
-      // fHistX->Fill( tst->GetX() );
+      Printf("  #%d: X=%lf Y=%lf Z=%lf",
+        j, tst->GetX(), tst->GetY(), tst->GetZ());
+      fHistX->Fill( tst->GetX() );
    }
 
    return kTRUE;
