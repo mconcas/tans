@@ -5,11 +5,8 @@
 #include "TSystem.h"
 
 void ReconSteer( const Bool_t  fProof=kTRUE,
-                 const TString fDataFile="events.root",
-                 const TString fTreeName="Events Tree",
+                 const TString fDataFile="events.root", 
                  const TString fOption="force") {
-
-   // (Re)Compile classes, macros, etc.
    TString option;
    if(fOption.Contains("force")) option="kfg";
    else option="kg";
@@ -18,6 +15,7 @@ void ReconSteer( const Bool_t  fProof=kTRUE,
    gSystem->CompileMacro("Vertice.cxx",option);
    gSystem->CompileMacro("Hit.cxx",option);
 
+   ///////////////////////////////////////////////////////////////////
    // Open data file.
    TFile *fFile=TFile::Open(fDataFile.Data());
    if(fFile->IsZombie()) {
@@ -25,27 +23,25 @@ void ReconSteer( const Bool_t  fProof=kTRUE,
          check if it exists. ", fDataFile.Data());
       return;
    }
-   TChain *fEventChain=new TChain(fTreeName.Data());
+   TChain *fEventChain=new TChain("Events Tree");
    fEventChain->Add(fDataFile.Data());
    if(fProof) {
-      Printf(" +++ Beginning reconstruction +++");
-      Printf(" +++ Reading from file:    %s", fDataFile.Data());
-      Printf(" +++ Analyzed tree name:   %s", fTreeName.Data());
-      Printf(" +++ Proof master name:    %s", gSystem->HostName());
       TString fWorkerString;
       TProof::Open("workers=4");
       fEventChain->SetProof();
 
-      gProof->Load("Punto.cxx+");
-      gProof->Load("Vertice.cxx+");
-      gProof->Load("Direzione.cxx+");
-      gProof->Load("Hit.cxx+");
+      // Fixed, it seems it doesn't need for this "loads".
+      // gProof->SetParameter("PROOF_UseTreeCache",(Int_t) 0); 
+      // gProof->Load("Punto.cxx+");
+      // gProof->Load("Vertice.cxx+");
+      // gProof->Load("Direzione.cxx+");
+      // gProof->Load("Hit.cxx+");
 
-      fEventChain->Process("ReconSelector.cxx+");
+      fEventChain->Process("EventSelector.C+");
    }
    else {
-      TTree *SerTree = (TTree*)fFile->Get(fTreeName.Data());
-      SerTree->Process("ReconSelector.cxx+");
+      TTree *SerTree = (TTree*)fFile->Get("Events Tree");
+      SerTree->Process("EventSelector.C+");
    }
 
    fFile->Close();

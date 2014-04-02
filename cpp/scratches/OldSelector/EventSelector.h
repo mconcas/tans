@@ -13,8 +13,6 @@
 #include <TFile.h>
 #include <TSelector.h>
 #include <TH1F.h>
-#include <TH3F.h>
-// #include <TObject.h>
 #include <Vertice.h>
 #include <Hit.h>
 #include <Direzione.h>
@@ -25,15 +23,17 @@ class EventSelector : public TSelector {
 public :
    TTree          *fChain;
    Vertice        *fVertex;
-   TClonesArray   *fHitsFirstLayer;
-   TClonesArray   *fHitsSecondLayer;
+   TClonesArray   *fHitsFirstLayer;    // variable fHitsFirstLayer
+                                       // that will contain the data.
+   TClonesArray   *fHitsSecondLayer;   // variable fHitsSecondLayer
+                                       // that will contain the data.
    Hit            *fAnaHitScnd;
    Hit            *fAnaHitFrst;
-   // TH3F           *fPuppetHistIO;
-   TH1F           *fHistPhi;
-   Int_t          fNumberOfEvents;
+   TH1F           *fHistZeta;
+   Int_t          fNumberOfEvents=0;
+   Int_t          fFlagAna=0;
 
-   EventSelector(TTree* =0) : fChain(0), fHistPhi(0) {}
+   EventSelector(TTree* =0) /*fChain(0) fHistZeta(0)*/ {}
    virtual ~EventSelector() {}
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);

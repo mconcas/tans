@@ -16,14 +16,14 @@ Hit::Hit(): Punto(),
    idnumber(0),
    realhit(kFALSE) { }
 
-Hit::Hit( Double_t fX, Double_t fY, Double_t fZ, Int_t fLayer, 
-   Int_t fIdnumber ): 
+Hit::Hit( Double_t fX, Double_t fY, Double_t fZ, Int_t fLayer,
+   Int_t fIdnumber ):
    Punto(fX, fY, fZ),
    layernum(fLayer),
    idnumber(fIdnumber),
    realhit(kFALSE) { }
 
-Hit::~Hit() {if (gDebug) Printf( "*** hit object destroyed ***" ); }
+Hit::~Hit() { if (gDebug) Printf( "*** hit object destroyed ***" ); }
 
 void Hit::NowRealHit() { realhit=kTRUE; }
 void Hit::SetHitID( Int_t fId ) { idnumber=fId; }
@@ -47,14 +47,14 @@ Hit *Hit::HitOnCylFromVertex( Vertice &fOrigin, Direzione &fDirect,
       // Extract theta and phi from "Direzione".
       const Double_t fThe=fDirect.GetDirectTheta();
       const Double_t fPhi=fDirect.GetDirectPhi();
-      
+
       ////////////////////////////////////////////////////////////////
       // Manage the ϑ=0 exception
-      if(fThe==0 || fThe==TMath::Pi()) { 
+      if(fThe==0 || fThe==TMath::Pi()) {
          Hit *OnCyl=new Hit();
          if (gDebug) Printf("ϑ=0 exception -> no scattering.");
          return OnCyl;
-      }   
+      }
       else {
 
       ////////////////////////////////////////////////////////////////
@@ -62,29 +62,29 @@ Hit *Hit::HitOnCylFromVertex( Vertice &fOrigin, Direzione &fDirect,
       const Double_t xO=fOrigin.GetPuntoX();
       const Double_t yO=fOrigin.GetPuntoY();
       const Double_t zO=fOrigin.GetPuntoZ();
-      
+
       ////////////////////////////////////////////////////////////////
       // Compute the "t" value.
       const Double_t t=ComputeT(fThe,fPhi,xO,yO,fRadius);
 
       // Build item in return.
-      Hit *OnCyl=new Hit( xO+t*fDirect.GetDirCos1(), 
-                          yO+t*fDirect.GetDirCos2(), 
+      Hit *OnCyl=new Hit( xO+t*fDirect.GetDirCos1(),
+                          yO+t*fDirect.GetDirCos2(),
                           zO+t*fDirect.GetDirCos3(),
                           fLayno, fIde );
 
       return OnCyl;
-   }  
+   }
 }
 
-Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius, 
-                      TMaterial &fMaterial, Double_t fWidth, 
-                      Int_t fIde, Bool_t multscat, Int_t fLayno, 
+Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius,
+                      TMaterial &fMaterial, Double_t fWidth,
+                      Int_t fIde, Bool_t multscat, Int_t fLayno,
                       Double_t fP, Int_t fZ, Double_t fBeta ) {
    if (multscat) {
 
       /////////////////////////////////////////////////////////////
-      // θo represents the rms of a gaussian distribution centred 
+      // θo represents the rms of a gaussian distribution centred
       // in 0.
       // Formula used for the MScattering θo evaluation:
       // Dimensionalities:
@@ -93,27 +93,27 @@ Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius,
       /////////////////////////////////////////////////////////////
       // Get the Radiation Length: X_0
       const Double_t X_0 = fMaterial.GetRadLength();
-      
-      /////////////////////////////////////////////////////////////  
+
+      /////////////////////////////////////////////////////////////
       // WARNING!
-      // Since fP should be passed with a dimensionality of [fP] 
-      // [fP]= MeV/c it's obvious that "c" wouldn't appear in this 
+      // Since fP should be passed with a dimensionality of [fP]
+      // [fP]= MeV/c it's obvious that "c" wouldn't appear in this
       // computation.
       const Double_t fThetaZero=(13.6/(fBeta*fP))*fZ*\
       TMath::Sqrt(fWidth/X_0)*(1+0.038*TMath::Log(fWidth/X_0));
-      
+
       /////////////////////////////////////////////////////////////
-      // Generate θ form Gaussian distribution with mean 0 and 
+      // Generate θ form Gaussian distribution with mean 0 and
       // rms θo. Phi is uniformely distributed between 0<=φ<2Pi
-      const Double_t thetalocal=gRandom->Gaus(0.,fThetaZero); 
+      const Double_t thetalocal=gRandom->Gaus(0.,fThetaZero);
       const Double_t philocal=gRandom->Rndm()*2*TMath::Pi();
 
       /////////////////////////////////////////////////////////////
-      // Rotate direction in order to refer it to the Laboratory 
+      // Rotate direction in order to refer it to the Laboratory
       // Reference System.
       fDirect.Direzione::Rotate(thetalocal, philocal);
 
-   }  
+   }
 
    // Extract theta and phi from "Direzione".
    const Double_t fThe=fDirect.GetDirectTheta();
@@ -121,43 +121,42 @@ Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius,
 
    ////////////////////////////////////////////////////////////////
    // Manage the ϑ=0 exception
-   if(fThe==0 || TMath::Abs(fThe)==TMath::Pi()) { 
+   if(fThe==0 || TMath::Abs(fThe)==TMath::Pi()) {
       Hit *OnCyl=new Hit();
       if (gDebug) Printf("ϑ=0 exception -> no scattering.");
 
       return OnCyl;
-   }  
+   }
    else {
 
       /////////////////////////////////////////////////////////////
       // Compute "t" value.
       const Double_t t=ComputeT(fThe,fPhi,X,Y,fRadius);
-         
+
       // Returned item.
-      Hit *OnCyl=new Hit( X+t*fDirect.GetDirCos1(), 
+      Hit *OnCyl=new Hit( X+t*fDirect.GetDirCos1(),
                           Y+t*fDirect.GetDirCos2(),
                           Z+t*fDirect.GetDirCos3(),
                           fLayno, fIde );
-            
+
          return OnCyl;
    }
-}  
+}
 //////////////////////////////////////////////////////////////////////
 // We can find the theta RMS dividing RPhi by the detector radius.
 
-void Hit::GausSmearing( Double_t fDRadius, Double_t fRMSZeta, 
+void Hit::GausSmearing( Double_t fDRadius, Double_t fRMSZeta,
    Double_t fRMSRTheta ) {
       this->SetPuntoZ(this->GetPuntoZ()+gRandom->Gaus(0,fRMSZeta));
       this->SetPuntoPhi(this->GetPuntoPhi()+gRandom->Gaus(0,
          fRMSRTheta/fDRadius));
 }
-Hit *Hit::EleNoiseOnCyl( Double_t fCRadius, Double_t fZetaMin, 
+Hit *Hit::EleNoiseOnCyl( Double_t fCRadius, Double_t fZetaMin,
    Double_t fZetaMax) {
    Hit* fNoise = new Hit();
    fNoise->SetPuntoCRadius(fCRadius);
    fNoise->SetPuntoZ( fZetaMin+(fZetaMax-fZetaMin)*gRandom->Rndm() );
    fNoise->SetPuntoPhi( 2*TMath::Pi()*gRandom->Rndm() );
-   
+
    return fNoise;
 }
-  

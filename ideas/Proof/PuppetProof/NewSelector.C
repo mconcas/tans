@@ -46,8 +46,8 @@ void NewSelector::Init(TTree *tree)
    fChain = tree;
 
    //fChain->SetMakeClass(1);
-
-   fChain->SetBranchAddress("VertMult", /*(Double_t *)*/&fVertMult);
+   fHits = new TClonesArray("Punto");
+   fChain->SetBranchAddress("VertMult", (Double_t *)&fVertMult);
    fChain->SetBranchAddress("Hits", &fHits);
 
 }
@@ -80,7 +80,7 @@ void NewSelector::SlaveBegin(TTree * /*tree*/)
    //Personal code and source of errors
    //////////////////////////////////////////////////////////////////
 
-   fHits = new TClonesArray("Punto");
+   // fHits = new TClonesArray("Punto");
 
    fHistX = new TH1I("fHistX", "X Histogram", 100, -10, 10);
    fOutput->Add( fHistX );
@@ -96,23 +96,23 @@ Bool_t NewSelector::Process(Long64_t entry)
    //Personal code and source of errors
    //////////////////////////////////////////////////////////////////
    
-   Printf("Processing Entry number %lld\n", entry);
+   // Printf("Processing Entry number %lld\n", entry);
    ++fNumberOfEvents;
 
    fChain->GetEvent(entry);
 
    Int_t num = fHits->GetEntries();
 
-   Printf("Ev=%lld Mult=%d(%d) X=%lf Y=%lf Z=%lf",
-      entry,
-      fVertMult.mult, num, fVertMult.X, fVertMult.Y, fVertMult.Z);
+   // Printf("Ev=%lld Mult=%d(%d) X=%lf Y=%lf Z=%lf",
+      // entry,
+      // fVertMult.mult, num, fVertMult.X, fVertMult.Y, fVertMult.Z);
 
    Punto *tst;
    for (Int_t j=0; j<num; j++){
       tst=(Punto*)fHits->At(j);
-      Printf("  #%d: X=%lf Y=%lf Z=%lf",
-        j, tst->GetX(), tst->GetY(), tst->GetZ());
-      fHistX->Fill( tst->GetX() );
+      // Printf("  #%d: X=%lf Y=%lf Z=%lf",
+        // j, tst->GetX(), tst->GetY(), tst->GetZ());
+      // fHistX->Fill( tst->GetX() );
    }
 
    return kTRUE;

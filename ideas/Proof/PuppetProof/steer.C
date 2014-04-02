@@ -22,7 +22,7 @@ void steer(const TString avecProof="noProof", const TString proofString="workers
   	mychain->Add( buf.Data() );
   }
   if (avecProof=="noProof") {
-    //gSystem->Load("Punto.cxx+");
+    // gSystem->Load("Punto.cxx+");
     TTree *mytree = (TTree *)f->Get("T");
     mytree->Process("NewSelector.C+");
     }

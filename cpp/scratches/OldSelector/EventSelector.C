@@ -69,17 +69,16 @@ void EventSelector::Begin(TTree *) {
 
 void EventSelector::SlaveBegin(TTree *) {
    // fHitsFirstLayer = new TClonesArray("Hit");
-   fHistPhi = new TH1F("HistPhi","Scarti sull'azimuth",360,
-      -0.01*TMath::Pi(),0.01*TMath::Pi());
+   fHistZeta = new TH1F("HistZeta","Z Ricostruiti",800,-200,200);
    // Add the output histogram to the margiable object list.
-   fOutput->Add( fHistPhi );
+   fOutput->Add( fHistZeta );
 }
 //////////////////////////////////////////////////////////////////////
 // Core of the analysis.
 
 Bool_t EventSelector::Process(Long64_t entry) {
 
-   Printf("Processing entry n°: %lld", entry+1);
+   // Printf("Processing entry n°: %lld", entry+1);
    ++fNumberOfEvents;
    fChain->GetEvent( entry );
 
@@ -87,20 +86,26 @@ Bool_t EventSelector::Process(Long64_t entry) {
    Int_t fEntriesLTwo = fHitsSecondLayer->GetEntries();
 
    const Double_t fAngle=0.174532925;
+   Double_t fZetaRecon=0;
    for ( Int_t v=0; v<fEntriesLTwo; v++ ) {
       fAnaHitScnd=(Hit*)fHitsSecondLayer->At(v);
       fAnaHitScnd->Hit::GausSmearing(70,0.12,0.003);
       for (Int_t j=0; j<fEntriesLOne; j++) {
          fAnaHitFrst=(Hit*)fHitsFirstLayer->At(j);
          fAnaHitFrst->Hit::GausSmearing(40,0.12,0.003);
-         if( TMath::Abs(fAnaHitScnd->GetPuntoPhi()-
-            fAnaHitFrst->GetPuntoPhi())<=fAngle/2 )
-            fHistPhi->Fill(fAnaHitScnd->GetPuntoPhi()-
-            fAnaHitFrst->GetPuntoPhi());
+         if( TMath::Abs(fAnaHitScnd->GetPuntoPhi()-fAnaHitFrst
+            ->GetPuntoPhi())<=fAngle/2 ) {
+               fZetaRecon=fAnaHitFrst->GetPuntoZ()-((fAnaHitScnd
+                  ->GetPuntoZ()-fAnaHitFrst->GetPuntoZ())/(fAnaHitScnd
+                  ->GetPuntoX()-fAnaHitFrst->GetPuntoX()))*fAnaHitFrst
+                  ->GetPuntoX();
+               if( fZetaRecon>-200 && fZetaRecon<200 ) {
+                  fFlagAna++;
+                  fHistZeta->Fill(fZetaRecon);
+               }
+         }
       }
    }
-
-
    return kTRUE;
 }
 
@@ -111,7 +116,8 @@ void EventSelector::SlaveTerminate() {
    // on each slave server.
    delete fHitsFirstLayer;
    delete fHitsSecondLayer;
-   printf("\nTotal Number of Events: %d\n", fNumberOfEvents);
+   Printf("\nTotal Number of Events: %d", fNumberOfEvents);
+   Printf("Total Number of analyzed items: %d", fFlagAna);
 
 
 }
@@ -121,7 +127,6 @@ void EventSelector::Terminate() {
    // during a query. It always runs on the client, it can be used
    // to present the results graphically or save the results to file.
 
-   fHistPhi=dynamic_cast<TH1F*>(
-      fOutput->FindObject("HistPhi") );
-   if (fHistPhi) fHistPhi->Draw();
+   fHistZeta=dynamic_cast<TH1F*>(fOutput->FindObject("HistZeta"));
+   if (fHistZeta) fHistZeta->Draw();
 }

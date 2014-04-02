@@ -23,7 +23,7 @@
 #endif
 
 Int_t EventGenerator( const Int_t    debug=0,
-                      const Int_t    nVertices=100000,
+                      const Int_t    nVertices=5,
                       const Bool_t   dryRun=kFALSE,
                       const Int_t    fNoiseLevel=5,
                       const Double_t fZetLen=164.6,
@@ -69,12 +69,12 @@ Int_t EventGenerator( const Int_t    debug=0,
    outfile.cd();
 
    // Trees
-   TTree *MainTree=new TTree("Raw Generation","Each event consists in\
-      a vertex and a multiplicity of hits.");
+   TTree *MainTree=new TTree("Montecarlo Truth","Each event is\
+    composed by a vertex and a #multiplicity of hits.");
    TTree *EventsTree=new TTree("Events Tree","This contains the true\
       events.");
 
-   // TMaterials stock useful data source for multiple scattering.
+   // TMaterials can stock useful data source for multiple scattering.
    TMaterial Beryllium("Berillio","Be",8,4,1.85,35.28,0);
    TMaterial Silicon("Silicio","Si",28,14,2.33,9.37,0);
 
@@ -95,8 +95,8 @@ Int_t EventGenerator( const Int_t    debug=0,
    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
    // Containers for EventsTree
-   TClonesArray* rhitsbpipeptr = new TClonesArray("Hit",100);
-   TClonesArray &rhitsbpipe = *rhitsbpipeptr;
+   // TClonesArray* rhitsbpipeptr = new TClonesArray("Hit",100);
+   // TClonesArray &rhitsbpipe = *rhitsbpipeptr;
    TClonesArray* rhitsfirstptr = new TClonesArray("Hit",100);
    TClonesArray &rhitsfirst = *rhitsfirstptr;
    TClonesArray* rhitssecondptr = new TClonesArray("Hit",100);
@@ -123,8 +123,8 @@ Int_t EventGenerator( const Int_t    debug=0,
    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
    // EventTree branches.
-   EventsTree->Branch("Vertices",    vertex);
-   EventsTree->Branch("Beampipe",    &rhitsbpipeptr);
+   // EventsTree->Branch("Vertices",    vertex);
+   // EventsTree->Branch("Beampipe",    &rhitsbpipeptr);
    EventsTree->Branch("Firstlayer",  &rhitsfirstptr);
    EventsTree->Branch("Secondlayer", &rhitssecondptr);
    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -165,7 +165,9 @@ Int_t EventGenerator( const Int_t    debug=0,
    ///////////////////////////////////////////////////////////////////
 
    for(Int_t i=0;i<nVertices;++i) {
+      // Show progress percentage "live".
       printf("Progress status:     \t\t\t%d%% \r", percentage);
+      
       Int_t k=0;
       Int_t u=0;
       Int_t v=0;
@@ -226,8 +228,8 @@ Int_t EventGenerator( const Int_t    debug=0,
             -histEtaptr->GetRandom())),temp,j);
 
          // Fill TClonesArrays with a std CConstructor.
-      // new(direction1[j]) Direzione(*fDirect);
-      // new(rdirection1[j]) Direzione(*fDirect);
+         // new(direction1[j]) Direzione(*fDirect);
+         // new(rdirection1[j]) Direzione(*fDirect);
 
          /////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
@@ -236,13 +238,14 @@ Int_t EventGenerator( const Int_t    debug=0,
 
          if(TMath::Abs(tHitBPptr->GetPuntoZ())<=fZetLen/2) {
          // new(rdirection2[k]) Direzione(*fDirect);
-            new(rhitsbpipe[k]) Hit(*tHitBPptr);
-            k+=1;
+         // new(rhitsbpipe[k]) Hit(*tHitBPptr);
+         // k+=1;
+         // }
+         
+         // new(direction2[j]) Direzione(*fDirect);
+         new(hitsbpipe[k]) Hit(*tHitBPptr);
+         k+=1;
          }
-
-      // new(direction2[j]) Direzione(*fDirect);
-         new(hitsbpipe[j]) Hit(*tHitBPptr);
-
 
          /////////////////////////////////////////////////////////////
          // Propagate to 1st detector and add it to the proper
@@ -267,13 +270,14 @@ Int_t EventGenerator( const Int_t    debug=0,
             Silicon,0.2,j,fMultiScat,2 );
 
          if(TMath::Abs(tHitSLptr->GetPuntoZ())<=fZetLen/2) {
-         // new(rdirection3[v]) Direzione(*fDirect);
+            // new(rdirection3[v]) Direzione(*fDirect);
             new(rhitssecond[v]) Hit(*tHitSLptr);
             v+=1;
          }
 
-      // new(direction3[j]) Direzione(*fDirect);
+         // new(direction3[j]) Direzione(*fDirect);
          new(hitssecond[j]) Hit(*tHitSLptr);
+
          /////////////////////////////////////////////////////////////
          // Noise algorithm.
          // We have to consider the electronic noise generated on the
@@ -331,7 +335,7 @@ Int_t EventGenerator( const Int_t    debug=0,
       // direction2ptr->Clear();
       // direction3ptr->Clear();
       // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-         rhitsbpipeptr->Clear();
+         // rhitsbpipeptr->Clear();
          rhitsfirstptr->Clear();
          rhitssecondptr->Clear();
       // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
