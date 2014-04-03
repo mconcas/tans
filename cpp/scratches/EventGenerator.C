@@ -23,7 +23,7 @@
 #endif
 
 Int_t EventGenerator( const Int_t    debug=0,
-                      const Int_t    nVertices=5,
+                      const Int_t    nVertices=500,
                       const Bool_t   dryRun=kFALSE,
                       const Int_t    fNoiseLevel=5,
                       const Double_t fZetLen=164.6,

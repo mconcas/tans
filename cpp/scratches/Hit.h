@@ -52,7 +52,6 @@ class Hit : public Punto {
                         Double_t fRadius,
                         TMaterial &fMaterial,
                         Double_t fWidth,
-                        Int_t fIde,
                         Bool_t multscat=kTRUE,
                         Int_t fLayno=0,
                         Double_t fP=750,
@@ -90,7 +89,7 @@ class Hit : public Punto {
 
    protected:
       Int_t  layernum;       // It keeps track of the layer hit
-      Int_t  idnumber;
+      Int_t  idnumber;       // Useful flag for Montecarlo purposes
       Bool_t realhit;        // Is it a real hit?
 
    ClassDef(Hit,1)

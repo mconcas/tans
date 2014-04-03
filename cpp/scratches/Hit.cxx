@@ -78,17 +78,17 @@ Hit *Hit::HitOnCylFromVertex( Vertice &fOrigin, Direzione &fDirect,
 }
 
 Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius,
-                      TMaterial &fMaterial, Double_t fWidth,
-                      Int_t fIde, Bool_t multscat, Int_t fLayno,
-                      Double_t fP, Int_t fZ, Double_t fBeta ) {
-   if (multscat) {
+                       TMaterial &fMaterial, Double_t fWidth,
+                       Bool_t fMultiscat, Int_t fLayno,
+                       Double_t fP, Int_t fZ, Double_t fBeta ) {
+   if (fMultiscat) {
 
       /////////////////////////////////////////////////////////////
       // θo represents the rms of a gaussian distribution centred
       // in 0.
       // Formula used for the MScattering θo evaluation:
       // Dimensionalities:
-      // [x]=cm ; [X_0]=cm; [c]=3x10**8; [b]=#; [fP]=MeV/c
+      // [x]=cm; [X_0]=cm; [c]=3x10**8; [b]=#; [fP]=MeV/c
       // θo = (13.6 MeV/β*c*p)*Z*(√(x/X_0))[1+0.038*Ln(x/X_0)]
       /////////////////////////////////////////////////////////////
       // Get the Radiation Length: X_0
@@ -137,14 +137,13 @@ Hit *Hit::GetHitOnCyl( Direzione &fDirect, Double_t fRadius,
       Hit *OnCyl=new Hit( X+t*fDirect.GetDirCos1(),
                           Y+t*fDirect.GetDirCos2(),
                           Z+t*fDirect.GetDirCos3(),
-                          fLayno, fIde );
+                          fLayno, idnumber );
 
          return OnCyl;
    }
 }
 //////////////////////////////////////////////////////////////////////
 // We can find the theta RMS dividing RPhi by the detector radius.
-
 void Hit::GausSmearing( Double_t fDRadius, Double_t fRMSZeta,
    Double_t fRMSRTheta ) {
       this->SetPuntoZ(this->GetPuntoZ()+gRandom->Gaus(0,fRMSZeta));

@@ -8,7 +8,7 @@
 #include "TRandom3.h"
 #include "TString.h"
 #define nofiles 10
-#define nevents 100000
+#define nevents 100
 
 void GeneraTree(Bool_t moreRandom = kFALSE, const char *outfn = NULL)
 {
