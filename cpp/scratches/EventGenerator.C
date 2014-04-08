@@ -25,6 +25,7 @@
 Int_t EventGenerator( const Int_t    debug=0,
                       const Int_t    nVertices=500,
                       const Bool_t   dryRun=kFALSE,
+                      const Bool_t   fFlagMontecarloTruth=kFALSE,
                       const Int_t    fNoiseLevel=5,
                       const Double_t fZetLen=164.6,
                       const Double_t fBPipeRad=30.,
@@ -70,7 +71,8 @@ Int_t EventGenerator( const Int_t    debug=0,
 
    // Trees
    TTree *MainTree=new TTree("Montecarlo Truth","Each event is\
-    composed by a vertex and a #multiplicity of hits.");
+      composed by a vertex and a #multiplicity of hits.");
+
    TTree *EventsTree=new TTree("Events Tree","This contains the true\
       events.");
 
@@ -323,7 +325,7 @@ Int_t EventGenerator( const Int_t    debug=0,
       // Clear TClonesArrays.
       ////////////////////////////////////////////////////////////////
       if(!(dryRun)) {
-         MainTree->Fill();
+         // MainTree->Fill();
          EventsTree->Fill();
       }
 
@@ -349,13 +351,14 @@ Int_t EventGenerator( const Int_t    debug=0,
    ///////////////////////////////////////////////////////////////////
    // Finalyze the simulation.
    ///////////////////////////////////////////////////////////////////
+   if( !fFlagMontecarloTruth ) MainTree->TTree::~TTree();
    if(!dryRun) outfile.Write();
    Printf("Progress status:     \t\t\t100%%");
    Printf("Simulation process ended.");
    histEtaptr->TH1F::~TH1F();
    hisMulptr->TH1F::~TH1F();
 
-   MainTree->TTree::~TTree();
+   // MainTree->TTree::~TTree();
    vertex->Vertice::~Vertice();
    outfile.Close();
    infile.Close();
