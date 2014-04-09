@@ -22,25 +22,27 @@ Bool_t DeltaPhiSelector::Notify() {
 
 void DeltaPhiSelector::Begin(TTree * /*tree*/) {
    Printf("\n\t++ +++ ++ ++ ++++ +++ ++ +++ +++ ++");
-   Printf("\t+       Method to find Δϕ        +");
+   Printf("\t+       Method to find Δϕ         +");
    Printf("\t+ ++ +++ + + ++ ++ +++ + ++ ++ ++ +\n\n");
 
+   fCounter=0;
    TString option = GetOption();
 
 }
 
 void DeltaPhiSelector::SlaveBegin(TTree * /*tree*/) {
    
-   fPhiHistogram = new TH1F("DeltaPhi","Δϕ distribution",
+   fPhiHistogram = new TH1F("DeltaPhi","DeltaPhi distribution",
       300,-0.5,0.5);
+   if( fPhiHistogram ) Printf("Histogram created");
    fOutput->Add( fPhiHistogram );
-   TString option = GetOption();
+   // TString option = GetOption();
 
 }
 
 Bool_t DeltaPhiSelector::Process(Long64_t entry) {
    // Get the tree entry.
-   fChain->GetEntry( entry );
+   fChain->GetTree()->GetEntry( entry );
 
    // Obtain the number of entries.
    Int_t fEntriesLOne = fHitClonesArray_FL->GetEntries();
@@ -50,12 +52,13 @@ Bool_t DeltaPhiSelector::Process(Long64_t entry) {
 
    // Loop over the TClonesArrays.
    for ( Int_t v=0; v<fEntriesLTwo; v++ ) {
+      fCounter++;
       fAnaHitScnd = (Hit*)fHitClonesArray_SL->At(v);
-      fAnaHitScnd->Hit::GausSmearing(70,0.12,0.003);
+      // fAnaHitScnd->Hit::GausSmearing(70,0.12,0.003);
       for (Int_t j=0; j<fEntriesLOne; j++) {
-         Printf("++ Iteration #%d, #%d",v+1,j+1);
+         // Printf("++ Iteration #%d, #%d",v+1,j+1);
          fAnaHitFrst=(Hit*)fHitClonesArray_FL->At(j);
-         fAnaHitFrst->Hit::GausSmearing(40,0.12,0.003);
+         // fAnaHitFrst->Hit::GausSmearing(40,0.12,0.003);
          if(fAnaHitFrst->GetHitID()==fAnaHitScnd->GetHitID()) {
             fPhiHistogram->Fill(fAnaHitFrst->GetPuntoPhi()-
                fAnaHitScnd->GetPuntoPhi());
@@ -72,6 +75,7 @@ void DeltaPhiSelector::SlaveTerminate() {
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
    Printf("SlaveTerminate() function called.");
+   Printf("Counter value: %d",fCounter);
 }
 
 void DeltaPhiSelector::Terminate() {

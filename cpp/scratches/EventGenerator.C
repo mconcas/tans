@@ -153,7 +153,11 @@ Int_t EventGenerator( const Int_t    debug=0,
          Printf("Multiplicity manually set at: %d", fCustomMult);
    }
    Printf("Multiple Scattering:      \t\t%s", fMultiScat ?
-      "\x1B[32menabled\x1B[0m" : "\x1B[31mdisabled\x1B[0m");
+      "\x1B[32menabled\x1B[0m" : "\x1B[31mdisabled\x1B[0m"); 
+   Printf("Save Montecarlo truth:     \t\t%s", 
+      fFlagMontecarloTruth ? "\x1B[32myes\x1B[0m" : 
+      "\x1B[31mno\x1B[0m");
+
    Printf("Noise Level:              \t\t%d", fNoiseLevel);
 
 
@@ -325,7 +329,7 @@ Int_t EventGenerator( const Int_t    debug=0,
       // Clear TClonesArrays.
       ////////////////////////////////////////////////////////////////
       if(!(dryRun)) {
-         // MainTree->Fill();
+         if( fFlagMontecarloTruth ) MainTree->Fill();
          EventsTree->Fill();
       }
 

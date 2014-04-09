@@ -34,7 +34,8 @@ public :
    Hit            *fAnalyzedHit_SL;         // 2nd layer analyzed hit.
    TH1F           *fPhiHistogram; 
    Hit            *fAnaHitScnd;
-   Hit            *fAnaHitFrst;           
+   Hit            *fAnaHitFrst;
+   Int_t           fCounter;           
 // Derive the constructor from class TSelector.
    DeltaPhiSelector(TTree* =0) : 
       fChain(0),
