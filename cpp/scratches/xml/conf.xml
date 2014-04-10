@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuration file -->
+<param>
+
+   <outfile tgt="events.root">
+      <main_tree enabled="true">Montecarlo Truth</main_tree>
+      <events_tree>Event Tree</events_tree>  
+   </outfile>   
+</param>

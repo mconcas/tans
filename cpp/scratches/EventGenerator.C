@@ -23,10 +23,10 @@
 #endif
 
 Int_t EventGenerator( const Int_t    debug=0,
-                      const Int_t    nVertices=500,
+                      const Int_t    nVertices=100000,
                       const Bool_t   dryRun=kFALSE,
-                      const Bool_t   fFlagMontecarloTruth=kFALSE,
-                      const Int_t    fNoiseLevel=5,
+                      const Bool_t   fFlagMontecarloTruth=kTRUE,
+                      const Int_t    fNoiseLevel=0,
                       const Double_t fZetLen=164.6,
                       const Double_t fBPipeRad=30.,
                       const Double_t fFirstRad=40.,
@@ -300,7 +300,7 @@ Int_t EventGenerator( const Int_t    debug=0,
 
          // On the first layer
          for( Int_t n=0; n<fNoiseLevel; ++n ) {
-            Hit *tNoiseHitPtrF=Hit::EleNoiseOnCyl( fFirstRad,
+            Hit *tNoiseHitPtrF=Hit::NoiseOnCyl( fFirstRad,
                -fZetLen/2,fZetLen/2);
             new(rhitsfirst[u+n]) Hit( *tNoiseHitPtrF );
             delete tNoiseHitPtrF;
@@ -308,7 +308,7 @@ Int_t EventGenerator( const Int_t    debug=0,
 
          // On the second layer.
          for( Int_t m=0; m<fNoiseLevelSec; ++m ) {
-            Hit * tNoiseHitPtrS=Hit::EleNoiseOnCyl( fSecondRad,
+            Hit * tNoiseHitPtrS=Hit::NoiseOnCyl( fSecondRad,
                -fZetLen/2,fZetLen/2);
             new(rhitssecond[v+m]) Hit( *tNoiseHitPtrS );
             delete tNoiseHitPtrS;

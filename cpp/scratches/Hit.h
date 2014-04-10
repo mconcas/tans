@@ -21,59 +21,60 @@ class Hit : public Punto {
 
       //_____________{Con,De}structors____________
       Hit();
-      Hit(Double_t fX, Double_t fY, Double_t fZ, Int_t fLayerno,
-          Int_t fIdnumber=0);
+      Hit( Double_t X, Double_t Y, Double_t Z, Int_t Layerno,
+          Int_t Idnumber=0 );
       virtual ~Hit();
 
       // ____________Inline_Getters_______________
-      Int_t  GetLayerNumber() { return layernum; }
-      Bool_t IsReal()         { return realhit;  }
-      Int_t  GetHitID()       { return idnumber; }
+      Int_t  GetLayerNumber() { return  fLayernum; }
+      Bool_t IsReal()         { return  fIdnumber; }
+      Int_t  GetHitID()       { return  fRealhit;  }
 
       //_____________Setter_______________________
       void NowRealHit();
-      void SetHitID(Int_t fID);
-      void SetHitLayno(Int_t fLay);
+      void SetHitID(Int_t Idnumber);
+      void SetHitLayno(Int_t Layernum);
+
+      ////////////////////////////////////////////////////////////////
+      // Compute the cylinder-line intersection and returns the "t"
+      // parameter.
+      static Double_t ComputeT( Double_t Theta,
+                                Double_t Phi,
+                                Double_t XO,
+                                Double_t YO,
+                                Double_t Radius );
 
       //_____________Transport_Generators_________
       ////////////////////////////////////////////////////////////////
-      // It generates a Hit starting from a vtx.
-      static Hit *HitOnCylFromVertex( Vertice &fOrigin,
-                                      Direzione &fDirect,
-                                      Double_t fRadius,
-                                      Int_t fIde,
-                                      Int_t fLayno=0 );
+      // It generates a Hit starting from a vrtx.
+      static Hit *HitOnCylFromVertex( Vertice&   Origin,
+                                      Direzione& Direct,
+                                      Double_t   Radius,
+                                      Int_t      Idnumber,
+                                      Int_t      Layerno=0 );
 
       ////////////////////////////////////////////////////////////////
       // It generates a Hit starting from a Hit, including the
       // possibility of multiple scattering with a TMaterial that
       // cross the trajectory.
-      Hit *GetHitOnCyl( Direzione &fDirect,
-                        Double_t fRadius,
-                        TMaterial &fMaterial,
-                        Double_t fWidth,
-                        Bool_t multscat=kTRUE,
-                        Int_t fLayno=0,
-                        Double_t fP=750,
-                        Int_t fZ=1,
-                        Double_t fBeta=1 );
+      Hit *GetHitOnCyl( Direzione& Direct,
+                        Double_t   Radius,
+                        TMaterial& Material,
+                        Double_t   Width,
+                        Bool_t     Multscat=kTRUE,
+                        Int_t      Layerno=0,
+                        Double_t   P=750,
+                        Int_t      Z=1,
+                        Double_t   Beta=1 );
 
-      ////////////////////////////////////////////////////////////////
-      // Compute the cylinder-line intersection and returns the "t"
-      // parameter.
-      static Double_t ComputeT( Double_t fTheta,
-                                Double_t fPhi,
-                                Double_t fXO,
-                                Double_t fYO,
-                                Double_t fRadius );
 
       //_____________Smearing_Generator______
       ////////////////////////////////////////////////////////////////
-      // Due to the finite resolution of detectors the coordinates are
+      // Since the finite resolution of detectors the coordinates are
       // slightly modified by a Gaussian algorythm.
-      void GausSmearing( Double_t fDRadius,
-                         Double_t fSZeta,
-                         Double_t fSX      );
+      void GausSmearing( Double_t DRadius,
+                         Double_t SZeta,
+                         Double_t SX );
 
 
 
@@ -82,15 +83,15 @@ class Hit : public Punto {
       // The first generator creates uniformly distributed hits on
       // a cylindrical surface (e.g. a Detector).
 
-      static Hit *EleNoiseOnCyl( Double_t fCRadius,
-                                 Double_t fZetamin,
-                                 Double_t fZetamax );
+      static Hit* NoiseOnCyl( Double_t CRadius,
+                              Double_t Zetamin,
+                              Double_t Zetamax );
 
 
    protected:
-      Int_t  layernum;       // It keeps track of the layer hit
-      Int_t  idnumber;       // Useful flag for Montecarlo purposes
-      Bool_t realhit;        // Is it a real hit?
+      Int_t  fLayernum;       // It keeps track of the layer hit
+      Int_t  fIdnumber;       // Useful flag for Montecarlo purposes
+      Bool_t fRealhit;        // Is it a real hit?
 
    ClassDef(Hit,1)
 };

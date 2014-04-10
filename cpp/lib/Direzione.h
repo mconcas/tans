@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 //class Direzione: basic geometry class.
 //
-//Written by Matteo Concas: mett1990@gmail.com 
+//Written by Matteo Concas: mett1990@gmail.com
 //Exam: «Tecniche di analisi numerica e simulazione»
 //////////////////////////////////////////////////////////////////////
 #ifndef DIREZIONE_H
@@ -15,29 +15,29 @@ class Direzione : public TObject {
    public:
       //____________{Con,Des}tructors____________
       Direzione();
-      Direzione(Double_t fTheta, Double_t fPhi, Int_t fIdentity);
+      Direzione(Double_t Theta, Double_t Phi, Int_t Idnumber);
       virtual ~Direzione();
 
       //____________Setters______________________
-      void SetDirectTheta( const Double_t fTheta);
-      void SetDirectPhi( const Double_t fPhi);
-      void SetCosDir1( const Double_t fC1 ); 
-      void SetCosDir2( const Double_t fC2 ); 
-      void SetCosDir3( const Double_t fC3 );
-      void SetAllCos( const Double_t fC1, const Double_t fC2, 
-                     const Double_t fC3 );
+      void SetDirectTheta( const Double_t Theta);
+      void SetDirectPhi( const Double_t Phi);
+      void SetCosDir1( const Double_t C1 );
+      void SetCosDir2( const Double_t C2 );
+      void SetCosDir3( const Double_t C3 );
+      void SetAllCos( const Double_t C1, const Double_t C2,
+                      const Double_t C3 );
       void FlipBit();
-      void Rotate(Double_t fTheta, Double_t fPhi);
+      void Rotate(Double_t Theta, Double_t Phi);
 
       //____________Getters______________________
-      Int_t    GetDirectID()     const { return identity; }
-      Double_t GetDirectTheta()  const { return theta; }
-      Double_t GetDirectPhi()    const { return phi ;}
-      Double_t GetDirCos1()      const { return dc1; }
-      Double_t GetDirCos2()      const { return dc2; }
-      Double_t GetDirCos3()      const { return dc3; }
-      Bool_t   GetRotStatus()    const { return isrotated; }
-      
+      Int_t    GetDirectID()     const { return fIdnumber; }
+      Double_t GetDirectTheta()  const { return fTheta; }
+      Double_t GetDirectPhi()    const { return fPhi ;}
+      Double_t GetDirCos1()      const { return fDc1; }
+      Double_t GetDirCos2()      const { return fDc2; }
+      Double_t GetDirCos3()      const { return fDc3; }
+      Bool_t   GetRotStatus()    const { return fIsrotated; }
+
    private:
 
       void UpdateAng();
@@ -46,13 +46,13 @@ class Direzione : public TObject {
    protected:
 
       //____________Datamembers__________________
-      Int_t    identity;    // Identification number.
-      Double_t theta;       // Theta angle.
-      Double_t phi;         // Phi angle.
-      Double_t dc1;         // Director cosine x.
-      Double_t dc2;         // Director cosine y.
-      Double_t dc3;         // Director cosine z.
-      Bool_t   isrotated;   // Debug flag.
+      Int_t    fIdnumber;    // Identification number.
+      Double_t fTheta;       // Theta angle.
+      Double_t fPhi;         // Phi angle.
+      Double_t fDc1;         // Director cosine x.
+      Double_t fDc2;         // Director cosine y.
+      Double_t fDc3;         // Director cosine z.
+      Bool_t   fIsrotated;   // Debug flag.
 
    ClassDef(Direzione, 1)
 
