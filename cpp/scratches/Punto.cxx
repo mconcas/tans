@@ -151,7 +151,8 @@ void Punto::SetPuntoSRadius(const Double_t SRadius) {
 void Punto::CartesiantoSpherical() {
    // Update spherical coordinates, managing exceptions and
    // singularities.
-   if ( (fSRadius=TMath::Sqrt(fX*fX+fY*fY+fZ*fZ))!=0 ) {
+   if ((fSRadius=CorrMachinePrecision( TMath::Sqrt(fX*fX+fY*fY+fZ*fZ)
+      ))!=0 ) {
 
       // Theta
       fTheta=TMath::ACos(fZ/fSRadius);
