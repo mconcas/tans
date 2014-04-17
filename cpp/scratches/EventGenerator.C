@@ -242,7 +242,7 @@ Int_t EventGenerator( const Int_t    debug=0,
          Hit* tHitBPptr=Hit::HitOnCylFromVertex( *vertex,
                               *fDirect,fBPipeRad,j );
          if (tHitBPptr->GetPuntoCRadius()!=30.)
-         Printf("[debug] --- ev: %d %lf",j, tHitBPptr->GetPuntoCRadius());
+         //Printf("[debug] --- ev: %d %lf",j, tHitBPptr->GetPuntoCRadius());
 
          if(TMath::Abs(tHitBPptr->GetPuntoZ())<=fZetLen/2) {
          // new(rdirection2[k]) Direzione(*fDirect);

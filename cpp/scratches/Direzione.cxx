@@ -24,7 +24,8 @@ Direzione::Direzione( Double_t Theta, Double_t Phi,
       fIdnumber(Idnumber),
       fTheta(Theta),
       fPhi(Phi),
-      fIsrotated(kFALSE) {
+      fIsrotated(kFALSE) 
+{
          fDc1=TMath::Sin(Theta)*TMath::Cos(Phi);
          fDc2=TMath::Sin(Theta)*TMath::Sin(Phi);
          fDc3=TMath::Cos(Theta);
@@ -35,34 +36,41 @@ Direzione::~Direzione() {
 }
 
 //_________Setters___________________________
-void Direzione::SetDirectTheta(const Double_t Theta) {
+void Direzione::SetDirectTheta(const Double_t Theta) 
+{
    fTheta=Theta;
 }
 
-void Direzione::SetDirectPhi(const Double_t Phi) {
+void Direzione::SetDirectPhi(const Double_t Phi) 
+{
    fPhi=Phi;
 }
 
-void Direzione::SetCosDir1( const Double_t C1 ){
+void Direzione::SetCosDir1( const Double_t C1 )
+{
    fDc1=C1;
 }
 
-void Direzione::SetCosDir2( const Double_t C2 ){
+void Direzione::SetCosDir2( const Double_t C2 )
+{
    fDc2=C2;
 }
 
-void Direzione::SetCosDir3( const Double_t C3 ){
+void Direzione::SetCosDir3( const Double_t C3 )
+{
    fDc3=C3;
 }
 
 void Direzione::SetAllCos( const Double_t C1, const Double_t C2,
-   const Double_t C3 ) {
+   const Double_t C3 ) 
+{
    fDc1=C1;
    fDc2=C2;
    fDc3=C3;
 }
 
-void Direzione::UpdateAng() {
+void Direzione::UpdateAng() 
+{
 
    ///////////////////////////////////////////////////////////////////
    // Since D[ATan(x)] = [-Pi,+Pi] -> One have to discuss the cosines
@@ -72,31 +80,32 @@ void Direzione::UpdateAng() {
    if(fDc1>0) {
       if(fDc2>=0) fPhi=TMath::ATan(fDc2/fDc1);
       else fPhi=2*TMath::Pi()+TMath::ATan(fDc2/fDc1);
-   }
-   else {
+   } else {
       if(fDc1!=0) { // dc1<0
          if(fDc2>=0) fPhi=TMath::Pi()+TMath::ATan(fDc2/fDc1);
          else fPhi=TMath::Pi()+TMath::ATan(fDc2/fDc1);
-      }
-      else { // dc1=0
+      } else { // dc1=0
          if(fDc2>=0) fPhi=0.5*TMath::Pi();
          else fPhi=1.5*TMath::Pi();
       }
    }
 }
 
-void Direzione::UpdateDirCos() {
+void Direzione::UpdateDirCos() 
+{
    fDc1=TMath::Sin(fTheta)*TMath::Cos(fPhi);
    fDc2=TMath::Sin(fTheta)*TMath::Sin(fPhi);
    fDc3=TMath::Cos(fTheta);
 }
 
-void Direzione::FlipBit() {
+void Direzione::FlipBit() 
+{
    if(fIsrotated) fIsrotated = kFALSE;
    else fIsrotated = kTRUE;
 }
 
-void Direzione::Rotate(Double_t Theta, Double_t Phi) {
+void Direzione::Rotate(Double_t Theta, Double_t Phi) 
+{
 
       // Define 2D Rotation Matrix
       Double_t mr[3][3];

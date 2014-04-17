@@ -8,7 +8,8 @@
 
 // Redefine zero due to machine precision issues.
 const Double_t kZero=1/TMath::Tan(TMath::Pi()/2);
-Double_t CorrMachinePrecision(const Double_t value) {
+Double_t CorrMachinePrecision(const Double_t value) 
+{
    if( value<0 && value - (Int_t)value>-kZero )
    return static_cast<Double_t>(static_cast<Int_t>(value+0.5));
    else {
@@ -35,14 +36,16 @@ Punto::Punto(Double_t X, Double_t Y, Double_t Z):
    TObject(),
    fX(X),
    fY(Y),
-   fZ(Z) {
+   fZ(Z) 
+{
       CartesiantoSpherical();   // Set Spherical coords.
       CartesiantoCylindrical(); // Set Cylindrical coords.
-   }
+}
 
 //_________Setters___________________________
 void Punto::SetPuntoCartesians(const Double_t X, const Double_t Y,
-   const Double_t Z) {
+   const Double_t Z) 
+{
       fX=X;
       fY=Y;
       fZ=Z;
@@ -51,7 +54,8 @@ void Punto::SetPuntoCartesians(const Double_t X, const Double_t Y,
 }
 
 void Punto::SetPuntoCylindricals(const Double_t Z,
-   const Double_t CRadius, const Double_t Phi) {
+   const Double_t CRadius, const Double_t Phi) 
+{
       fZ=Z;
       fPhi=Phi;
       fCRadius=CRadius;
@@ -60,7 +64,8 @@ void Punto::SetPuntoCylindricals(const Double_t Z,
 }
 
 void Punto::SetPuntoSphericals(const Double_t Theta,
-   const Double_t Phi, const Double_t SRaSRadius) {
+   const Double_t Phi, const Double_t SRaSRadius) 
+{
       fTheta=Theta;
       fPhi=Phi;
       fSRadius=SRaSRadius;
@@ -68,19 +73,22 @@ void Punto::SetPuntoSphericals(const Double_t Theta,
       CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoX(const Double_t X) {
+void Punto::SetPuntoX(const Double_t X) 
+{
    fX=X;
    CartesiantoSpherical();
    CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoY(const Double_t Y) {
+void Punto::SetPuntoY(const Double_t Y) 
+{
    fY=Y;
    CartesiantoSpherical();
    CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoZ(const Double_t Z) {
+void Punto::SetPuntoZ(const Double_t Z) 
+{
    fZ=Z;
    CartesiantoSpherical();
    CartesiantoCylindrical();
@@ -88,7 +96,8 @@ void Punto::SetPuntoZ(const Double_t Z) {
    // coordinates because Z is the same coord.
 }
 
-void Punto::SetPuntoTheta(const Double_t Theta) {
+void Punto::SetPuntoTheta(const Double_t Theta) 
+{
 
    ///////////////////////////////////////////////////////////////////
    //Theta is a spherical parameter. We have to invert the spherical
@@ -105,7 +114,8 @@ void Punto::SetPuntoTheta(const Double_t Theta) {
    CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoPhi(const Double_t Phi) {
+void Punto::SetPuntoPhi(const Double_t Phi) 
+{
 
    ///////////////////////////////////////////////////////////////////
    //fPhi is a spherical and a cylindrical parameter.
@@ -123,7 +133,8 @@ void Punto::SetPuntoPhi(const Double_t Phi) {
    CartesiantoSpherical();
 }
 
-void Punto::SetPuntoCRadius(const Double_t CRadius) {
+void Punto::SetPuntoCRadius(const Double_t CRadius) 
+{
    fCRadius=CRadius;
    CylindricaltoCartesian();
    CartesiantoSpherical();
@@ -135,7 +146,8 @@ void Punto::SetPuntoCRadius(const Double_t CRadius) {
              \n Please, check your intentions and the source code!");
 }
 
-void Punto::SetPuntoSRadius(const Double_t SRadius) {
+void Punto::SetPuntoSRadius(const Double_t SRadius) 
+{
    fSRadius=SRadius;
    SphericaltoCartesian();
    CartesiantoCylindrical();
@@ -148,7 +160,8 @@ void Punto::SetPuntoSRadius(const Double_t SRadius) {
 }
 
 //___________Coordinates_Tools__________
-void Punto::CartesiantoSpherical() {
+void Punto::CartesiantoSpherical() 
+{
    // Update spherical coordinates, managing exceptions and
    // singularities.
    if ((fSRadius=CorrMachinePrecision( TMath::Sqrt(fX*fX+fY*fY+fZ*fZ)
@@ -171,13 +184,11 @@ void Punto::CartesiantoSpherical() {
                if (fY==0.) fPhi=fTheta=0.;             // X=0. et Y=0.
                else fPhi=TMath::Pi()+TMath::Pi()/2;    // X=0. et Y<0.
             }
-         }
-         else {
+         } else {
             fPhi=TMath::Pi()+TMath::ATan(fY/fX);       // X<0. et ∀Y
          }
       }
-   }
-   else {
+   } else {
       fPhi=fTheta=0.;   // Default value, to avoid non-initialization.
    }
 }
@@ -195,16 +206,14 @@ void Punto::CartesiantoCylindrical() {
       else {
          fPhi=2*TMath::Pi()+TMath::ATan(fY/fX);     // X>0. et Y<0.
       }
-   }
-   else {
+   } else {
       if (fX==0.) {
          if (fY>0.) fPhi=TMath::Pi()/2;             // X=0. et Y>0.
          else {
             if (fY==0.) fPhi=fTheta=0.;             // X=0. et Y=0.
             else fPhi=TMath::Pi()+TMath::Pi()/2;    // X=0. et Y<0.
          }
-      }
-      else {
+      } else {
          fPhi=TMath::Pi()+TMath::ATan(fY/fX);       // X<0. et ∀Y
       }
    }

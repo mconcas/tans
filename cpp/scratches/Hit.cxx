@@ -30,7 +30,8 @@ void Hit::SetHitID( Int_t Idnumber ) { fIdnumber=Idnumber; }
 void Hit::SetHitLayno( Int_t Layernum ) { fLayernum=Layernum; }
 
 Double_t Hit::ComputeT( Double_t Theta, Double_t Phi, Double_t XO,
-   Double_t YO, Double_t Radius ) {
+   Double_t YO, Double_t Radius ) 
+{
       const Double_t sintheta=TMath::Sin(Theta);
       const Double_t sinphi=TMath::Sin(Phi);
       const Double_t cosphi=TMath::Cos(Phi);
@@ -42,7 +43,8 @@ Double_t Hit::ComputeT( Double_t Theta, Double_t Phi, Double_t XO,
 }
 
 Hit *Hit::HitOnCylFromVertex( Vertice& Origin, Direzione& Direct,
-   Double_t Radius, Int_t Ide, Int_t Layerno ) {
+   Double_t Radius, Int_t Ide, Int_t Layerno ) 
+{
 
       // Extract theta and phi from "Direzione".
       const Double_t theta = Direct.GetDirectTheta();
@@ -54,8 +56,7 @@ Hit *Hit::HitOnCylFromVertex( Vertice& Origin, Direzione& Direct,
          Hit *OnCyl=new Hit();
          if (gDebug) Printf("ϑ=0 exception -> no scattering.");
          return OnCyl;
-      }
-      else {
+      } else {
 
       ////////////////////////////////////////////////////////////////
       // Get origin coordinates: xO, yO, zO from "Vertice"
@@ -80,7 +81,8 @@ Hit *Hit::HitOnCylFromVertex( Vertice& Origin, Direzione& Direct,
 Hit *Hit::GetHitOnCyl( Direzione& Direct, Double_t Radius,
                        TMaterial& Material, Double_t Width,
                        Bool_t Multiscat, Int_t Layno,
-                       Double_t P, Int_t Z, Double_t Beta ) {
+                       Double_t P, Int_t Z, Double_t Beta ) 
+{
    if ( Multiscat ) {
 
       /////////////////////////////////////////////////////////////
@@ -126,8 +128,7 @@ Hit *Hit::GetHitOnCyl( Direzione& Direct, Double_t Radius,
       if ( gDebug ) Printf( "ϑ=0 exception -> no scattering." );
 
       return OnCyl;
-   }
-   else {
+   } else {
 
       /////////////////////////////////////////////////////////////
       // Compute "t" value.
@@ -146,7 +147,8 @@ Hit *Hit::GetHitOnCyl( Direzione& Direct, Double_t Radius,
 //////////////////////////////////////////////////////////////////////
 // One can find the theta RMS dividing RPhi by the detector radius.
 void Hit::GausSmearing( Double_t DRadius, Double_t RMSZeta,
-   Double_t RMSRTheta ) {
+   Double_t RMSRTheta ) 
+{
       this->SetPuntoZ(this->GetPuntoZ()+gRandom->Gaus(0,RMSZeta));
       this->SetPuntoPhi(this->GetPuntoPhi()+gRandom->Gaus(0,
          RMSRTheta/DRadius));
@@ -154,7 +156,8 @@ void Hit::GausSmearing( Double_t DRadius, Double_t RMSZeta,
 
 
 Hit* Hit::NoiseOnCyl( Double_t CRadius, Double_t ZetaMin,
-   Double_t ZetaMax) {
+   Double_t ZetaMax) 
+{
    Hit* Noise = new Hit();
    Noise->SetPuntoCRadius( CRadius );
    Noise->SetPuntoZ( ZetaMin+(ZetaMax-ZetaMin)*gRandom->Rndm() );
