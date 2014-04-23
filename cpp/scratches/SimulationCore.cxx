@@ -51,7 +51,7 @@ void SimulationCore::SetParamFile(TString Filename)
    fParDataFileName=Filename;
 }
 
-Int_t SimulationCore::Initialize()
+Bool_t SimulationCore::Initialize()
 {
    // Read and store Simulation parameters.
    fXMLEngine=new TXMLEngine();
@@ -113,11 +113,16 @@ Int_t SimulationCore::Initialize()
    if((TString)fXMLEngine->GetAttr(fIndexNodeptr,"dryrun")=="kFALSE")
       fDryRun=kFALSE;
    else fDryRun=kTRUE;
-   
+
    if((TString)fXMLEngine->GetAttr(fIndexNodeptr,"montecarlo")=="kFALSE") 
       fMontecarloTruth=kFALSE;
       else fMontecarloTruth=kTRUE;
    fOutFileName=(TString)fXMLEngine->GetNodeContent(fIndexNodeptr);
    
-   return 0; 
+   return kTRUE; 
+}
+
+Bool_t SimulationCore::Run()
+{
+   
 }

@@ -26,12 +26,15 @@ class SimulationCore : public TObject {
 
       //____________Setters______________________
       void SetParamFile(TString Filename);
-      Int_t Initialize();
+      Bool_t Initialize();
 
       //____________Inline_Getters_______________
       TString             GetParamFile() { return fParDataFileName; }
       XMLDocPointer_t     GetXMLDocPointer() { return fXmlDocFileptr; }
 
+      //____________Run_Simulation_______________
+      Bool_t Run();
+      
    private:
 
       // XML Specifications 
