@@ -2,11 +2,13 @@
 #include "DeltaPhiSelector.h"
 #include <TH2.h>
 #include <TStyle.h>
+#include <TMath.h>
+
 
 void DeltaPhiSelector::Init(TTree *tree) {
    
    if (!tree) return;
-   fChain = tree;
+   fChain=tree;
    Printf("[debug > init(): \"%s\" tree is loaded.",tree->GetName());
    fChain->SetBranchAddress("Firstlayer", &fHitClonesArray_FL);
    fChain->SetBranchAddress("Secondlayer", &fHitClonesArray_SL);
@@ -42,26 +44,33 @@ void DeltaPhiSelector::SlaveBegin(TTree * /*tree*/) {
 
 Bool_t DeltaPhiSelector::Process(Long64_t entry) {
    // Get the tree entry.
+   if(entry!=0) {
+      fHitClonesArray_FL->Clear();
+      fHitClonesArray_SL->Clear();
+   }
+
    fChain->GetTree()->GetEntry( entry );
 
    // Obtain the number of entries.
-   Int_t fEntriesLOne = fHitClonesArray_FL->GetEntries();
-   Printf("[debug > entry #: %lld, #L1: %d",1+entry,fEntriesLOne);
-   Int_t fEntriesLTwo = fHitClonesArray_SL->GetEntries();
-   Printf("[debug > entry #: %lld, #L2: %d",1+entry,fEntriesLTwo);
+   Int_t fEntriesLOne=fHitClonesArray_FL->GetEntries();
+   // Printf("[debug > entry #: %lld, #L1: %d",1+entry,fEntriesLOne);
+   Int_t fEntriesLTwo=fHitClonesArray_SL->GetEntries();
+   // Printf("[debug > entry #: %lld, #L2: %d",1+entry,fEntriesLTwo);
 
    // Loop over the TClonesArrays.
-   for ( Int_t v=0; v<fEntriesLTwo; v++ ) {
-      fCounter++;
+   for (Int_t v=0;v<fEntriesLTwo;v++) {
       fAnaHitScnd = (Hit*)fHitClonesArray_SL->At(v);
       // fAnaHitScnd->Hit::GausSmearing(70,0.12,0.003);
-      for (Int_t j=0; j<fEntriesLOne; j++) {
+      for (Int_t j=0;j<fEntriesLOne;j++) {
+         fCounter++;
          // Printf("++ Iteration #%d, #%d",v+1,j+1);
          fAnaHitFrst=(Hit*)fHitClonesArray_FL->At(j);
          // fAnaHitFrst->Hit::GausSmearing(40,0.12,0.003);
          if(fAnaHitFrst->GetHitID()==fAnaHitScnd->GetHitID()) {
-            fPhiHistogram->Fill(fAnaHitFrst->GetPuntoPhi()-
-               fAnaHitScnd->GetPuntoPhi());
+            Printf("%f",TMath::Abs(fAnaHitFrst->GetPuntoPhi())-
+               TMath::Abs(fAnaHitScnd->GetPuntoPhi()));
+            fPhiHistogram->Fill(TMath::Abs(fAnaHitFrst->GetPuntoPhi())-
+               TMath::Abs(fAnaHitScnd->GetPuntoPhi()));
          }
       }
    }

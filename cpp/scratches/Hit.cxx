@@ -14,26 +14,25 @@ ClassImp (Hit)
 Hit::Hit(): Punto(),
    fLayernum(0),
    fIdnumber(0),
-   fRealhit(kFALSE) { }
+   fRealhit(kFALSE) {}
 
-Hit::Hit( Double_t X, Double_t Y, Double_t Z, Int_t Layerno,
-   Int_t Idnumber ):
-      Punto( X,Y,Z ),
-      fLayernum( Layerno ),
-      fIdnumber( Idnumber ),
-      fRealhit( kFALSE ) { }
+Hit::Hit(Double_t X,Double_t Y,Double_t Z,Int_t Layerno,Int_t Idnumber) :
+      Punto(X,Y,Z),
+      fLayernum(Layerno),
+      fIdnumber(Idnumber),
+      fRealhit(kFALSE) {}
 
 Hit::~Hit()
 { 
-   if (gDebug) Printf( "*** hit object destroyed ***" ); 
+   if (gDebug) Printf("*** hit object destroyed ***"); 
 }
 
-void Hit::NowRealHit() { fRealhit=kTRUE; }
-void Hit::SetHitID( Int_t Idnumber ) { fIdnumber=Idnumber; }
-void Hit::SetHitLayno( Int_t Layernum ) { fLayernum=Layernum; }
+void Hit::NowRealHit() {fRealhit=kTRUE;}
+void Hit::SetHitID(Int_t Idnumber) {fIdnumber=Idnumber;}
+void Hit::SetHitLayno(Int_t Layernum) {fLayernum=Layernum;}
 
-Double_t Hit::ComputeT( Double_t Theta, Double_t Phi, Double_t XO,
-   Double_t YO, Double_t Radius ) 
+Double_t Hit::ComputeT(Double_t Theta,Double_t Phi,Double_t XO,Double_t YO,
+   Double_t Radius) 
 {
       const Double_t sintheta=TMath::Sin(Theta);
       const Double_t sinphi=TMath::Sin(Phi);
@@ -44,8 +43,8 @@ Double_t Hit::ComputeT( Double_t Theta, Double_t Phi, Double_t XO,
       return t;
 }
 
-Hit *Hit::HitOnCylFromVertex( Vertice& Origin, Direzione& Direct,
-   Double_t Radius, Int_t Ide, Int_t Layerno ) 
+Hit *Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
+   Int_t Ide,Int_t Layerno) 
 {
 
       // Extract theta and phi from "Direzione".
@@ -111,7 +110,6 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
       // Rotate direction in order to refer it to the Laboratory
       // Reference System.
       Direct.Direzione::Rotate(thetalocal,philocal);
-
    }
    
    // Extract theta and phi from "Direzione".
@@ -134,8 +132,7 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
       // Returned item.
       Hit *OnCyl=new Hit(fX+t*Direct.GetDirCos1(),fY+t*Direct.GetDirCos2(),
                          fZ+t*Direct.GetDirCos3(),Layno,fIdnumber);
-
-         return OnCyl;
+      return OnCyl;
    }
 }
 

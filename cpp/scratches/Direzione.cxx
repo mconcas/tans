@@ -46,27 +46,40 @@ void Direzione::SetDirectPhi(const Double_t Phi)
    fPhi=Phi;
 }
 
-void Direzione::SetCosDir1( const Double_t C1 )
+void Direzione::SetCosDir1(const Double_t C1)
 {
    fDc1=C1;
 }
 
-void Direzione::SetCosDir2( const Double_t C2 )
+void Direzione::SetCosDir2(const Double_t C2)
 {
    fDc2=C2;
 }
 
-void Direzione::SetCosDir3( const Double_t C3 )
+void Direzione::SetCosDir3(const Double_t C3)
 {
    fDc3=C3;
 }
 
-void Direzione::SetAllCos( const Double_t C1, const Double_t C2,
+void Direzione::SetAllCos(const Double_t C1, const Double_t C2,
    const Double_t C3 ) 
 {
    fDc1=C1;
    fDc2=C2;
    fDc3=C3;
+   UpdateAng();
+}
+
+void Direzione::SetAllAngles(const Double_t Theta, const Double_t Phi)
+{
+   fTheta=Theta;
+   fPhi=Phi;
+   UpdateDirCos();
+}
+
+void Direzione::SetDirectID(const Double_t id)
+{
+   fIdnumber=id;
 }
 
 void Direzione::UpdateAng() 

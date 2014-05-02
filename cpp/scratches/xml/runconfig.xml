@@ -2,17 +2,16 @@
 <!-- In this example we run a simulation with both multiplicity and theta
      extracted from distributions stored in a an input file e.g.: "kinem.root".
      Please note that each measure is expressed in millimeters. -->
-
 <simulation>
    <infile name="kinem.root">
       <multiplicity from="distribution">hmul</multiplicity>
       <eta from="distribution">heta</eta>
    </infile>
-   <vertices debug="0" noise="0" num="1000000">
+   <vertices debug="0" noise="0" num="100000">
       <!-- If "gaussian" attr is specified, the node value will correspond 
       to the distribution rms, else a fixed coordinate value -->
-      <x type="gaussian">0.1</x>
-      <y type="gaussian">0.1</y>
+      <x type="gaussian">0.01</x>
+      <y type="gaussian">0.01</y>
       <z type="gaussian">53.0</z>
    </vertices>
    <multiplescattering enabled="true"></multiplescattering>
