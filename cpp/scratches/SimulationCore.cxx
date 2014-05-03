@@ -270,8 +270,6 @@ Bool_t SimulationCore::Run()
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
-   TMaterial materiale1=TMaterial("Berillio","Be",8,4,1.85,35.28,0);
-   TMaterial materiale2=TMaterial("Silicio","Si",28,14,2.33,9.37,0);
    for(Int_t i=0;i<fNumVertices;++i) {
       
       // Show progress percentage.

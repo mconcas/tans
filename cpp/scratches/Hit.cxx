@@ -51,7 +51,7 @@ Hit *Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
       const Double_t theta=Direct.GetDirectTheta();
       const Double_t phi=Direct.GetDirectPhi();
 
-      ////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
       // Manage the ϑ=0 exception
       if( theta==0 || theta==TMath::Pi()) {
          Hit *OnCyl=new Hit();
@@ -131,7 +131,7 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
       
       // Returned item.
       Hit *OnCyl=new Hit(fX+t*Direct.GetDirCos1(),fY+t*Direct.GetDirCos2(),
-                         fZ+t*Direct.GetDirCos3(),Layno,fIdnumber);
+         fZ+t*Direct.GetDirCos3(),Layno,fIdnumber);
       return OnCyl;
    }
 }
