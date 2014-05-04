@@ -6,11 +6,11 @@
 #include "TSystem.h"
 #endif
 
-void ReconSteer(const Bool_t  fProof=kTRUE, 
-                const TString fDataFile="events.root",
-                const TString fTreeName="Events Tree",
-                const TString fSelectorName="DeltaPhiSelector.cxx+",
-                const TString fOption="force") {
+void ReconSteer(const Bool_t  fProof=kTRUE,
+   const TString fDataFile="events.root", const TString fTreeName="Events Tree",
+   const TString fSelectorName="DeltaPhiSelector.cxx+",
+   const TString fOption="force") 
+{
 
    // (Re)Compile classes, macros, etc.
    TString option;

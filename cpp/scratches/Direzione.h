@@ -32,13 +32,13 @@ class Direzione : public TObject {
       void Rotate(Double_t Theta, Double_t Phi);
 
       //____________Getters______________________
-      Int_t    GetDirectID()     const { return fIdnumber; }
-      Double_t GetDirectTheta()  const { return fTheta; }
-      Double_t GetDirectPhi()    const { return fPhi ;}
-      Double_t GetDirCos1()      const { return fDc1; }
-      Double_t GetDirCos2()      const { return fDc2; }
-      Double_t GetDirCos3()      const { return fDc3; }
-      Bool_t   GetRotStatus()    const { return fIsrotated; }
+      Int_t    GetDirectID()     const {return fIdnumber;}
+      Double_t GetDirectTheta()  const {return fTheta;}
+      Double_t GetDirectPhi()    const {return fPhi;}
+      Double_t GetDirCos1()      const {return fDc1;}
+      Double_t GetDirCos2()      const {return fDc2;}
+      Double_t GetDirCos3()      const {return fDc3;}
+      Bool_t   GetRotStatus()    const {return fIsrotated;}
 
    private:
 

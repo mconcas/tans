@@ -19,24 +19,26 @@ class Direzione : public TObject {
       virtual ~Direzione();
 
       //____________Setters______________________
-      void SetDirectTheta( const Double_t Theta);
-      void SetDirectPhi( const Double_t Phi);
-      void SetCosDir1( const Double_t C1 );
-      void SetCosDir2( const Double_t C2 );
-      void SetCosDir3( const Double_t C3 );
-      void SetAllCos( const Double_t C1, const Double_t C2,
+      void SetDirectTheta(const Double_t Theta);
+      void SetDirectPhi(const Double_t Phi);
+      void SetCosDir1(const Double_t C1);
+      void SetCosDir2(const Double_t C2);
+      void SetCosDir3(const Double_t C3);
+      void SetAllCos(const Double_t C1, const Double_t C2,
                       const Double_t C3 );
+      void SetAllAngles(const Double_t Theta, const Double_t Phi);
+      void SetDirectID(const Double_t id);
       void FlipBit();
       void Rotate(Double_t Theta, Double_t Phi);
 
       //____________Getters______________________
-      Int_t    GetDirectID()     const { return fIdnumber; }
-      Double_t GetDirectTheta()  const { return fTheta; }
-      Double_t GetDirectPhi()    const { return fPhi ;}
-      Double_t GetDirCos1()      const { return fDc1; }
-      Double_t GetDirCos2()      const { return fDc2; }
-      Double_t GetDirCos3()      const { return fDc3; }
-      Bool_t   GetRotStatus()    const { return fIsrotated; }
+      Int_t    GetDirectID()     const {return fIdnumber;}
+      Double_t GetDirectTheta()  const {return fTheta;}
+      Double_t GetDirectPhi()    const {return fPhi;}
+      Double_t GetDirCos1()      const {return fDc1;}
+      Double_t GetDirCos2()      const {return fDc2;}
+      Double_t GetDirCos3()      const {return fDc3;}
+      Bool_t   GetRotStatus()    const {return fIsrotated;}
 
    private:
 

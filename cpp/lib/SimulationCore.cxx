@@ -24,7 +24,7 @@ XMLNodePointer_t FromChildToNextParent(TXMLEngine* engine,
    return index;
 }
 
-XMLNodePointer_t DrainDetectorData(pipe_t &pipe, TXMLEngine* engine,
+XMLNodePointer_t DrainDetectorData(pipe_t &pipe,TXMLEngine* engine,
    XMLNodePointer_t index)
 {  
    pipe.fZetaLen=atof(engine->GetNodeContent(index));
@@ -65,7 +65,6 @@ SimulationCore::SimulationCore(TString Pardatafile, TString SimName) :
    fXMLEngine(),
    fSimulationName(SimName) { }
 
-
 void SimulationCore::SetParamFile(TString Filename) 
 {
    fParDataFileName=Filename;
@@ -89,6 +88,7 @@ Bool_t SimulationCore::Initialize()
    if((TString)fXMLEngine->GetAttrValue(fXMLEngine->GetFirstAttr(fIndexNodeptr))
       =="distribution") {
       fMultDist=(TString)fXMLEngine->GetNodeContent(fIndexNodeptr);
+      fFixedMult=0;
    } else {
       Printf("Multiplicity histogram not specified, setting fixed value: %d",
          atoi(fXMLEngine->GetNodeContent(fIndexNodeptr)));
@@ -154,9 +154,11 @@ Bool_t SimulationCore::Initialize()
 
 Bool_t SimulationCore::Status()
 {  
-   Printf("Simulation %s status: ", fSimulationName.Data());
+   Printf("\x1B[31mSimulation %s status:\x1B[0m\n", fSimulationName.Data());
    Printf("Fixed multiplicity value: %d",fFixedMult);
    Printf("Number of vertices: %d",fNumVertices);
+   if(fMultipleScat) Printf("Multiple scattering: enabled.");
+   else Printf("Multiple scattering: disabled.");
    Printf("Noise level: %d",fNoiseLevel);
    Printf("Beampipe data:\n\t\
       Layer:      %d \n\t\
@@ -223,10 +225,11 @@ Bool_t SimulationCore::Run()
    TClonesArray &rhitssecond=*rhitssecondptr;
 
    // Vertex.
-   Vertice* vertex=new Vertice();
+   Vertice vertex=Vertice();
+   Direzione direction=Direzione();
 
    // Montecarlo Tree branches.
-   MainTree->Branch("Vertices",vertex);
+   MainTree->Branch("Vertices",&vertex);
    MainTree->Branch("Beampipe",&hitsbpipeptr);
    MainTree->Branch("Firstlayer",&hitsfirstptr);
    MainTree->Branch("Secondlayer",&hitssecondptr);
@@ -271,91 +274,89 @@ Bool_t SimulationCore::Run()
       
       // Show progress percentage.
       printf("Progress status:     \t\t\t%d%% \r", percentage);
-      
       Int_t u=0;
       Int_t v=0;
 
       if(fFixedMult==0) 
          // static_cast<Int_t>() returns rounded-down values.
-         vertex->SetVerticeMult(static_cast<Int_t>(hisMulptr->GetRandom()+0.5));
-      else vertex->SetVerticeMult(fFixedMult);
-
+         vertex.SetVerticeMult(static_cast<Int_t>(hisMulptr->GetRandom()+0.5));
+      else vertex.SetVerticeMult(fFixedMult);
 
       //////////////////////////////////////////////////////////////////////////
       // Set vertex Noiselevel
-      vertex->SetVerticeNL(fNoiseLevel);
+      vertex.SetVerticeNL(fNoiseLevel);
 
       //////////////////////////////////////////////////////////////////////////
       // Generate random vertex position.
-      vertex->SetPuntoX(gRandom->Gaus(0,fRmsX));
-      vertex->SetPuntoY(gRandom->Gaus(0,fRmsY));
-      vertex->SetPuntoZ(gRandom->Gaus(0,fRmsZ));
+      vertex.SetPuntoX(gRandom->Gaus(0,fRmsX));
+      vertex.SetPuntoY(gRandom->Gaus(0,fRmsY));
+      vertex.SetPuntoZ(gRandom->Gaus(0,fRmsZ));
 
       //////////////////////////////////////////////////////////////////////////
       // Hits generation loop.
-      const Int_t lim=vertex->GetVerticeMult();
+      const Int_t multiplicity=vertex.GetVerticeMult();
 
       // Transport code.
-      for(Int_t j=0;j<lim;++j) {
-         Direzione* fDirect=new Direzione(ThetaFromEta(histEtaptr),
-            2*gRandom->Rndm()*TMath::Pi(),j);
+      for(Int_t j=0;j<multiplicity;++j) {
+         direction.SetAllAngles(ThetaFromEta(histEtaptr),2*gRandom->Rndm()
+            *TMath::Pi());
+         direction.SetDirectID(j);
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
-         Hit* tHitBPptr=Hit::HitOnCylFromVertex(*vertex,*fDirect,
+         Hit* tHitBPptr=Hit::HitOnCylFromVertex(vertex,direction,
             fBeampipe.fPipeRad,j);         
-         new(hitsbpipe[j]) Hit(*tHitBPptr);
-
+         
          ///////////////////////////////////////////////////////////////////////
          // Propagate to 1st detector and add it to the proper
          // TClonesArray.
          // 
          // fBeampipe.fMaterial, fBeampipe.fThickness are used to determine the 
          // deviation due the multiple scattering effect.
-         Hit* tHitFLptr=tHitBPptr->GetHitOnCyl(*fDirect,fFirstLayer.fPipeRad,
-            fBeampipe.fMaterial,fBeampipe.fThickness,j,fMultipleScat,1);
          
+         Hit* tHitFLptr=tHitBPptr->GetHitOnCyl(direction,fFirstLayer.fPipeRad,
+              fBeampipe.fMaterial,fBeampipe.fThickness,fMultipleScat,1);
+
          // Reset Rotation bit.
-         fDirect->FlipBit(); 
+         if(fMultipleScat) direction.FlipBit();
+
+         ///////////////////////////////////////////////////////////////////////
+         // Propagate to 2nd cylinder and add it to the TClonesArray
+         Hit *tHitSLptr=tHitFLptr->GetHitOnCyl(direction,fSecondLayer.fPipeRad,
+            fFirstLayer.fMaterial,fFirstLayer.fThickness,fMultipleScat,2);
+
+         ///////////////////////////////////////////////////////////////////////
+         // Register data.
          if(TMath::Abs(tHitFLptr->GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
             new(rhitsfirst[u]) Hit(*tHitFLptr);
             u+=1;
          }
-         new(hitsfirst[j]) Hit(*tHitFLptr);
-
-         ///////////////////////////////////////////////////////////////////////
-         // Propagate to 2nd cylinder and add it to the TClonesArray
-         Hit *tHitSLptr=tHitFLptr->GetHitOnCyl( *fDirect,fSecondLayer.fPipeRad,
-            fFirstLayer.fMaterial,fFirstLayer.fThickness,j,fMultipleScat,2);
-
          if(TMath::Abs(tHitSLptr->GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
             new(rhitssecond[v]) Hit(*tHitSLptr);
             v+=1;
          }
-
+         new(hitsbpipe[j]) Hit(*tHitBPptr);
+         new(hitsfirst[j]) Hit(*tHitFLptr);
          new(hitssecond[j]) Hit(*tHitSLptr);
 
          ///////////////////////////////////////////////////////////////////////
          // Noise algorithm.
-
-         // On the first layer
          for(Int_t n=0;n<fNoiseLevel;++n) {
             Hit *tNoiseHitPtrF=Hit::NoiseOnCyl(fFirstLayer.fPipeRad,
                -fFirstLayer.fZetaLen/2,fFirstLayer.fZetaLen/2);
             new(rhitsfirst[u+n]) Hit(*tNoiseHitPtrF);
-            // On th second layer.
+
             Hit *tNoiseHitPtrS=Hit::NoiseOnCyl(fSecondLayer.fPipeRad,
                -fSecondLayer.fZetaLen/2,fSecondLayer.fZetaLen/2);
             new(rhitssecond[v+n]) Hit(*tNoiseHitPtrS);
-            delete tNoiseHitPtrS;
-            delete tNoiseHitPtrF;
+            tNoiseHitPtrS->Hit::~Hit();
+            tNoiseHitPtrF->Hit::~Hit();
          }
-
-         // Clean up pointers
-         delete tHitSLptr;
-         delete tHitBPptr;
-         delete tHitFLptr;
-         delete fDirect;
+         
+         // Delete pointers
+         tHitSLptr->Hit::~Hit();
+         tHitBPptr->Hit::~Hit();
+         tHitFLptr->Hit::~Hit();
       }
 
       //////////////////////////////////////////////////////////////////////////
@@ -365,12 +366,12 @@ Bool_t SimulationCore::Run()
          if(fMontecarloTruth) MainTree->Fill();
          EventsTree->Fill();
       }
-         // It's important to empty the TClonesArrays!
-         hitsbpipeptr->Clear();
-         hitsfirstptr->Clear();
-         hitssecondptr->Clear();
-         rhitsfirstptr->Clear();
-         rhitssecondptr->Clear();
+      outfile.FlushWriteCache();
+      hitsbpipeptr->Clear();
+      hitsfirstptr->Clear();
+      hitssecondptr->Clear();
+      rhitsfirstptr->Clear();
+      rhitssecondptr->Clear();
          
       percentage=static_cast<Int_t>(i*100/fNumVertices);
    }
@@ -384,8 +385,9 @@ Bool_t SimulationCore::Run()
    histEtaptr->TH1F::~TH1F();
    hisMulptr->TH1F::~TH1F();
 
-   vertex->Vertice::~Vertice();
-   outfile.Close();
+   vertex.Vertice::~Vertice();
+   direction.Direzione::~Direzione();
+   outfile.Close("R");
    infile.Close();
 
    return kTRUE;

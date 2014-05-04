@@ -366,7 +366,7 @@ Bool_t SimulationCore::Run()
          if(fMontecarloTruth) MainTree->Fill();
          EventsTree->Fill();
       }
-      
+      outfile.FlushWriteCache();
       hitsbpipeptr->Clear();
       hitsfirstptr->Clear();
       hitssecondptr->Clear();
@@ -387,7 +387,7 @@ Bool_t SimulationCore::Run()
 
    vertex.Vertice::~Vertice();
    direction.Direzione::~Direzione();
-   outfile.Close();
+   outfile.Close("R");
    infile.Close();
 
    return kTRUE;
