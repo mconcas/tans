@@ -159,7 +159,47 @@ void Punto::SetPuntoSRadius(const Double_t SRadius)
                \n Please, check your tasks and the source code!");
 }
 
+Double_t Punto::GetDistance(Punto &PointOne, Punto &PointTwo)
+{
+   return TMath::Sqrt((PointOne.GetPuntoX()-PointTwo.GetPuntoX())*
+      (PointOne.GetPuntoX()-PointTwo.GetPuntoX())+(PointOne.GetPuntoY()
+         -PointTwo.GetPuntoY())*(PointOne.GetPuntoY()-PointTwo.GetPuntoY())+
+      (PointOne.GetPuntoZ()-PointTwo.GetPuntoZ())*(PointOne.GetPuntoZ()
+         -PointTwo.GetPuntoZ()));
+}
+
+Double_t Punto::GetDeltaPhi(Punto &FirstPunto, Punto &SecondPunto)
+{
+   return TMath::Abs(FirstPunto.GetPuntoPhi()-SecondPunto.GetPuntoPhi());
+};
+
 //___________Coordinates_Tools__________
+void Punto::CartesiantoCylindrical() {
+   // Update spherical coordinates, managing exceptions and
+   // singularities. Note that the third component [i.e "Z"] is not
+   // update, because is the same datamember used as cartesian coord.
+   fCRadius=CorrMachinePrecision(TMath::Sqrt(fX*fX+fY*fY));
+
+   // Phi is the azimuthal angle. Please note that is equal to
+   // the spherical one.
+   if (fX>0.) {
+      if (fY>0. || fY==0.) fPhi=TMath::ATan(fY/fX); // X>0. et Y>=0.
+      else {
+         fPhi=2*TMath::Pi()+TMath::ATan(fY/fX);     // X>0. et Y<0.
+      }
+   } else {
+      if (fX==0.) {
+         if (fY>0.) fPhi=TMath::Pi()/2;             // X=0. et Y>0.
+         else {
+            if (fY==0.) fPhi=fTheta=0.;             // X=0. et Y=0.
+            else fPhi=TMath::Pi()+TMath::Pi()/2;    // X=0. et Y<0.
+         }
+      } else {
+         fPhi=TMath::Pi()+TMath::ATan(fY/fX);       // X<0. et ∀Y
+      }
+   }
+}
+
 void Punto::CartesiantoSpherical() 
 {
    // Update spherical coordinates, managing exceptions and
@@ -193,31 +233,6 @@ void Punto::CartesiantoSpherical()
    }
 }
 
-void Punto::CartesiantoCylindrical() {
-   // Update spherical coordinates, managing exceptions and
-   // singularities. Note that the third component [i.e "Z"] is not
-   // update, because is the same datamember used as cartesian coord.
-   fCRadius=CorrMachinePrecision(TMath::Sqrt(fX*fX+fY*fY));
-
-   // Phi is the azimuthal angle. Please note that is equal to
-   // the spherical one.
-   if (fX>0.) {
-      if (fY>0. || fY==0.) fPhi=TMath::ATan(fY/fX); // X>0. et Y>=0.
-      else {
-         fPhi=2*TMath::Pi()+TMath::ATan(fY/fX);     // X>0. et Y<0.
-      }
-   } else {
-      if (fX==0.) {
-         if (fY>0.) fPhi=TMath::Pi()/2;             // X=0. et Y>0.
-         else {
-            if (fY==0.) fPhi=fTheta=0.;             // X=0. et Y=0.
-            else fPhi=TMath::Pi()+TMath::Pi()/2;    // X=0. et Y<0.
-         }
-      } else {
-         fPhi=TMath::Pi()+TMath::ATan(fY/fX);       // X<0. et ∀Y
-      }
-   }
-}
 
 void Punto::SphericaltoCartesian() {
    fX=fSRadius*TMath::Sin(fTheta)*TMath::Cos(fPhi);

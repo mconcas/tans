@@ -34,13 +34,15 @@ class Punto : public TObject {
       void SetPuntoSRadius(const Double_t SRadius);
 
       //____________Inline_Getters_______________
-      Double_t GetPuntoX() { return fX; }
-      Double_t GetPuntoY() { return fY; }
-      Double_t GetPuntoZ() { return fZ; }
-      Double_t GetPuntoTheta() { return fTheta; }
-      Double_t GetPuntoPhi() { return fPhi; }
-      Double_t GetPuntoSRadius() { return fSRadius; }
-      Double_t GetPuntoCRadius() { return fCRadius; }
+      Double_t GetPuntoX() {return fX;}
+      Double_t GetPuntoY() {return fY;}
+      Double_t GetPuntoZ() {return fZ;}
+      Double_t GetPuntoTheta() {return fTheta;}
+      Double_t GetPuntoPhi() {return fPhi;}
+      Double_t GetPuntoSRadius() {return fSRadius;}
+      Double_t GetPuntoCRadius() {return fCRadius;}
+      static Double_t GetDistance(Punto &PointOne, Punto &PointTwo);
+      static Double_t GetDeltaPhi(Punto &FirstPunto, Punto &SecondPunto);
 
    private:
 
@@ -51,13 +53,13 @@ class Punto : public TObject {
       void CylindricaltoCartesian();
 
    protected:
-      Double_t fX;        // Cartesian coordinate "X"
-      Double_t fY;        // Cartesian coordinate "Y"
-      Double_t fZ;        // Cartesian coordinate "Z"
-      Double_t fTheta;    // Spherical coordinate "ϑ"
-      Double_t fPhi;      // Spherical and Cylindrical coordinate "φ"
-      Double_t fCRadius;  // Cylindrical Radius
-      Double_t fSRadius;  // Spherical Radius
+      Double_t fX;                   // Cartesian coordinate "X"
+      Double_t fY;                   // Cartesian coordinate "Y"
+      Double_t fZ;                   // Cartesian coordinate "Z"
+      Double_t fTheta;               // Spherical coordinate "ϑ"
+      Double_t fPhi;                 // Spherical and Cylindrical coordinate "φ"
+      Double_t fCRadius;             // Cylindrical Radius
+      Double_t fSRadius;             // Spherical Radius
 
       ClassDef(Punto,1)
 };

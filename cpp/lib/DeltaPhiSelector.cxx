@@ -4,6 +4,12 @@
 #include <TStyle.h>
 #include <TMath.h>
 
+DeltaPhiSelector::DeltaPhiSelector(TTree*) : 
+      fChain(0),
+      fPhiHistogram(0) {
+         fHitClonesArray_FL=new TClonesArray("Hit",kMaxFirstlayer);
+         fHitClonesArray_SL=new TClonesArray("Hit",kMaxSecondlayer);
+      }
 
 void DeltaPhiSelector::Init(TTree *tree) 
 {   
@@ -57,7 +63,7 @@ Bool_t DeltaPhiSelector::Process(Long64_t entry)
 
    // Loop over the TClonesArrays.
    for (Int_t v=0;v<fEntriesLTwo;v++) {
-      fAnaHitScnd = (Hit*)fHitClonesArray_SL->At(v);
+      fAnaHitScnd=(Hit*)fHitClonesArray_SL->At(v);
       for (Int_t j=0;j<fEntriesLOne;j++) {
          fCounter++;
          fAnaHitFrst=(Hit*)fHitClonesArray_FL->At(j);
@@ -103,8 +109,8 @@ void DeltaPhiSelector::Terminate()
    // fPhiHistogram=static_cast<TH1F*>(fOutput->FindObject("DeltaPhi"));
    fPhiHistogram=static_cast<TH1F*>(fOutput->FindObject(fPhiHistogram));
    TFile outfile("histo.root","RECREATE");
-   if (outfile.IsZombie()) {
+   if(outfile.IsZombie()) {
       Printf("A problem occured creating file");
    }
-   if (fPhiHistogram) fPhiHistogram->Write(); 
+   if(fPhiHistogram) fPhiHistogram->Write(); 
 }

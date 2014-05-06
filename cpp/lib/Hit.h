@@ -68,7 +68,6 @@ class Hit : public Punto {
       static Hit* NoiseOnCyl(Double_t CRadius,Double_t Zetamin,
          Double_t Zetamax);
 
-
    protected:
       Int_t  fLayernum;       // It keeps track of the layer hit
       Int_t  fIdnumber;       // Useful flag for Montecarlo purposes
