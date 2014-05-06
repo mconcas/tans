@@ -235,8 +235,9 @@ Bool_t SimulationCore::Run()
    MainTree->Branch("Secondlayer",&hitssecondptr);
 
    // EventTree branches.
-   EventsTree->Branch("Firstlayer",  &rhitsfirstptr);
-   EventsTree->Branch("Secondlayer", &rhitssecondptr);
+   EventsTree->Branch("Vertices",&vertex);
+   EventsTree->Branch("Firstlayer",&rhitsfirstptr);
+   EventsTree->Branch("Secondlayer",&rhitssecondptr);
 
    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    
@@ -335,6 +336,7 @@ Bool_t SimulationCore::Run()
             new(rhitssecond[v]) Hit(*tHitSLptr);
             v+=1;
          }
+         
          new(hitsbpipe[j]) Hit(*tHitBPptr);
          new(hitsfirst[j]) Hit(*tHitFLptr);
          new(hitssecond[j]) Hit(*tHitSLptr);

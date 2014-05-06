@@ -5,8 +5,8 @@
 // found on file: events.root
 //////////////////////////////////////////////////////////
 
-#ifndef DeltaPhiSelector_h
-#define DeltaPhiSelector_h
+#ifndef ReconSelector_h
+#define ReconSelector_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -16,35 +16,30 @@
 
 // Header file for the classes stored in the TTree if any.
 #include <TClonesArray.h>
-#include <TObject.h>
 #include "./Punto.h"
+#include "./Vertice.h"
 #include "./Hit.h"
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
-const Int_t kMaxFirstlayer = 50;
-const Int_t kMaxSecondlayer = 50;
+const Int_t kMaxFirstlayer=50;
+const Int_t kMaxSecondlayer=50;
 
 
-class DeltaPhiSelector : public TSelector {
+class ReconSelector : public TSelector {
 public :
-   TTree          *fChain;                  //pointer to the analyzed TTree.
+   TTree          *fChain;                  // Pointer to analyzed TTree.
    TClonesArray   *fHitClonesArray_FL;      // 1st layer analyzed arr.
    TClonesArray   *fHitClonesArray_SL;      // 2nd layer analyzed arr.
-   TH1F           *fPhiHistogram; 
-   Hit            *fAnaHitScnd;             // 2nd layer analyzed hit.
-   Hit            *fAnaHitFrst;             // 1st layer analyzed hit.
-   Int_t           fCounter;           
+   TH1F           *fResZetaHistptr;         // Pointer to recons. histogram.
+   Vertice        *fAnaVertex;              // Pointer to analyzed vertex.
+   Hit            *fAnaHitFrst;             // 1st layer analyzed Hit ptr.
+   Hit            *fAnaHitScnd;             // 2nd layer analyzed Hit ptr.
+   Int_t           fCounter;                // Debug iteration counter.
+   Int_t           fReconVertices;          // Counter for recons. vertices.
+   Double_t        fDeltaPhi;               // Delta Phi limit;
 
-/*
-   DeltaPhiSelector(TTree* = 0) : 
-      fChain(0),
-      fPhiHistogram(0) {
-         fHitClonesArray_FL=new TClonesArray("Hit",kMaxFirstlayer);
-         fHitClonesArray_SL=new TClonesArray("Hit",kMaxSecondlayer);
-      }
-      */ 
-   DeltaPhiSelector(TTree* =0);
-   virtual ~DeltaPhiSelector() {}
+   ReconSelector(TTree* =0);
+   virtual ~ReconSelector() {}
    virtual Int_t   Version() const {return 2;}
    virtual void    Begin(TTree *tree);
    virtual void    SlaveBegin(TTree *tree);
@@ -60,7 +55,7 @@ public :
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
-   ClassDef(DeltaPhiSelector,0);
+   ClassDef(ReconSelector,0);
 };
 
 #endif

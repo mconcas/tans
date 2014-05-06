@@ -6,15 +6,14 @@
 #include "TSystem.h"
 #endif
 
-void ReconSteer(const Bool_t  fProof=kTRUE,
-   const TString fDataFile="events.root", const TString fTreeName="Events Tree",
-   const TString fSelectorName="DeltaPhiSelector.cxx+",
-   const TString fOption="force") 
+void ReconSteer(const TString Selector="DeltaPhiSelector.cxx+", 
+   const Bool_t Proof=kTRUE,const TString Datafile="events.root", 
+   const TString Treename="Events Tree",const TString Option="force") 
 {
 
    // (Re)Compile classes, macros, etc.
    TString option;
-   if(fOption.Contains("force")) option="kfg";
+   if(Option.Contains("force")) option="kfg";
    else option="kg";
    gSystem->CompileMacro("Punto.cxx",option);
    gSystem->CompileMacro("Direzione.cxx",option);
@@ -22,19 +21,21 @@ void ReconSteer(const Bool_t  fProof=kTRUE,
    gSystem->CompileMacro("Hit.cxx",option);
 
    // Open data file.
-   TFile *fFile=TFile::Open(fDataFile.Data());
+   TFile *fFile=TFile::Open(Datafile.Data());
    if(fFile->IsZombie()) {
       Printf("[ERROR] There was a problem accessing %s file. Please\
-         check if it exists. ", fDataFile.Data());
+         check if it exists. ", Datafile.Data());
       return;
    }
-   TChain *fEventChain=new TChain(fTreeName.Data());
-   fEventChain->Add(fDataFile.Data());
-   if(fProof) {
-      Printf(" +++ Beginning reconstruction +++");
-      Printf(" +++ Reading from file:    %s", fDataFile.Data());
-      Printf(" +++ Analyzed tree name:   %s", fTreeName.Data());
-      Printf(" +++ Proof master name:    %s", gSystem->HostName());
+   TChain *fEventChain=new TChain(Treename.Data());
+   fEventChain->Add(Datafile.Data());
+   if(Proof) {
+      Printf(" +++ Beginning Reconstruction +++");
+      Printf(" +++ Reading from file:    %s",Datafile.Data());
+      Printf(" +++ Analyzed tree name:   %s",Treename.Data());
+      Printf(" +++ Proof master name:    %s",gSystem->HostName());
+      Printf(" +++ Selector chosen:      %s",Selector.Data());
+
       TString fWorkerString;
       TProof::Open("workers=4");
       fEventChain->SetProof();
@@ -44,11 +45,10 @@ void ReconSteer(const Bool_t  fProof=kTRUE,
       gProof->Load("Direzione.cxx+");
       gProof->Load("Hit.cxx+");
 
-      fEventChain->Process(fSelectorName.Data());
-   }
-   else {
-      TTree *SerTree = (TTree*)fFile->Get(fTreeName.Data());
-      SerTree->Process(fSelectorName.Data());
+      fEventChain->Process(Selector.Data());
+   } else {
+      TTree *SerTree = (TTree*)fFile->Get(Treename.Data());
+      SerTree->Process(Selector.Data());
    }
 
    fFile->Close();
