@@ -386,7 +386,6 @@ Bool_t SimulationCore::Run()
    Printf("Simulation process ended.");
    histEtaptr->TH1F::~TH1F();
    hisMulptr->TH1F::~TH1F();
-
    vertex.Vertice::~Vertice();
    direction.Direzione::~Direzione();
    outfile.Close("R");
