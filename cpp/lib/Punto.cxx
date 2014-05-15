@@ -7,13 +7,14 @@
 #endif
 
 // Redefine zero due to machine precision issues.
-const Double_t kZero=1/TMath::Tan(TMath::Pi()/2);
-Double_t CorrMachinePrecision(const Double_t value) 
-{
-   if( value<0 && value - (Int_t)value>-kZero )
+// const Double_t kZero=1/TMath::Tan(TMath::Pi()/2);
+Double_t CorrMachinePrecision(const Double_t value)
+{  
+   Double_t kZero=1/TMath::Tan(TMath::Pi()/2);
+   if(value<0 && (value-(Int_t)value)>-kZero)
    return static_cast<Double_t>(static_cast<Int_t>(value+0.5));
    else {
-      if( value>0 && value - (Int_t)value<kZero )
+      if(value>0 && (value-(Int_t)value)<kZero )
       return static_cast<Double_t>(static_cast<Int_t>(value+0.5));
       else return value;
    }
@@ -36,7 +37,7 @@ Punto::Punto(Double_t X, Double_t Y, Double_t Z):
    TObject(),
    fX(X),
    fY(Y),
-   fZ(Z) 
+   fZ(Z)
 {
       CartesiantoSpherical();   // Set Spherical coords.
       CartesiantoCylindrical(); // Set Cylindrical coords.
@@ -44,7 +45,7 @@ Punto::Punto(Double_t X, Double_t Y, Double_t Z):
 
 //_________Setters___________________________
 void Punto::SetPuntoCartesians(const Double_t X, const Double_t Y,
-   const Double_t Z) 
+   const Double_t Z)
 {
       fX=X;
       fY=Y;
@@ -54,7 +55,7 @@ void Punto::SetPuntoCartesians(const Double_t X, const Double_t Y,
 }
 
 void Punto::SetPuntoCylindricals(const Double_t Z,
-   const Double_t CRadius, const Double_t Phi) 
+   const Double_t CRadius, const Double_t Phi)
 {
       fZ=Z;
       fPhi=Phi;
@@ -64,7 +65,7 @@ void Punto::SetPuntoCylindricals(const Double_t Z,
 }
 
 void Punto::SetPuntoSphericals(const Double_t Theta,
-   const Double_t Phi, const Double_t SRaSRadius) 
+   const Double_t Phi, const Double_t SRaSRadius)
 {
       fTheta=Theta;
       fPhi=Phi;
@@ -73,21 +74,21 @@ void Punto::SetPuntoSphericals(const Double_t Theta,
       CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoX(const Double_t X) 
+void Punto::SetPuntoX(const Double_t X)
 {
    fX=X;
    CartesiantoSpherical();
    CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoY(const Double_t Y) 
+void Punto::SetPuntoY(const Double_t Y)
 {
    fY=Y;
    CartesiantoSpherical();
    CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoZ(const Double_t Z) 
+void Punto::SetPuntoZ(const Double_t Z)
 {
    fZ=Z;
    CartesiantoSpherical();
@@ -96,7 +97,7 @@ void Punto::SetPuntoZ(const Double_t Z)
    // coordinates because Z is the same coord.
 }
 
-void Punto::SetPuntoTheta(const Double_t Theta) 
+void Punto::SetPuntoTheta(const Double_t Theta)
 {
 
    ///////////////////////////////////////////////////////////////////
@@ -114,7 +115,7 @@ void Punto::SetPuntoTheta(const Double_t Theta)
    CartesiantoCylindrical();
 }
 
-void Punto::SetPuntoPhi(const Double_t Phi) 
+void Punto::SetPuntoPhi(const Double_t Phi)
 {
 
    ///////////////////////////////////////////////////////////////////
@@ -133,7 +134,7 @@ void Punto::SetPuntoPhi(const Double_t Phi)
    CartesiantoSpherical();
 }
 
-void Punto::SetPuntoCRadius(const Double_t CRadius) 
+void Punto::SetPuntoCRadius(const Double_t CRadius)
 {
    fCRadius=CRadius;
    CylindricaltoCartesian();
@@ -146,7 +147,7 @@ void Punto::SetPuntoCRadius(const Double_t CRadius)
              \n Please, check your intentions and the source code!");
 }
 
-void Punto::SetPuntoSRadius(const Double_t SRadius) 
+void Punto::SetPuntoSRadius(const Double_t SRadius)
 {
    fSRadius=SRadius;
    SphericaltoCartesian();
@@ -200,7 +201,7 @@ void Punto::CartesiantoCylindrical() {
    }
 }
 
-void Punto::CartesiantoSpherical() 
+void Punto::CartesiantoSpherical()
 {
    // Update spherical coordinates, managing exceptions and
    // singularities.

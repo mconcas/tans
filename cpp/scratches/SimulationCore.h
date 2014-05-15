@@ -38,7 +38,7 @@ class SimulationCore : public TObject {
 
    private:
 
-      // XML Specifications 
+      // XML Specifications
       TString             fParDataFileName;    // XML filename.
       TXMLEngine          *fXMLEngine;         // XMLEngine ptr for xml.
       XMLDocPointer_t     fXmlDocFileptr;      // Pointer to the XML content.
@@ -52,7 +52,7 @@ class SimulationCore : public TObject {
       TString             fMultDist;           // Multiplicity histogram name.
       TString             fEtaDist;            // η histogram name.
       Int_t               fNumVertices;        // Number of events to generate.
-      Int_t               fNoiseLevel;         // Noise level.           
+      Int_t               fNoiseLevel;         // Noise level.
       Bool_t              fMultipleScat;       // Flag for multiple scattering.
       pipe_t              fBeampipe;           // Beampipe struct.
       pipe_t              fFirstLayer;         // First detecotr struct.
@@ -60,11 +60,11 @@ class SimulationCore : public TObject {
       Bool_t              fDryRun;             // Dry run flag.
       Bool_t              fMontecarloTruth;    // Save Montecarlo truth flag.
       TString             fOutFileName;        // Output file name.
-      Double_t            fRmsX;               // Rms of X coordinate.       
-      Double_t            fRmsY;               // Rms of Y coordinate. 
+      Double_t            fRmsX;               // Rms of X coordinate.
+      Double_t            fRmsY;               // Rms of Y coordinate.
       Double_t            fRmsZ;               // Rms of Z coordinate.
-      
-      
+
+
    ClassDef(SimulationCore,1)
 };
 #endif

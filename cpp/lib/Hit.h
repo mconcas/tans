@@ -59,7 +59,7 @@ class Hit : public Punto {
       //////////////////////////////////////////////////////////////////////////
       // Since the finite resolution of detectors the coordinates are
       // slightly modified by a Gaussian algorythm.
-      void GausSmearing(Double_t DRadius,Double_t SZeta,Double_t SX);
+      void GausSmearing(Double_t DRadius,Double_t RMSZeta,Double_t RMSRPhi);
 
       //_____________Noise_Generator_________
       //////////////////////////////////////////////////////////////////////////

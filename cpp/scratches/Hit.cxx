@@ -23,8 +23,8 @@ Hit::Hit(Double_t X,Double_t Y,Double_t Z,Int_t Layerno,Int_t Idnumber) :
       fRealhit(kFALSE) {}
 
 Hit::~Hit()
-{ 
-   if (gDebug) Printf("*** hit object destroyed ***"); 
+{
+   if (gDebug) Printf("*** hit object destroyed ***");
 }
 
 void Hit::NowRealHit() {fRealhit=kTRUE;}
@@ -32,7 +32,7 @@ void Hit::SetHitID(Int_t Idnumber) {fIdnumber=Idnumber;}
 void Hit::SetHitLayno(Int_t Layernum) {fLayernum=Layernum;}
 
 Double_t Hit::ComputeT(Double_t Theta,Double_t Phi,Double_t XO,Double_t YO,
-   Double_t Radius) 
+   Double_t Radius)
 {
       const Double_t sintheta=TMath::Sin(Theta);
       const Double_t sinphi=TMath::Sin(Phi);
@@ -44,7 +44,7 @@ Double_t Hit::ComputeT(Double_t Theta,Double_t Phi,Double_t XO,Double_t YO,
 }
 
 Hit *Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
-   Int_t Ide,Int_t Layerno) 
+   Int_t Ide,Int_t Layerno)
 {
 
       // Extract theta and phi from "Direzione".
@@ -78,7 +78,7 @@ Hit *Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
 }
 
 Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
-   Double_t Width,Bool_t Multiscat,Int_t Layno,Double_t P,Int_t Z,Double_t Beta) 
+   Double_t Width,Bool_t Multiscat,Int_t Layno,Double_t P,Int_t Z,Double_t Beta)
 {
    if(Multiscat) {
 
@@ -111,7 +111,7 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
       // Reference System.
       Direct.Direzione::Rotate(thetalocal,philocal);
    }
-   
+
    // Extract theta and phi from "Direzione".
    const Double_t theta=Direct.GetDirectTheta();
    const Double_t phi=Direct.GetDirectPhi();
@@ -128,7 +128,7 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
       //////////////////////////////////////////////////////////////////////////
       // Compute "t" value.
       const Double_t t=ComputeT(theta,phi,fX,fY,Radius);
-      
+
       // Returned item.
       Hit *OnCyl=new Hit(fX+t*Direct.GetDirCos1(),fY+t*Direct.GetDirCos2(),
          fZ+t*Direct.GetDirCos3(),Layno,fIdnumber);
@@ -138,14 +138,14 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
 
 ////////////////////////////////////////////////////////////////////////////////
 // One can find the theta RMS dividing RPhi by the detector radius.
-void Hit::GausSmearing(Double_t DRadius,Double_t RMSZeta,Double_t RMSRTheta) 
+void Hit::GausSmearing(Double_t DRadius,Double_t RMSZeta,Double_t RMSRPhi)
 {
       this->SetPuntoZ(this->GetPuntoZ()+gRandom->Gaus(0,RMSZeta));
-      this->SetPuntoPhi(this->GetPuntoPhi()+gRandom->Gaus(0,RMSRTheta/DRadius));
+      this->SetPuntoPhi(this->GetPuntoPhi()+gRandom->Gaus(0,RMSRPhi/DRadius));
 }
 
 
-Hit* Hit::NoiseOnCyl(Double_t CRadius,Double_t ZetaMin,Double_t ZetaMax) 
+Hit* Hit::NoiseOnCyl(Double_t CRadius,Double_t ZetaMin,Double_t ZetaMax)
 {
    Hit* Noise=new Hit();
    Noise->SetPuntoCRadius(CRadius);

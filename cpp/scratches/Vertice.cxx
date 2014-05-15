@@ -29,7 +29,7 @@ Vertice::~Vertice() {
 //____________Multiplicity_Setter____________
 void Vertice::SetVerticeMult(Int_t Mult) { fMultiplicity=Mult; }
 void Vertice::SetVerticeID(Int_t IDno) { fIdnumber=IDno; }
-void Vertice::SetVerticeNL(Double_t Noiselvl) 
+void Vertice::SetVerticeNL(Double_t Noiselvl)
 {
-   fNoiselevel=Noiselvl; 
+   fNoiselevel=Noiselvl;
 };
