@@ -16,8 +16,8 @@
 #endif
 
 // Utility functions prototypes.
-// 
-// Wrap some commands in order to make code readability lighter. 
+//
+// Wrap some commands in order to make a better code readability.
 XMLNodePointer_t FromChildToNextParent(TXMLEngine* engine,
    XMLNodePointer_t index);
 
@@ -109,7 +109,7 @@ Bool_t SimulationCore::Initialize()
    if((TString)fXMLEngine->GetAttrValue(fXMLEngine->GetFirstAttr(fIndexNodeptr))
       =="true") fMultipleScat=kTRUE;
    else fMultipleScat=kFALSE;
-   
+
    // Configure cylindrical detectors.
    fIndexNodeptr=fXMLEngine->GetNext(fIndexNodeptr);
    fBeampipe.fLayer=fXMLEngine->GetIntAttr(fIndexNodeptr,"layernum");
@@ -135,9 +135,9 @@ Bool_t SimulationCore::Initialize()
       else fMontecarloTruth=kTRUE;
    fOutFileName=(TString)fXMLEngine->GetNodeContent(fIndexNodeptr);
 
-   // If kinematic file is not retrieved (it isn't provided from the 
-   // github repository and it won't in the future) try to download it directly 
-   // from this URL: 
+   // If kinematic file is not retrieved (it isn't provided from the
+   // github repository and it won't in the future) try to download it directly
+   // from this URL:
    // http://personalpages.to.infn.it/~masera/tans/tans2013/miscellanea/...
    TFile infile(fInputData.Data(),"READ");
    if(infile.IsZombie()) {
@@ -287,7 +287,7 @@ Bool_t SimulationCore::Run()
          // static_cast<Int_t>() returns rounded-down values.
          vertex.SetVerticeMult(static_cast<Int_t>(hisMulptr->GetRandom()+0.5));
       else vertex.SetVerticeMult(fFixedMult);
-   
+
       //////////////////////////////////////////////////////////////////////////
       // Set vertex Noiselevel
       vertex.SetVerticeNL(fNoiseLevel);

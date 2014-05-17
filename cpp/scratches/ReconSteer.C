@@ -30,11 +30,11 @@ void ReconSteer(const TString Selector="DeltaPhiSelector.cxx+",
    TChain *fEventChain=new TChain(Treename.Data());
    fEventChain->Add(Datafile.Data());
    if(Proof) {
-      Printf(" +++ Beginning Reconstruction +++");
+      Printf(" \x1B[32m+++ Beginning Reconstruction +++");
       Printf(" +++ Reading from file:    %s",Datafile.Data());
       Printf(" +++ Analyzed tree name:   %s",Treename.Data());
       Printf(" +++ Proof master name:    %s",gSystem->HostName());
-      Printf(" +++ Selector chosen:      %s",Selector.Data());
+      Printf(" +++ Selector chosen:      %s\x1B[0",Selector.Data());
 
       TString fWorkerString;
       TProof::Open("workers=4");

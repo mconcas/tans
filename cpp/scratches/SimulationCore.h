@@ -29,8 +29,8 @@ class SimulationCore : public TObject {
       Bool_t Initialize();
 
       //____________Inline_Getters_______________
-      TString             GetParamFile() { return fParDataFileName; }
-      XMLDocPointer_t     GetXMLDocPointer() { return fXmlDocFileptr; }
+      TString             GetParamFile() {return fParDataFileName;}
+      XMLDocPointer_t     GetXMLDocPointer() {return fXmlDocFileptr;}
 
       //____________Run_Simulation_______________
       Bool_t Status();

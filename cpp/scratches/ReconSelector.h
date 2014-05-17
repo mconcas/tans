@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Tue Apr  8 10:11:39 2014 by ROOT version 5.34/18
-// from TTree Events Tree/This contains the true events.
-// found on file: events.root
+// Written by Matteo Concas: mett1990@gmail.com
+// Exam: «Tecniche di analisi numerica e simulazione»
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef ReconSelector_h
@@ -47,7 +47,7 @@ public :
    Double_t        fBinSizeFineHist;        // Bin size in RecZetaHist.
    Int_t           fNBinsRoughHist;         // Number of bins in raw hist.
    Int_t           fNBinsFineHist;          // Number of bins in RecZetaHist.
-   ZReal_t         fZetaFound;              // Zeta Value Found                     
+   ZReal_t         fZetaFound;              // Zeta Value Found
 
    ReconSelector(TTree* =0);
    virtual ~ReconSelector() {}
