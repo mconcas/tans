@@ -1,34 +1,29 @@
 TANS
 ====
 
-This repository is a collection of classes and macro for a vertexer 
+This repository is a collection of classes and macros for a vertexer
 simulation. These are going to run using the
-[ROOT](http://root.cern.ch/drupal) framework for data analysis. 
+[ROOT](http://root.cern.ch/drupal) framework for data analysis.
 
-Below I will take note the various standard definitions, simulation 
-structures, as a reminder for myself and a read-key for eventually 
+Below I will take note the of various standard definitions, simulation
+structures, as a reminder for myself and a read-key for eventually
 observers.
 
 Standard declarations
 ---------------------
 
 *   Indentation 3 blank spaces.
-*   Ruler: 70 chars
-*   Languages: ClassName, Methods, Stdoutput: IT.
+*   Ruler: 80 chars
+*   Idioms: ClassName, Methods, Stdoutput: EN.
                Comments, Function arguments: EN
 
 
 Rationale: Class hierarchy
 --------------------------
 
-The main goal is to create a sort of «backbone» consisting in a set of
-trivial classes like *Punto Class, Direzione Class, whatever...* in 
-order to result as versatile as possible.
-
-From there will be derived physics classes  (e.g. *Vertice Class*), 
-keeping in mind that this is a quite trivial example, so a nice 
-purposal could be to structure the code thinking in building modular 
-classes and physics «wrapper» easily customizable.
-
-
-
+The structure is thought to be object-oriented and coded in C++.
+Thus one can easily benefit of an higher level approach to the problem.
+Instead to wrote a conspicuous set of macros, hardly customizable (just editing
+their code itself) and with a lower granularity, I've opted for an open modular
+structure. It has multiple positive aspects, specially in debug phase, when bug
+arises.
