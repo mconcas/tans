@@ -276,6 +276,13 @@ Bool_t SimulationCore::Run()
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
    Int_t i=0;
+
+   Hit *tHitBPptr=new Hit();
+   Hit *tHitFLptr=new Hit();
+   Hit *tHitSLptr=new Hit();
+   Hit *tNoiseHitPtrF=new Hit();
+   Hit *tNoiseHitPtrS=new Hit();
+
    do {
    // for(Int_t i=0;i<fNumVertices;++i) {
 
@@ -307,6 +314,7 @@ Bool_t SimulationCore::Run()
       Bool_t FirstFlag=kFALSE;
       Bool_t SecndFlag=kFALSE;
 
+
       for(Int_t j=0;j<multiplicity;++j) {
          direction.SetAllAngles(ThetaFromEta(histEtaptr),2*gRandom->Rndm()
             *TMath::Pi());
@@ -314,7 +322,7 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
-         Hit* tHitBPptr=Hit::HitOnCylFromVertex(vertex,direction,
+         tHitBPptr=Hit::HitOnCylFromVertex(vertex,direction,
             fBeampipe.fPipeRad,j);
 
          ///////////////////////////////////////////////////////////////////////
@@ -324,7 +332,7 @@ Bool_t SimulationCore::Run()
          // fBeampipe.fMaterial, fBeampipe.fThickness are used to determine the
          // deviation due the multiple scattering effect.
 
-         Hit* tHitFLptr=tHitBPptr->GetHitOnCyl(direction,fFirstLayer.fPipeRad,
+         tHitFLptr=tHitBPptr->GetHitOnCyl(direction,fFirstLayer.fPipeRad,
               fBeampipe.fMaterial,fBeampipe.fThickness,fMultipleScat,1);
 
          // Reset Rotation bit.
@@ -332,7 +340,7 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate to 2nd cylinder and add it to the TClonesArray
-         Hit *tHitSLptr=tHitFLptr->GetHitOnCyl(direction,fSecondLayer.fPipeRad,
+         tHitSLptr=tHitFLptr->GetHitOnCyl(direction,fSecondLayer.fPipeRad,
             fFirstLayer.fMaterial,fFirstLayer.fThickness,fMultipleScat,2);
 
          ///////////////////////////////////////////////////////////////////////
@@ -354,22 +362,17 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Noise algorithm.
+
          for(Int_t n=0;n<fNoiseLevel;++n) {
-            Hit *tNoiseHitPtrF=Hit::NoiseOnCyl(fFirstLayer.fPipeRad,
+            tNoiseHitPtrF=Hit::NoiseOnCyl(fFirstLayer.fPipeRad,
                -fFirstLayer.fZetaLen/2,fFirstLayer.fZetaLen/2);
             new(rhitsfirst[u+n]) Hit(*tNoiseHitPtrF);
 
-            Hit *tNoiseHitPtrS=Hit::NoiseOnCyl(fSecondLayer.fPipeRad,
+            tNoiseHitPtrS=Hit::NoiseOnCyl(fSecondLayer.fPipeRad,
                -fSecondLayer.fZetaLen/2,fSecondLayer.fZetaLen/2);
             new(rhitssecond[v+n]) Hit(*tNoiseHitPtrS);
-            tNoiseHitPtrS->Hit::~Hit();
-            tNoiseHitPtrF->Hit::~Hit();
          }
 
-         // Delete pointers
-         tHitSLptr->Hit::~Hit();
-         tHitBPptr->Hit::~Hit();
-         tHitFLptr->Hit::~Hit();
       }
 
       //////////////////////////////////////////////////////////////////////////
@@ -379,6 +382,7 @@ Bool_t SimulationCore::Run()
          if(fMontecarloTruth) MainTree->Fill();
          EventsTree->Fill();
       }
+
       outfile.FlushWriteCache();
       hitsbpipeptr->Delete();
       hitsfirstptr->Delete();
@@ -406,6 +410,12 @@ Bool_t SimulationCore::Run()
    outfile.Close("R");
    infile.Close();
 
+   // Delete pointers
+   tHitSLptr->Hit::~Hit();
+   tHitBPptr->Hit::~Hit();
+   tHitFLptr->Hit::~Hit();
+   tNoiseHitPtrS->Hit::~Hit();
+   tNoiseHitPtrF->Hit::~Hit();
    return kTRUE;
 }
 
