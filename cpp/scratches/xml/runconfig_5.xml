@@ -7,14 +7,14 @@
       <multiplicity from="distribution">hmul</multiplicity>
       <eta from="distribution">heta</eta>
    </infile>
-   <vertices debug="0" noise="0" num="1000000">
+   <vertices debug="0" noise="30" num="1000000">
       <!-- If "gaussian" attr is specified, the node value will correspond
       to the distribution rms, else a fixed coordinate value -->
       <x type="gaussian">0.01</x>
       <y type="gaussian">0.01</y>
       <z type="gaussian">5.3</z>
    </vertices>
-   <multiplescattering enabled="true"></multiplescattering>
+   <multiplescattering enabled="false"></multiplescattering>
    <pipe type="beampipe" layernum="0">
       <length>164.6</length>
       <radius>30</radius>
@@ -30,5 +30,5 @@
       <radius>70</radius>
       <material type="silicon" title="Si" A="28" Z="14" density="2.33" radl="9.37" inter="0">0.2</material>
    </pipe>
-   <outfile dryrun="kFALSE" montecarlo="kTRUE">data/Noise_6_Mult_enabled.root</outfile>
+   <outfile dryrun="kFALSE" montecarlo="kTRUE">data/Noise_30_Multscatt_disabled_events_1M.root</outfile>
 </simulation>

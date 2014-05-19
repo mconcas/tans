@@ -28,7 +28,7 @@ XMLNodePointer_t DrainDetectorData(pipe_t &pipe,TXMLEngine* engine,
 // Returns theta angle from a distribution Histogram.
 Double_t ThetaFromEta(TH1F* etahist);
 
-
+// Class.
 ClassImp(SimulationCore)
 
 SimulationCore::SimulationCore() :
@@ -275,8 +275,9 @@ Bool_t SimulationCore::Run()
    //
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
-
-   for(Int_t i=0;i<fNumVertices;++i) {
+   Int_t i=0;
+   do {
+   // for(Int_t i=0;i<fNumVertices;++i) {
 
       // Show progress percentage.
       printf("Progress status:     \t\t\t%d%% \r", percentage);
@@ -303,6 +304,9 @@ Bool_t SimulationCore::Run()
       const Int_t multiplicity=vertex.GetVerticeMult();
 
       // Transport code.
+      Bool_t FirstFlag=kFALSE;
+      Bool_t SecndFlag=kFALSE;
+
       for(Int_t j=0;j<multiplicity;++j) {
          direction.SetAllAngles(ThetaFromEta(histEtaptr),2*gRandom->Rndm()
             *TMath::Pi());
@@ -336,10 +340,12 @@ Bool_t SimulationCore::Run()
          if(TMath::Abs(tHitFLptr->GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
             new(rhitsfirst[u]) Hit(*tHitFLptr);
             u+=1;
+            FirstFlag=kTRUE;
          }
          if(TMath::Abs(tHitSLptr->GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
             new(rhitssecond[v]) Hit(*tHitSLptr);
             v+=1;
+            SecndFlag=kTRUE;
          }
 
          new(hitsbpipe[j]) Hit(*tHitBPptr);
@@ -381,7 +387,11 @@ Bool_t SimulationCore::Run()
       rhitssecondptr->Delete();
 
       percentage=static_cast<Int_t>(i*100/fNumVertices);
-   }
+
+      // Increase counter if at least one track hits both the first and the
+      // second layer.
+      if(FirstFlag && SecndFlag) i+=1;
+   } while(i<fNumVertices);
 
    /////////////////////////////////////////////////////////////////////////////
    // Finalyze the simulation.

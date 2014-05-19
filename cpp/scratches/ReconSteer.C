@@ -6,8 +6,8 @@
 #include "TSystem.h"
 #endif
 
-void ReconSteer(const TString Selector="DeltaPhiSelector.cxx+",
-   const Bool_t Proof=kTRUE,const TString Datafile="events.root",
+void ReconSteer(const TString Selector="ReconSelector.cxx+",
+   const Bool_t Proof=kFALSE,const TString Datafile="Simulation_fixed_vertex_with_scattering.root",
    const TString Treename="Events Tree",const TString Option="force")
 {
 

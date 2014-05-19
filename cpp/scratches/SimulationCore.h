@@ -55,7 +55,7 @@ class SimulationCore : public TObject {
       Int_t               fNoiseLevel;         // Noise level.
       Bool_t              fMultipleScat;       // Flag for multiple scattering.
       pipe_t              fBeampipe;           // Beampipe struct.
-      pipe_t              fFirstLayer;         // First detecotr struct.
+      pipe_t              fFirstLayer;         // First detector struct.
       pipe_t              fSecondLayer;        // Second detector struct.
       Bool_t              fDryRun;             // Dry run flag.
       Bool_t              fMontecarloTruth;    // Save Montecarlo truth flag.

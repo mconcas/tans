@@ -37,6 +37,7 @@ public :
    TClonesArray   *fHitClonesArray_FL;      // 1st layer analyzed arr.
    TClonesArray   *fHitClonesArray_SL;      // 2nd layer analyzed arr.
    TH1F           *fRecZetaHistptr;         // Pointer to recons. histogram.
+   TH1F           *fResidualZetaptr;        // Pointer to residuals histogram.
    Vertice        *fAnaVertex;              // Pointer to analyzed vertex.
    Hit            *fAnaHitFrst;             // 1st layer analyzed Hit ptr.
    Hit            *fAnaHitScnd;             // 2nd layer analyzed Hit ptr.
