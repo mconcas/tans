@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Tue Apr  8 10:11:39 2014 by ROOT version 5.34/18
-// from TTree Events Tree/This contains the true events.
-// found on file: events.root
+// Written by Matteo Concas: mett1990@gmail.com
+// Exam: «Tecniche di analisi numerica e simulazione»
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef ReconSelector_h
@@ -37,6 +37,7 @@ public :
    TClonesArray   *fHitClonesArray_FL;      // 1st layer analyzed arr.
    TClonesArray   *fHitClonesArray_SL;      // 2nd layer analyzed arr.
    TH1F           *fRecZetaHistptr;         // Pointer to recons. histogram.
+   TH1F           *fResidualZetaptr;        // Pointer to residuals histogram.
    Vertice        *fAnaVertex;              // Pointer to analyzed vertex.
    Hit            *fAnaHitFrst;             // 1st layer analyzed Hit ptr.
    Hit            *fAnaHitScnd;             // 2nd layer analyzed Hit ptr.
@@ -47,7 +48,7 @@ public :
    Double_t        fBinSizeFineHist;        // Bin size in RecZetaHist.
    Int_t           fNBinsRoughHist;         // Number of bins in raw hist.
    Int_t           fNBinsFineHist;          // Number of bins in RecZetaHist.
-   ZReal_t         fZetaFound;              // Zeta Value Found                     
+   ZReal_t         fZetaFound;              // Zeta Value Found
 
    ReconSelector(TTree* =0);
    virtual ~ReconSelector() {}

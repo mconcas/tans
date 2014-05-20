@@ -43,7 +43,7 @@ Double_t Hit::ComputeT(Double_t Theta,Double_t Phi,Double_t XO,Double_t YO,
       return t;
 }
 
-Hit *Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
+Hit Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
    Int_t Ide,Int_t Layerno)
 {
 
@@ -54,7 +54,7 @@ Hit *Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
       //////////////////////////////////////////////////////////////////////////
       // Manage the ϑ=0 exception
       if( theta==0 || theta==TMath::Pi()) {
-         Hit *OnCyl=new Hit();
+         Hit OnCyl;
          if (gDebug) Printf("ϑ=0 exception -> no scattering.");
          return OnCyl;
       } else {
@@ -70,14 +70,14 @@ Hit *Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
       const Double_t t=ComputeT(theta,phi,xO,yO,Radius);
 
       // Build item in return.
-      Hit *OnCyl=new Hit(xO+t*Direct.GetDirCos1(),yO+t*Direct.GetDirCos2(),
+      Hit OnCyl=Hit(xO+t*Direct.GetDirCos1(),yO+t*Direct.GetDirCos2(),
          zO+t*Direct.GetDirCos3(),Layerno,Ide);
 
       return OnCyl;
    }
 }
 
-Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
+Hit Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
    Double_t Width,Bool_t Multiscat,Int_t Layno,Double_t P,Int_t Z,Double_t Beta)
 {
    if(Multiscat) {
@@ -119,7 +119,7 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
    /////////////////////////////////////////////////////////////////////////////
    // Manage the ϑ=0 exception
    if(theta==0||TMath::Abs(theta)==TMath::Pi()) {
-      Hit *OnCyl=new Hit();
+      Hit OnCyl;
       if (gDebug) Printf("ϑ=0 exception -> no scattering.");
 
       return OnCyl;
@@ -130,7 +130,7 @@ Hit *Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
       const Double_t t=ComputeT(theta,phi,fX,fY,Radius);
 
       // Returned item.
-      Hit *OnCyl=new Hit(fX+t*Direct.GetDirCos1(),fY+t*Direct.GetDirCos2(),
+      Hit OnCyl=Hit(fX+t*Direct.GetDirCos1(),fY+t*Direct.GetDirCos2(),
          fZ+t*Direct.GetDirCos3(),Layno,fIdnumber);
       return OnCyl;
    }
@@ -145,12 +145,12 @@ void Hit::GausSmearing(Double_t DRadius,Double_t RMSZeta,Double_t RMSRPhi)
 }
 
 
-Hit* Hit::NoiseOnCyl(Double_t CRadius,Double_t ZetaMin,Double_t ZetaMax)
+Hit Hit::NoiseOnCyl(Double_t CRadius,Double_t ZetaMin,Double_t ZetaMax)
 {
-   Hit* Noise=new Hit();
-   Noise->SetPuntoCRadius(CRadius);
-   Noise->SetPuntoZ(ZetaMin+(ZetaMax-ZetaMin)*gRandom->Rndm());
-   Noise->SetPuntoPhi(2*TMath::Pi()*gRandom->Rndm());
-   Noise->SetHitID(-1);
+   Hit Noise;
+   Noise.SetPuntoCRadius(CRadius);
+   Noise.SetPuntoZ(ZetaMin+(ZetaMax-ZetaMin)*gRandom->Rndm());
+   Noise.SetPuntoPhi(2*TMath::Pi()*gRandom->Rndm());
+   Noise.SetHitID(-1);
    return Noise;
 }
