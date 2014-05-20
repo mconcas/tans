@@ -23,7 +23,7 @@ ReconSelector::ReconSelector(TTree *) :
    // Precision settings.
    fDeltaPhi(0.001866),
    fBinSizeRoughHist(5.),             // mm
-   fBinSizeFineHist(1.)              // mm
+   fBinSizeFineHist(1.)               // mm
 {
    fAnaVertex=new Vertice();
    fHitClonesArray_FL=new TClonesArray("Hit",kMaxFirstlayer);

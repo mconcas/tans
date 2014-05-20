@@ -130,9 +130,6 @@ Bool_t SimulationCore::Initialize()
       fDryRun=kFALSE;
    else fDryRun=kTRUE;
 
-   if((TString)fXMLEngine->GetAttr(fIndexNodeptr,"montecarlo")=="kFALSE")
-      fMontecarloTruth=kFALSE;
-      else fMontecarloTruth=kTRUE;
    fOutFileName=(TString)fXMLEngine->GetNodeContent(fIndexNodeptr);
 
    // If kinematic file is not retrieved (it isn't provided from the
@@ -211,17 +208,8 @@ Bool_t SimulationCore::Run()
 
    // Trees: MainTree contains the Montecarlo truth. EventsTree just contains
    // the hits measured by detectors.
-   TTree *MainTree=new TTree("Montecarlo Truth","Each event is composed by a \
-      vertex and a #multiplicity of hits.");
-   TTree *EventsTree=new TTree("Events Tree","This contains the true events.");
 
-   // Containers for Montecarlo truth Tree. Hits on beampipe will be saved too.
-   TClonesArray* hitsbpipeptr=new TClonesArray("Hit",100);
-   TClonesArray &hitsbpipe=*hitsbpipeptr;
-   TClonesArray* hitsfirstptr=new TClonesArray("Hit",100);
-   TClonesArray &hitsfirst=*hitsfirstptr;
-   TClonesArray* hitssecondptr=new TClonesArray("Hit",100);
-   TClonesArray &hitssecond=*hitssecondptr;
+   TTree EventsTree("Events Tree","This contains the true events.");
 
    // Containers for EventsTree.
    TClonesArray* rhitsfirstptr=new TClonesArray("Hit",100);
@@ -230,19 +218,13 @@ Bool_t SimulationCore::Run()
    TClonesArray &rhitssecond=*rhitssecondptr;
 
    // Vertex.
-   Vertice vertex=Vertice();
-   Direzione direction=Direzione();
-
-   // Montecarlo Tree branches.
-   MainTree->Branch("Vertices",&vertex);
-   MainTree->Branch("Beampipe",&hitsbpipeptr);
-   MainTree->Branch("Firstlayer",&hitsfirstptr);
-   MainTree->Branch("Secondlayer",&hitssecondptr);
+   Vertice vertex;
+   Direzione direction;
 
    // EventTree branches.
-   EventsTree->Branch("Vertices",&vertex);
-   EventsTree->Branch("Firstlayer",&rhitsfirstptr);
-   EventsTree->Branch("Secondlayer",&rhitssecondptr);
+   EventsTree.Branch("Vertices",&vertex);
+   EventsTree.Branch("Firstlayer",&rhitsfirstptr);
+   EventsTree.Branch("Secondlayer",&rhitssecondptr);
 
    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -262,10 +244,6 @@ Bool_t SimulationCore::Run()
 
    Printf("Multiple Scattering:      \t\t%s", fMultipleScat ?
       "\x1B[32menabled\x1B[0m" : "\x1B[31mdisabled\x1B[0m");
-   Printf("Save Montecarlo truth:     \t\t%s",
-      fMontecarloTruth ? "\x1B[32myes\x1B[0m" :
-      "\x1B[31mno\x1B[0m");
-
    Printf("Noise Level:              \t\t%d", fNoiseLevel);
 
    /////////////////////////////////////////////////////////////////////////////
@@ -277,15 +255,13 @@ Bool_t SimulationCore::Run()
    /////////////////////////////////////////////////////////////////////////////
    Int_t i=0;
 
-   Hit *tHitBPptr=new Hit();
-   Hit *tHitFLptr=new Hit();
-   Hit *tHitSLptr=new Hit();
-   Hit *tNoiseHitPtrF=new Hit();
-   Hit *tNoiseHitPtrS=new Hit();
+   Hit tHitBPptr;
+   Hit tHitFLptr;
+   Hit tHitSLptr;
+   Hit tNoiseHitPtrF;
+   Hit tNoiseHitPtrS;
 
    do {
-   // for(Int_t i=0;i<fNumVertices;++i) {
-
       // Show progress percentage.
       printf("Progress status:     \t\t\t%d%% \r", percentage);
       Int_t u=0;
@@ -322,8 +298,8 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
-         tHitBPptr=Hit::HitOnCylFromVertex(vertex,direction,
-            fBeampipe.fPipeRad,j);
+         tHitBPptr=Hit::HitOnCylFromVertex(vertex,direction,fBeampipe.fPipeRad,
+            j);
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate to 1st detector and add it to the proper
@@ -332,7 +308,7 @@ Bool_t SimulationCore::Run()
          // fBeampipe.fMaterial, fBeampipe.fThickness are used to determine the
          // deviation due the multiple scattering effect.
 
-         tHitFLptr=tHitBPptr->GetHitOnCyl(direction,fFirstLayer.fPipeRad,
+         tHitFLptr=tHitBPptr.GetHitOnCyl(direction,fFirstLayer.fPipeRad,
               fBeampipe.fMaterial,fBeampipe.fThickness,fMultipleScat,1);
 
          // Reset Rotation bit.
@@ -340,25 +316,21 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate to 2nd cylinder and add it to the TClonesArray
-         tHitSLptr=tHitFLptr->GetHitOnCyl(direction,fSecondLayer.fPipeRad,
+         tHitSLptr=tHitFLptr.GetHitOnCyl(direction,fSecondLayer.fPipeRad,
             fFirstLayer.fMaterial,fFirstLayer.fThickness,fMultipleScat,2);
 
          ///////////////////////////////////////////////////////////////////////
          // Register data.
-         if(TMath::Abs(tHitFLptr->GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
-            new(rhitsfirst[u]) Hit(*tHitFLptr);
+         if(TMath::Abs(tHitFLptr.GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
+            new(rhitsfirst[u]) Hit(tHitFLptr);
             u+=1;
             FirstFlag=kTRUE;
          }
-         if(TMath::Abs(tHitSLptr->GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
-            new(rhitssecond[v]) Hit(*tHitSLptr);
+         if(TMath::Abs(tHitSLptr.GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
+            new(rhitssecond[v]) Hit(tHitSLptr);
             v+=1;
-            SecndFlag=kTRUE;
+             SecndFlag=kTRUE;
          }
-
-         new(hitsbpipe[j]) Hit(*tHitBPptr);
-         new(hitsfirst[j]) Hit(*tHitFLptr);
-         new(hitssecond[j]) Hit(*tHitSLptr);
 
          ///////////////////////////////////////////////////////////////////////
          // Noise algorithm.
@@ -366,11 +338,11 @@ Bool_t SimulationCore::Run()
          for(Int_t n=0;n<fNoiseLevel;++n) {
             tNoiseHitPtrF=Hit::NoiseOnCyl(fFirstLayer.fPipeRad,
                -fFirstLayer.fZetaLen/2,fFirstLayer.fZetaLen/2);
-            new(rhitsfirst[u+n]) Hit(*tNoiseHitPtrF);
+            new(rhitsfirst[u+n]) Hit(tNoiseHitPtrF);
 
             tNoiseHitPtrS=Hit::NoiseOnCyl(fSecondLayer.fPipeRad,
                -fSecondLayer.fZetaLen/2,fSecondLayer.fZetaLen/2);
-            new(rhitssecond[v+n]) Hit(*tNoiseHitPtrS);
+            new(rhitssecond[v+n]) Hit(tNoiseHitPtrS);
          }
 
       }
@@ -379,14 +351,9 @@ Bool_t SimulationCore::Run()
       // Fill trees.
       // Clear TClonesArrays.
       if(!(fDryRun)) {
-         if(fMontecarloTruth) MainTree->Fill();
-         EventsTree->Fill();
+         EventsTree.Fill();
       }
 
-      outfile.FlushWriteCache();
-      hitsbpipeptr->Delete();
-      hitsfirstptr->Delete();
-      hitssecondptr->Delete();
       rhitsfirstptr->Delete();
       rhitssecondptr->Delete();
 
@@ -398,24 +365,24 @@ Bool_t SimulationCore::Run()
    } while(i<fNumVertices);
 
    /////////////////////////////////////////////////////////////////////////////
-   // Finalyze the simulation.
-   if(!fMontecarloTruth) MainTree->TTree::~TTree();
+   // Finalize the simulation.
    if(!fDryRun) outfile.Write();
    Printf("Progress status:     \t\t\t100%%");
-   Printf("Simulation process ended.");
    histEtaptr->TH1F::~TH1F();
    if(fFixedMult==0) hisMulptr->TH1F::~TH1F();
    vertex.Vertice::~Vertice();
    direction.Direzione::~Direzione();
    outfile.Close("R");
    infile.Close();
+ 
+   // Delete pointers and objects.
+   tHitSLptr.Hit::~Hit();
+   tHitBPptr.Hit::~Hit();
+   tHitFLptr.Hit::~Hit();
+   tNoiseHitPtrS.Hit::~Hit();
+   tNoiseHitPtrF.Hit::~Hit();
 
-   // Delete pointers
-   tHitSLptr->Hit::~Hit();
-   tHitBPptr->Hit::~Hit();
-   tHitFLptr->Hit::~Hit();
-   tNoiseHitPtrS->Hit::~Hit();
-   tNoiseHitPtrF->Hit::~Hit();
+   Printf("Simulation process ended.");
    return kTRUE;
 }
 

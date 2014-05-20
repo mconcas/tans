@@ -43,14 +43,14 @@ class Hit : public Punto {
       //_____________Transport_Generators_________
       //////////////////////////////////////////////////////////////////////////
       // It generates a Hit starting from a vrtx.
-      static Hit *HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,
+      static Hit HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,
          Double_t Radius,Int_t Idnumber,Int_t Layerno=0);
 
       //////////////////////////////////////////////////////////////////////////
       // It generates a Hit starting from a Hit, including the
       // possibility of multiple scattering with a TMaterial that
       // cross the trajectory.
-      Hit *GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
+      Hit GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
          Double_t Width, Bool_t Multscat=kTRUE,Int_t Layerno=0,Double_t P=750,
          Int_t Z=1,Double_t Beta=1);
 
@@ -65,7 +65,7 @@ class Hit : public Punto {
       //////////////////////////////////////////////////////////////////////////
       // The first generator creates uniformly distributed hits on
       // a cylindrical surface (e.g. a Detector).
-      static Hit* NoiseOnCyl(Double_t CRadius,Double_t Zetamin,
+      static Hit NoiseOnCyl(Double_t CRadius,Double_t Zetamin,
          Double_t Zetamax);
 
    protected:

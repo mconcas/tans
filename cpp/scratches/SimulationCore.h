@@ -58,7 +58,7 @@ class SimulationCore : public TObject {
       pipe_t              fFirstLayer;         // First detector struct.
       pipe_t              fSecondLayer;        // Second detector struct.
       Bool_t              fDryRun;             // Dry run flag.
-      Bool_t              fMontecarloTruth;    // Save Montecarlo truth flag.
+      // Bool_t              fMontecarloTruth;    // Save Montecarlo truth flag.
       TString             fOutFileName;        // Output file name.
       Double_t            fRmsX;               // Rms of X coordinate.
       Double_t            fRmsY;               // Rms of Y coordinate.
