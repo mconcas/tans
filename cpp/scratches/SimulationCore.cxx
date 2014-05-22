@@ -347,6 +347,14 @@ Bool_t SimulationCore::Run()
 
       }
 
+      // Increase counter if at least one track hits both the first and the
+      // second layer.
+      if(FirstFlag && SecndFlag) {
+         vertex.SetVerticeGoodness(kTRUE);
+         i+=1;
+      } else { 
+         vertex.SetVerticeGoodness(kFALSE);
+      }
       //////////////////////////////////////////////////////////////////////////
       // Fill trees.
       // Clear TClonesArrays.
@@ -358,10 +366,6 @@ Bool_t SimulationCore::Run()
       rhitssecondptr->Delete();
 
       percentage=static_cast<Int_t>(i*100/fNumVertices);
-
-      // Increase counter if at least one track hits both the first and the
-      // second layer.
-      if(FirstFlag && SecndFlag) i+=1;
    } while(i<fNumVertices);
 
    /////////////////////////////////////////////////////////////////////////////

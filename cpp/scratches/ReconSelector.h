@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TSelector.h>
+#include <TNtuple.h>
 #include <TH1F.h>
 
 // Header file for the classes stored in the TTree if any.
@@ -41,7 +42,9 @@ public :
    Vertice        *fAnaVertex;              // Pointer to analyzed vertex.
    Hit            *fAnaHitFrst;             // 1st layer analyzed Hit ptr.
    Hit            *fAnaHitScnd;             // 2nd layer analyzed Hit ptr.
+   TNtuple        *fResultsNtuple;          // TNtuple cointaining reults. 
    Int_t           fCounter;                // Debug iteration counter.
+   Int_t           fReconVCounter;          // Counter of reconst. vertices.
    Int_t           fReconVertices;          // Counter for recons. vertices.
    Double_t        fDeltaPhi;               // Delta Phi limit.
    Double_t        fBinSizeRoughHist;       // Raw histogram bins size.
@@ -49,6 +52,7 @@ public :
    Int_t           fNBinsRoughHist;         // Number of bins in raw hist.
    Int_t           fNBinsFineHist;          // Number of bins in RecZetaHist.
    ZReal_t         fZetaFound;              // Zeta Value Found
+   
 
    ReconSelector(TTree* =0);
    virtual ~ReconSelector() {}

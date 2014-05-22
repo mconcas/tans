@@ -1,19 +1,25 @@
 #define ReconSelector_cxx
 #include "ReconSelector.h"
-#include <TH2.h>
+#include <TGraphErrors.h>
+#include <TCut.h>
+#include <TF1.h>
+#include <TH1I.h>
+#include <TH1F.h>
 #include <TStyle.h>
 #include <TMath.h>
+#include <TNtuple.h>
 #include <TSystem.h>
-#include <TCanvas.h>
+// #include <TCanvas.h>
 
 // Δϕ=0.001866[deg]
+// kTRUE=1
+// kFALSE=0
 // Utility functions prototypes.
 //
-// Wrap some commands in order to make a better code readability.
 
-Double_t ZResidual(Vertice &Vtx, Double_t &ZetaRecons);
 Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer);
 void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound);
+Double_t ErrEfficiency(Double_t Eff,Int_t Nz);
 
 ReconSelector::ReconSelector(TTree *) :
    fChain(0),
@@ -22,8 +28,8 @@ ReconSelector::ReconSelector(TTree *) :
    fReconVertices(0),
    // Precision settings.
    fDeltaPhi(0.001866),
-   fBinSizeRoughHist(5.),             // mm
-   fBinSizeFineHist(1.)               // mm
+   fBinSizeRoughHist(2.),             // mm
+   fBinSizeFineHist(0.5)            // mm
 {
    fAnaVertex=new Vertice();
    fHitClonesArray_FL=new TClonesArray("Hit",kMaxFirstlayer);
@@ -55,6 +61,7 @@ void ReconSelector::Begin(TTree *)
    Printf("\x1B[31m\t+ ++ +++ + + ++ ++ +++ + ++ ++ ++ +\x1B[0m\n\n");
 
    fCounter=0;
+   fReconVCounter=0;
 }
 
 void ReconSelector::SlaveBegin(TTree *)
@@ -64,8 +71,12 @@ void ReconSelector::SlaveBegin(TTree *)
    fRecZetaHistptr=new TH1F("Reconstructed Zeta","Z Recons",
       fNBinsFineHist,-82.3,82.3);
    fResidualZetaptr=new TH1F("Z Residuals","Residuals",500,-5.5,5.5);
+   fResultsNtuple=new TNtuple("ResNtuple","Results",
+      "ZTruth:TruthGoodness:ZRecon:ReconGoodness:ZResidual:Noise");
+   // Add to Output list.
    fOutput->Add(fResidualZetaptr);
    fOutput->Add(fRecZetaHistptr);
+   fOutput->Add(fResultsNtuple);
 }
 
 Bool_t ReconSelector::Process(Long64_t entry)
@@ -118,11 +129,14 @@ Bool_t ReconSelector::Process(Long64_t entry)
    XtrapolateZeta(RoughHist,FineHist,fZetaFound);
 
    // Performance analysis can start here.
-   if(fZetaFound.fGood) {
-      fRecZetaHistptr->Fill(fZetaFound.fCoord);
-      fResidualZetaptr->Fill(ZResidual(*fAnaVertex,fZetaFound.fCoord));
-      fReconVertices++;
-   }
+   // Fill Ntuple.
+   fResultsNtuple->Fill(fAnaVertex->GetPuntoZ(), // Z Montecarlo.
+      (Int_t)fAnaVertex->GetVerticeGoodness(),  // Is a good event.
+      fZetaFound.fCoord,                         // Z Reconstructed.
+      (Int_t)fZetaFound.fGood,                   // Is a good reconstruction.
+      fAnaVertex->GetPuntoZ()-fZetaFound.fCoord, // Zm-Zr -> Residual.
+      fAnaVertex->GetVerticeNL());               // Noise level.
+
    return kTRUE;
 }
 
@@ -133,24 +147,65 @@ void ReconSelector::SlaveTerminate()
    // have been processed. When running with PROOF SlaveTerminate()  is called
    // on each slave server.
    Printf("SlaveTerminate() function called.");
-   Printf("fReconVertices value: %d", fReconVertices);
+   Printf("fReconVertices value: %d",fReconVertices);
    Printf("Counter value: %d",fCounter);
+   Printf("Recon counter value: %d",fReconVCounter);
+
 }
 
 void ReconSelector::Terminate()
 {
    if(fOutput->IsEmpty()) Printf("[debug >[WARNING!] TList is empty!");
-   // Finalize
-   fRecZetaHistptr=static_cast<TH1F*>(fOutput->FindObject(fRecZetaHistptr));
-   fResidualZetaptr=static_cast<TH1F*>(fOutput->FindObject(fResidualZetaptr));
-   TFile outfile("ZReconstructed.root","RECREATE");
-   if(outfile.IsZombie()) {
+   // Otherwise retrieve Ntuple.
+   fResultsNtuple=static_cast<TNtuple*>(fOutput->FindObject(fResultsNtuple));
+   // Analysis
+   Double_t Xarray[6];
+   Double_t ErrXarray[6]={0,0,0,0,0,0};
+   Double_t ResArray[6];
+   Double_t ErrResArray[6];
+   Double_t EfficiencyArray[6];
+   Double_t ErrEfficiencyArray[6];
+   for(Int_t i=0;i<6;++i) {
+      TH1F ResidualHist("residual","Residual Z",100,-1.5,1.5);
+      TH1I HistNVertWithNL("vertices","vertices",2,0,2);
+      TH1I HistNVertWithNLAndGood("goodvertices","vertices",2,0,2);
+      TString CutResFormula;
+      TString CutEffFormula1;
+      TString CutEffFormula2;
+      CutResFormula.Form("TruthGoodness==1&&ReconGoodness==1&&Noise==%d",i*6);
+      CutEffFormula1.Form("TruthGoodness==1&&Noise==%d",i*6);
+      CutEffFormula2.Form("TruthGoodness==1&&ReconGoodness==1&&Noise==%d",i*6);
+      TCut Cut(CutResFormula.Data());
+      TCut Cut1(CutEffFormula1.Data());
+      TCut Cut2(CutEffFormula2.Data());
+      // Fill histogram with cut data.
+      fResultsNtuple->Draw("(ZTruth-ZRecon)>>residual",Cut);
+      fResultsNtuple->Draw("(TruthGoodness)>>vertices",Cut1);
+      fResultsNtuple->Draw("(ReconGoodness)>>goodvertices",Cut2);
+      // Fit
+      ResidualHist.Fit("gaus");
+      TF1 *FittedGaus=(TF1*)ResidualHist.GetFunction("gaus");
+      Xarray[i]=i*6;
+      ResArray[i]=FittedGaus->GetParameter(2);
+      ErrResArray[i]=FittedGaus->GetParError(2);
+      EfficiencyArray[i]=(Float_t)HistNVertWithNLAndGood.GetMaximum()/
+         HistNVertWithNL.GetMaximum();
+      ErrEfficiencyArray[i]=ErrEfficiency(EfficiencyArray[i],
+         HistNVertWithNL.GetMaximum());
+   }
+   TGraphErrors ResidualsGraphErrors(6,Xarray,ResArray,ErrXarray,ErrResArray);
+   TGraphErrors EfficiencyGraphErrors(6,Xarray,EfficiencyArray,ErrXarray,
+      ErrEfficiencyArray);
+
+   TFile outfile("Analysis.root","RECREATE");
+      if(outfile.IsZombie()) {
       Printf("A problem occured creating file");
    }
-   if(fRecZetaHistptr) fRecZetaHistptr->Write();
-   if(fResidualZetaptr) fResidualZetaptr->Write();
+   ResidualsGraphErrors.Write();
+   EfficiencyGraphErrors.Write();
 }
 
+/******************************************************************************/
 Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer)
 {
    Double_t result=(OnFirstlayer.GetPuntoZ()
@@ -160,7 +215,7 @@ Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer)
    return result;
 }
 
-void XtrapolateZeta(TH1F &Rough, TH1F &Fine, ZReal_t &ZetaFound)
+void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound)
 {
    // At the moment I'm not sure if it's useful that ZetaFound struct is a
    // datamaber.
@@ -183,7 +238,6 @@ void XtrapolateZeta(TH1F &Rough, TH1F &Fine, ZReal_t &ZetaFound)
    do {
       SecondMaxRough=Rough.GetBinContent(Iterator);
       SecondMaxRoughBin=Iterator;
-      // Printf("Iterator=%d",Iterator);
       Iterator--;
    } while(SecondMaxRough<FirstMaxRough);
 
@@ -227,9 +281,7 @@ void XtrapolateZeta(TH1F &Rough, TH1F &Fine, ZReal_t &ZetaFound)
    }
 }
 
-// Evaluate the difference between the reconstructed Z coordinate and the
-// Montecarlo truth.
-Double_t ZResidual(Vertice &Vtx, Double_t &ZetaRecons)
+Double_t ErrEfficiency(Double_t Eff,Int_t Nz)
 {
-   return Vtx.GetPuntoZ()-ZetaRecons;
-}
+   return TMath::Sqrt(Eff*(1-Eff)/Nz);
+};

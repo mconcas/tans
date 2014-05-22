@@ -7,7 +7,7 @@
 #endif
 
 void ReconSteer(
-   const TString Datafile="Simulation_fixed_vertex_with_scattering.root",
+   // const TString Datafile="Simulation_fixed_vertex_with_scattering.root",
    const TString Selector="ReconSelector.cxx+",
    const Bool_t Proof=kFALSE,
    const TString Treename="Events Tree",const TString Option="force")
@@ -22,36 +22,32 @@ void ReconSteer(
    gSystem->CompileMacro("Vertice.cxx",option);
    gSystem->CompileMacro("Hit.cxx",option);
 
-   // Open data file.
-   TFile *fFile=TFile::Open(Datafile.Data());
-   if(fFile->IsZombie()) {
-      Printf("[ERROR] There was a problem accessing %s file. Please\
-         check if it exists. ", Datafile.Data());
-      return;
+   TChain *EventChain=new TChain(Treename.Data());
+   TString FileName;
+   for(Int_t i=0;i<6;++i) {
+      FileName.Form("data/Noise_%d_Multscatt_disabled_events_100K.root",i*6);
+      EventChain->Add(FileName.Data());
+      Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",FileName.Data());
    }
-   TChain *fEventChain=new TChain(Treename.Data());
-   fEventChain->Add(Datafile.Data());
+   
    if(Proof) {
-      Printf(" \x1B[32m+++ Beginning Reconstruction +++");
-      Printf(" +++ Reading from file:    %s",Datafile.Data());
-      Printf(" +++ Analyzed tree name:   %s",Treename.Data());
-      Printf(" +++ Proof master name:    %s",gSystem->HostName());
-      Printf(" +++ Selector chosen:      %s\x1B[0",Selector.Data());
-
+      Printf("\x1B[31m +++ Beginning Reconstruction +++\x1B[0m");
+      Printf("\x1B[31m +++ Analyzed tree name:   %s\x1B[0m",Treename.Data());
+      Printf("\x1B[31m +++ Proof master name:    %s\x1B[0m",
+         gSystem->HostName());
+      Printf("\x1B[31m +++ Selector chosen:      %s\x1B[0m",Selector.Data());
+ 
       TString fWorkerString;
       TProof::Open("workers=4");
-      fEventChain->SetProof();
+      EventChain->SetProof();
 
       gProof->Load("Punto.cxx+");
       gProof->Load("Vertice.cxx+");
       gProof->Load("Direzione.cxx+");
       gProof->Load("Hit.cxx+");
 
-      fEventChain->Process(Selector.Data());
+      EventChain->Process(Selector.Data());
    } else {
-      TTree *SerTree = (TTree*)fFile->Get(Treename.Data());
-      SerTree->Process(Selector.Data());
+      EventChain->Process(Selector.Data());
    }
-
-   fFile->Close();
 }

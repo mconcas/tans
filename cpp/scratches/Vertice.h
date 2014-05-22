@@ -7,7 +7,7 @@
 //               The idea is to derive a set of more «physics classes»
 //               from the geometrical and abstracts ones in order to
 //               easily describe experiment and add customizations
-//               without rewrite the whole source code.
+//               without rewrite the whole code.
 //Written by Matteo Concas: mett1990@gmail.com Sep 2013
 //Exam: «Tecniche di analisi numerica e simulazione»
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,16 +27,19 @@ class Vertice : public Punto {
       void SetVerticeMult(Int_t Mult);
       void SetVerticeID(Int_t IDno);
       void SetVerticeNL(Double_t Noiselvl);
+      void SetVerticeGoodness(Bool_t Goodness);
 
       //____________Inline_Getters_______________
-      Int_t GetVerticeMult()   { return fMultiplicity; }
-      Int_t GetVerticeID()     { return fIdnumber; }
-      Double_t GetVerticeNL()  { return fNoiselevel; }
+      Int_t GetVerticeMult() {return fMultiplicity;}
+      Int_t GetVerticeID() {return fIdnumber;}
+      Double_t GetVerticeNL() {return fNoiselevel;}
+      Bool_t GetVerticeGoodness() {return fIsAGoodGuy;}
 
    protected:
       Int_t fMultiplicity;   // Number of generated tracks.
       Int_t fIdnumber;       // Tag useful in simulation.
       Double_t fNoiselevel;  // Set noise level.
+      Bool_t fIsAGoodGuy;    // Post simulation flag, useful for eff. analysis.
 
    ClassDef(Vertice,1)
 };
