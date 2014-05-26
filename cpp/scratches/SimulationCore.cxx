@@ -255,11 +255,11 @@ Bool_t SimulationCore::Run()
    /////////////////////////////////////////////////////////////////////////////
    Int_t i=0;
 
-   Hit tHitBPptr;
-   Hit tHitFLptr;
-   Hit tHitSLptr;
-   Hit tNoiseHitPtrF;
-   Hit tNoiseHitPtrS;
+   Hit tHitBP;
+   Hit tHitFL;
+   Hit tHitSL;
+   Hit tNoiseHitF;
+   Hit tNoiseHitS;
 
    do {
       // Show progress percentage.
@@ -269,7 +269,7 @@ Bool_t SimulationCore::Run()
 
       if(fFixedMult==0)
          // static_cast<Int_t>() returns rounded-down values.
-         vertex.SetVerticeMult(static_cast<Int_t>(hisMulptr->GetRandom()+0.5));
+         vertex.SetVerticeMult(static_cast<Int_t>(hisMulptr->GetRandom()));
       else vertex.SetVerticeMult(fFixedMult);
 
       //////////////////////////////////////////////////////////////////////////
@@ -298,7 +298,7 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
-         tHitBPptr=Hit::HitOnCylFromVertex(vertex,direction,fBeampipe.fPipeRad,
+         tHitBP=Hit::HitOnCylFromVertex(vertex,direction,fBeampipe.fPipeRad,
             j);
 
          ///////////////////////////////////////////////////////////////////////
@@ -308,7 +308,7 @@ Bool_t SimulationCore::Run()
          // fBeampipe.fMaterial, fBeampipe.fThickness are used to determine the
          // deviation due the multiple scattering effect.
 
-         tHitFLptr=tHitBPptr.GetHitOnCyl(direction,fFirstLayer.fPipeRad,
+         tHitFL=tHitBP.GetHitOnCyl(direction,fFirstLayer.fPipeRad,
               fBeampipe.fMaterial,fBeampipe.fThickness,fMultipleScat,1);
 
          // Reset Rotation bit.
@@ -316,18 +316,20 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate to 2nd cylinder and add it to the TClonesArray
-         tHitSLptr=tHitFLptr.GetHitOnCyl(direction,fSecondLayer.fPipeRad,
+         tHitSL=tHitFL.GetHitOnCyl(direction,fSecondLayer.fPipeRad,
             fFirstLayer.fMaterial,fFirstLayer.fThickness,fMultipleScat,2);
 
          ///////////////////////////////////////////////////////////////////////
          // Register data.
-         if(TMath::Abs(tHitFLptr.GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
-            new(rhitsfirst[u]) Hit(tHitFLptr);
+         if(TMath::Abs(tHitFL.GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
+            tHitFL.GausSmearing(40,0.12,0.03);
+            new(rhitsfirst[u]) Hit(tHitFL);
             u+=1;
             FirstFlag=kTRUE;
          }
-         if(TMath::Abs(tHitSLptr.GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
-            new(rhitssecond[v]) Hit(tHitSLptr);
+         if(TMath::Abs(tHitSL.GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
+            tHitSL.GausSmearing(70,0.12,0.03);
+            new(rhitssecond[v]) Hit(tHitSL);
             v+=1;
              SecndFlag=kTRUE;
          }
@@ -336,13 +338,13 @@ Bool_t SimulationCore::Run()
          // Noise algorithm.
 
          for(Int_t n=0;n<fNoiseLevel;++n) {
-            tNoiseHitPtrF=Hit::NoiseOnCyl(fFirstLayer.fPipeRad,
+            tNoiseHitF=Hit::NoiseOnCyl(fFirstLayer.fPipeRad,
                -fFirstLayer.fZetaLen/2,fFirstLayer.fZetaLen/2);
-            new(rhitsfirst[u+n]) Hit(tNoiseHitPtrF);
+            new(rhitsfirst[u+n]) Hit(tNoiseHitF);
 
-            tNoiseHitPtrS=Hit::NoiseOnCyl(fSecondLayer.fPipeRad,
+            tNoiseHitS=Hit::NoiseOnCyl(fSecondLayer.fPipeRad,
                -fSecondLayer.fZetaLen/2,fSecondLayer.fZetaLen/2);
-            new(rhitssecond[v+n]) Hit(tNoiseHitPtrS);
+            new(rhitssecond[v+n]) Hit(tNoiseHitS);
          }
 
       }
@@ -380,11 +382,11 @@ Bool_t SimulationCore::Run()
    infile.Close();
  
    // Delete pointers and objects.
-   tHitSLptr.Hit::~Hit();
-   tHitBPptr.Hit::~Hit();
-   tHitFLptr.Hit::~Hit();
-   tNoiseHitPtrS.Hit::~Hit();
-   tNoiseHitPtrF.Hit::~Hit();
+   tHitSL.Hit::~Hit();
+   tHitBP.Hit::~Hit();
+   tHitFL.Hit::~Hit();
+   tNoiseHitS.Hit::~Hit();
+   tNoiseHitF.Hit::~Hit();
 
    Printf("Simulation process ended.");
    return kTRUE;

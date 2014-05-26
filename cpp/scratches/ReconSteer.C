@@ -6,13 +6,10 @@
 #include "TSystem.h"
 #endif
 
-void ReconSteer(
-   // const TString Datafile="Simulation_fixed_vertex_with_scattering.root",
-   const TString Selector="ReconSelector.cxx+",
-   const Bool_t Proof=kFALSE,
-   const TString Treename="Events Tree",const TString Option="force")
+void ReconSteer(const TString Selector="ReconSelector.cxx+", 
+   const Bool_t Proof=kFALSE,const TString Treename="Events Tree",
+   const TString Option="force")
 {
-
    // (Re)Compile classes, macros, etc.
    TString option;
    if(Option.Contains("force")) option="kfg";
@@ -25,7 +22,9 @@ void ReconSteer(
    TChain *EventChain=new TChain(Treename.Data());
    TString FileName;
    for(Int_t i=0;i<6;++i) {
-      FileName.Form("data/Noise_%d_Multscatt_disabled_events_100K.root",i*6);
+      TString Prefix="data/Noise_X_Multscatt_disabled_events_100K/";
+      FileName.Form("%sNoise_%d_Multscatt_disabled_events_100K.root",
+         Prefix.Data(),i*6);
       EventChain->Add(FileName.Data());
       Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",FileName.Data());
    }
@@ -39,6 +38,7 @@ void ReconSteer(
  
       TString fWorkerString;
       TProof::Open("workers=4");
+      // gProof->SetParameter("PROOF_FeedbackPeriod", (Long_t)14400000);
       EventChain->SetProof();
 
       gProof->Load("Punto.cxx+");
