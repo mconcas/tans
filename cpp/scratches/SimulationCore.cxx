@@ -26,7 +26,7 @@ XMLNodePointer_t DrainDetectorData(pipe_t &pipe,TXMLEngine* engine,
    XMLNodePointer_t index);
 
 // Returns theta angle from a distribution Histogram.
-Double_t ThetaFromEta(TH1F* etahist);
+Double_t ThetaFromEta(TH1F* etahist,Double_t low,Double_t high);
 
 // Class.
 ClassImp(SimulationCore)
@@ -230,11 +230,11 @@ Bool_t SimulationCore::Run()
 
    Int_t percentage=0.;
    // Print a debug welcome and summary
-   Printf("\n\t++++++++++++++++++++++++++++++++++++++++++++++");
-   Printf("\t+                                            +");
-   Printf("\t+        Events simulation is running!       +");
-   Printf("\t+                                            +");
-   Printf("\t++++++++++++++++++++++++++++++++++++++++++++++\n");
+   Printf("\n\t+++++++++++++++++++++++++++++++++++++++++++++++");
+   Printf("\t+                                             +");
+   Printf("\t+        Events simulation is running!        +");
+   Printf("\t+                                             +");
+   Printf("\t+++++++++++++++++++++++++++++++++++++++++++++++\n");
    Printf("\nSummary:");
    Printf("Output file:              \t\t%s", fOutFileName.Data());
    Printf("Number of events:         \t\t%d", fNumVertices);
@@ -271,6 +271,7 @@ Bool_t SimulationCore::Run()
          // static_cast<Int_t>() returns rounded-down values.
          vertex.SetVerticeMult(static_cast<Int_t>(hisMulptr->GetRandom()));
       else vertex.SetVerticeMult(fFixedMult);
+      vertex.SetVerticeID(i);
 
       //////////////////////////////////////////////////////////////////////////
       // Set vertex Noiselevel
@@ -287,12 +288,12 @@ Bool_t SimulationCore::Run()
       const Int_t multiplicity=vertex.GetVerticeMult();
 
       // Transport code.
-      Bool_t FirstFlag=kFALSE;
-      Bool_t SecndFlag=kFALSE;
+      // Bool_t FirstFlag=kFALSE;
+      // Bool_t SecndFlag=kFALSE;
 
 
       for(Int_t j=0;j<multiplicity;++j) {
-         direction.SetAllAngles(ThetaFromEta(histEtaptr),2*gRandom->Rndm()
+         direction.SetAllAngles(ThetaFromEta(histEtaptr,-2,2),2*gRandom->Rndm()
             *TMath::Pi());
          direction.SetDirectID(j);
 
@@ -325,13 +326,11 @@ Bool_t SimulationCore::Run()
             tHitFL.GausSmearing(40,0.12,0.03);
             new(rhitsfirst[u]) Hit(tHitFL);
             u+=1;
-            FirstFlag=kTRUE;
          }
          if(TMath::Abs(tHitSL.GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
             tHitSL.GausSmearing(70,0.12,0.03);
             new(rhitssecond[v]) Hit(tHitSL);
             v+=1;
-             SecndFlag=kTRUE;
          }
 
          ///////////////////////////////////////////////////////////////////////
@@ -351,17 +350,17 @@ Bool_t SimulationCore::Run()
 
       // Increase counter if at least one track hits both the first and the
       // second layer.
-      if(FirstFlag && SecndFlag) {
+      if(rhitsfirst.GetEntries()!=0&&rhitssecond.GetEntries()!=0) {
          vertex.SetVerticeGoodness(kTRUE);
+         //////////////////////////////////////////////////////////////////////////
+         // Fill trees.
+         // Clear TClonesArrays.
+         if(!(fDryRun)) {
+            EventsTree.Fill();
+         }
          i+=1;
       } else { 
          vertex.SetVerticeGoodness(kFALSE);
-      }
-      //////////////////////////////////////////////////////////////////////////
-      // Fill trees.
-      // Clear TClonesArrays.
-      if(!(fDryRun)) {
-         EventsTree.Fill();
       }
 
       rhitsfirstptr->Delete();
@@ -392,7 +391,7 @@ Bool_t SimulationCore::Run()
    return kTRUE;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Functions definition
 XMLNodePointer_t FromChildToNextParent(TXMLEngine* engine,
    XMLNodePointer_t index)
@@ -423,7 +422,12 @@ XMLNodePointer_t DrainDetectorData(pipe_t &pipe,TXMLEngine* engine,
    return index;
 }
 
-Double_t ThetaFromEta(TH1F* etahist)
-{
-   return 2*TMath::ATan(TMath::Exp(-etahist->GetRandom()));
+Double_t ThetaFromEta(TH1F* etahist,Double_t low,Double_t high)
+{  
+   Double_t eta;
+   do {
+      eta=etahist->GetRandom();
+   } while((eta<0&&eta<=low)||(eta>0&&eta>=high));
+
+   return 2*TMath::ATan(TMath::Exp(-eta));
 }

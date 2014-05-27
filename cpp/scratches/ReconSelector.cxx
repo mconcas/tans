@@ -1,6 +1,7 @@
 #define ReconSelector_cxx
 #include "ReconSelector.h"
 #include <TGraphErrors.h>
+#include <TGraphAsymmErrors.h>
 #include <TCut.h>
 #include <TF1.h>
 #include <TH1I.h>
@@ -17,13 +18,13 @@
 Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer);
 void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound);
 Double_t ErrEfficiency(Double_t Eff,Int_t Nz);
-void EditGraph(TGraphErrors &Graph);
+void EditGraph(TGraph &Graph);
 
 // Analysis functions.
 TGraphErrors ResidualVsNoise(TNtuple* Ntuple, Int_t ArrDim);
 TGraphErrors EfficiencyVsNoise(TNtuple* Ntuple, Int_t ArrDim);
 TGraphErrors ResidualVsCoordZ(TNtuple* Ntuple, Int_t ArrDim);
-TGraphErrors EfficiencyVsCoordZ(TNtuple* Ntuple, Int_t ArrDim);
+TGraphAsymmErrors EfficiencyVsCoordZ(TNtuple* Ntuple, Int_t Bins);
 TGraphErrors ResidualVsMultiplicity(TNtuple* Ntuple, Int_t ArrDim);
 TGraphErrors EfficiencyVsMultiplicity(TNtuple* Ntuple, Int_t ArrDim);
 
@@ -35,7 +36,7 @@ ReconSelector::ReconSelector(TTree *) :
    // Precision settings.
    fDeltaPhi(0.001866),
    fBinSizeRoughHist(2.),             // mm
-   fBinSizeFineHist(0.005)            // mm
+   fBinSizeFineHist(0.018)            // mm
    {
       fAnaVertex=new Vertice();
       fHitClonesArray_FL=new TClonesArray("Hit",kMaxFirstlayer);
@@ -78,7 +79,7 @@ void ReconSelector::SlaveBegin(TTree *)
    fRecZetaHistptr=new TH1F("Reconstructed Zeta","Z Recons",1000,-82.3,82.3);
    fResidualZetaptr=new TH1F("Z Residuals","Residuals",500,-5.5,5.5);
    fResultsNtuple=new TNtuple("ResNtuple","Results",
-      "ZTruth:TruthGoodness:ZRecon:ReconGoodness:ZResidual:Noise:Multiplicity");
+      "eventID:ZTruth:ZRecon:ReconGood:ZResidual:Noise:Multiplicity");
    // Add to Output list.
    fOutput->Add(fResidualZetaptr);
    fOutput->Add(fRecZetaHistptr);
@@ -139,13 +140,13 @@ Bool_t ReconSelector::Process(Long64_t entry)
    if(fZetaFound.fGood) fRecZetaHistptr->Fill(fZetaFound.fCoord);
    // Performance analysis can start here.
    // Fill Ntuple.
-   fResultsNtuple->Fill(fAnaVertex->GetPuntoZ(), // Z Montecarlo.
-      (Int_t)fAnaVertex->GetVerticeGoodness(),   // Is a good event.
-      fZetaFound.fCoord,                         // Z Reconstructed.
-      (Int_t)fZetaFound.fGood,                   // Is a good reconstruction.
-      fAnaVertex->GetPuntoZ()-fZetaFound.fCoord, // Zm-Zr -> Residual.
-      fAnaVertex->GetVerticeNL(),                // Noise level.
-      fAnaVertex->GetVerticeMult());             // Multiplicity.
+   fResultsNtuple->Fill(fAnaVertex->GetVerticeID(), // Event identity number.
+      fAnaVertex->GetPuntoZ(),                      // Z Montecarlo.
+      fZetaFound.fCoord,                            // Z Reconstructed.
+      (Double_t)fZetaFound.fGood,                   // Is a good reconstruction.
+      fAnaVertex->GetPuntoZ()-fZetaFound.fCoord,    // Zm-Zr -> Residual.
+      fAnaVertex->GetVerticeNL(),                   // Noise level.
+      fAnaVertex->GetVerticeMult());                // Multiplicity.
 
    return kTRUE;
 }
@@ -166,7 +167,7 @@ void ReconSelector::Terminate()
 {
    if(fOutput->IsEmpty()) Printf("[debug >[WARNING!] TList is empty!");
    // Otherwise retrieve Ntuple.
-   fResultsNtuple=static_cast<TNtuple*>(fOutput->FindObject(fResultsNtuple));
+   // fResultsNtuple=static_cast<TNtuple*>(fOutput->FindObject(fResultsNtuple));
    // Analysis
    // Residuals vs Noise.
    TGraphErrors ResidualVsNoiseGraph=ResidualVsNoise(fResultsNtuple,6);
@@ -178,7 +179,8 @@ void ReconSelector::Terminate()
    TGraphErrors ResidualVsCoordZGraph=ResidualVsCoordZ(fResultsNtuple,7);
 
    // Efficiency vs Z position.
-   TGraphErrors EfficiencyVsCoordZGraph=EfficiencyVsCoordZ(fResultsNtuple,7);
+   TGraphAsymmErrors EfficiencyVsCoordZGraph=EfficiencyVsCoordZ(fResultsNtuple,
+      7);
    
    // Residual vs Multiplicity.
    TGraphErrors ResidualVsMultiplicityGraph=ResidualVsMultiplicity(
@@ -213,6 +215,7 @@ Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer)
       *OnSecondlayer.GetPuntoCRadius()-OnSecondlayer.GetPuntoZ()*
       OnFirstlayer.GetPuntoCRadius())/(OnSecondlayer.GetPuntoCRadius()
       -OnFirstlayer.GetPuntoCRadius());
+
    return result;
 }
 
@@ -288,7 +291,7 @@ void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound)
 
 Double_t ErrEfficiency(Double_t Ef,Int_t Nz) {return TMath::Sqrt(Ef*(1-Ef)/Nz);}
 
-void EditGraph(TGraphErrors &Graph) {
+void EditGraph(TGraph &Graph) {
    Graph.GetXaxis()->SetLabelSize(0.03);
    Graph.GetYaxis()->SetLabelSize(0.03);
    Graph.GetYaxis()->SetTitleOffset(1.2);
@@ -308,7 +311,7 @@ TGraphErrors ResidualVsNoise(TNtuple *Ntuple, Int_t ArrDim)
       Noise[i]=i*ArrDim;
       TH1F ResidualHist("residual","Residual Z",3000,-1.5,1.5);
       TString Formula;
-      Formula.Form("TruthGoodness==1&&ReconGoodness==1&&Noise==%d",i*ArrDim);
+      Formula.Form("ReconGood==1&&Noise==%d",i*ArrDim);
       TCut Cut(Formula.Data());
       Ntuple->Draw("(ZTruth-ZRecon)>>residual",Cut,"goff");
       ResidualHist.Fit("gaus");
@@ -337,16 +340,25 @@ TGraphErrors EfficiencyVsNoise(TNtuple *Ntuple, Int_t ArrDim)
       TH1I VertReconstr("verticesreconstructed","vertices",2,0,2);
       TString Formula1;
       TString Formula2;
-      Formula1.Form("TruthGoodness==1&&Noise==%d",i*ArrDim);
-      Formula2.Form("TruthGoodness==1&&ReconGoodness==1&&Noise==%d",i*ArrDim);
+      Formula1.Form("Noise==%d",i*ArrDim);
+      Formula2.Form("ReconGood==1&&Noise==%d",i*ArrDim);
       TCut Cut1(Formula1.Data());
       TCut Cut2(Formula2.Data());
-      Ntuple->Draw("(TruthGoodness)>>verticesimulated",Cut1,"goff");
-      Ntuple->Draw("(ReconGoodness)>>verticesreconstructed",Cut2,"goff");
+      Ntuple->Draw("1>>verticesimulated",Cut1,"goff");
+      Ntuple->Draw("(ReconGood)>>verticesreconstructed",Cut2,"goff");
       Efficiency[i]=(Float_t)VertReconstr.GetBinContent(2)/
          VertSimulated.GetBinContent(2);
       ErrEfficiencyArray[i]=ErrEfficiency(Efficiency[i],
-         VertSimulated.GetBinContent(2));   
+         VertSimulated.GetBinContent(2));
+      TString Filename; 
+      Filename.Form("tmp/noise_%d.root",i);
+      TFile outfile(Filename,"RECREATE");
+      if(outfile.IsZombie()) {
+      Printf("A problem occured creating file");
+      }
+      VertSimulated.Write();
+      VertReconstr.Write();
+      outfile.Close();  
    }
 
    TGraphErrors EfficiencyVsNoise(ArrDim,Noise,Efficiency,ErrNoise,
@@ -387,8 +399,8 @@ TGraphErrors ResidualVsCoordZ(TNtuple *Ntuple, Int_t ArrDim) {
    return ResidualVsCoordZ;
 }
 
-TGraphErrors EfficiencyVsCoordZ(TNtuple *Ntuple, Int_t ArrDim) {
-   Double_t ZCoord[7]={-69.9,-46,-23,0,23,46,69.9};
+TGraphAsymmErrors EfficiencyVsCoordZ(TNtuple* Ntuple, Int_t Bins) {
+   /*Double_t ZCoord[7]={-69.9,-46,-23,0,23,46,69.9};
    Double_t ErrZCoord[ArrDim];
    for(Int_t i=0;i<ArrDim;++i) ErrZCoord[i]=0.;
    Double_t RangeLimits[8]={-82.3,-57.5,-34.5,-11.5,11.5,34.5,57.5,82.3};
@@ -397,8 +409,8 @@ TGraphErrors EfficiencyVsCoordZ(TNtuple *Ntuple, Int_t ArrDim) {
    for(Int_t j=0;j<ArrDim;++j) {
       TH1I VertSimulated("verticesimulated","vertices",2,0,2);
       TH1I VertReconstr("verticesreconstructed","vertices",2,0,2);
-      TString Prefix1="TruthGoodness==1&&";
-      TString Prefix2="TruthGoodness==1&&ReconGoodness==1&&";
+      TString Prefix1="";
+      TString Prefix2="ReconGood==1&&";
       TString Suffix;
       Suffix.Form("ZRecon>%f&&ZTruth>%f&&ZRecon<=%f&&ZTruth<=%f",
          RangeLimits[j],RangeLimits[j],RangeLimits[j+1],RangeLimits[j+1]);
@@ -406,12 +418,20 @@ TGraphErrors EfficiencyVsCoordZ(TNtuple *Ntuple, Int_t ArrDim) {
       TString Formula2=Prefix2+Suffix;
       TCut Cut1(Formula1.Data());
       TCut Cut2(Formula2.Data());
-      Ntuple->Draw("(TruthGoodness)>>verticesimulated",Cut1,"goff");
-      Ntuple->Draw("(ReconGoodness)>>verticesreconstructed",Cut2,"goff");
+      Ntuple->Draw("1>>verticesimulated",Cut1,"goff");
+      Ntuple->Draw("(ReconGood)>>verticesreconstructed",Cut2,"goff");
       Efficiency[j]=(Float_t)VertReconstr.GetBinContent(2)/
          VertSimulated.GetBinContent(2);
       ErrEfficiencyArray[j]=ErrEfficiency(Efficiency[j],
          VertSimulated.GetBinContent(2));
+      TString Filename; 
+      Filename.Form("tmp/CoordZ_%d.root",j);
+      TFile outfile(Filename,"RECREATE");
+      if(outfile.IsZombie()) {
+      Printf("A problem occured creating file");
+      }
+      VertSimulated.Write();
+      VertReconstr.Write();
    }
    TGraphErrors EfficiencyVsCoordZ(ArrDim,ZCoord,Efficiency,ErrZCoord,
       ErrEfficiencyArray);
@@ -419,8 +439,21 @@ TGraphErrors EfficiencyVsCoordZ(TNtuple *Ntuple, Int_t ArrDim) {
       "Efficiency vs Z coordinate");
    EfficiencyVsCoordZ.GetXaxis()->SetTitle("Z coord (mm)");
    EfficiencyVsCoordZ.GetYaxis()->SetTitle("Efficiency");
+   EditGraph(EfficiencyVsCoordZ);*/
+   TH1F verticesimulated("verticesimulated","vertices",Bins,-82.3,82.3);
+   TH1F verticesreconstructed("verticesreconstructed","vertices",Bins,-82.3,
+      82.3);
+   Ntuple->Draw("(ZTruth)>>verticesimulated","","goff");
+   Ntuple->Draw("(ZRecon)>>verticesreconstructed","ReconGood==1","goff");
+   TGraphAsymmErrors EfficiencyVsCoordZ(&verticesreconstructed,
+      &verticesimulated);
+   EfficiencyVsCoordZ.Divide();
+   EfficiencyVsCoordZ.SetNameTitle("EfficiencyVsZ",
+      "Efficiency vs Z coordinate");
+   EfficiencyVsCoordZ.GetXaxis()->SetTitle("Z coord (mm)");
+   EfficiencyVsCoordZ.GetYaxis()->SetTitle("Efficiency");
    EditGraph(EfficiencyVsCoordZ);
-
+   
    return EfficiencyVsCoordZ;
 }
 
@@ -437,7 +470,7 @@ TGraphErrors ResidualVsMultiplicity(TNtuple *Ntuple, Int_t ArrDim) {
    for(Int_t j=0;j<ArrDim;++j) {
       TH1F ResidualHist("residual","Residual Z",3000,-1.5,1.5);
       TString Formula;
-      Formula.Form("TruthGoodness==1&&ReconGoodness==1&&Multiplicity==%d",j+5);
+      Formula.Form("ReconGood==1&&Multiplicity==%d",j+5);
       TCut Cut(Formula.Data());
       Ntuple->Draw("(ZTruth-ZRecon)>>residual",Cut,"goff");
       ResidualHist.Fit("gaus");
@@ -467,20 +500,28 @@ TGraphErrors EfficiencyVsMultiplicity(TNtuple *Ntuple, Int_t ArrDim) {
    for(Int_t j=0;j<ArrDim;++j) {
       TH1I VertSimulated("verticesimulated","vertices",2,0,2);
       TH1I VertReconstr("verticesreconstructed","vertices",2,0,2);
-      TString Prefix1="TruthGoodness==1&&";
-      TString Prefix2="TruthGoodness==1&&ReconGoodness==1&&";
+      TString Prefix1="";
+      TString Prefix2="ReconGood==1&&";
       TString Suffix;
       Suffix.Form("Multiplicity==%d",j+5);
       TString Formula1=Prefix1+Suffix;
       TString Formula2=Prefix2+Suffix;
       TCut Cut1(Formula1.Data());
       TCut Cut2(Formula2.Data());
-      Ntuple->Draw("(TruthGoodness)>>verticesimulated",Cut1,"goff");
-      Ntuple->Draw("(ReconGoodness)>>verticesreconstructed",Cut2,"goff");
+      Ntuple->Draw("1>>verticesimulated",Cut1,"goff");
+      Ntuple->Draw("(ReconGood)>>verticesreconstructed",Cut2,"goff");
       Efficiency[j]=(Float_t)VertReconstr.GetBinContent(2)/
          VertSimulated.GetBinContent(2);
       ErrEfficiencyArray[j]=ErrEfficiency(Efficiency[j],
          VertSimulated.GetBinContent(2));
+      TString Filename; 
+      Filename.Form("tmp/Mult_%d.root",j);
+      TFile outfile(Filename,"RECREATE");
+      if(outfile.IsZombie()) {
+      Printf("A problem occured creating file");
+      }
+      VertSimulated.Write();
+      VertReconstr.Write();
    }
    TGraphErrors EfficiencyVsMultiplicity(ArrDim,Multiplicity,Efficiency,
       ErrMultiplicity,ErrEfficiencyArray);
