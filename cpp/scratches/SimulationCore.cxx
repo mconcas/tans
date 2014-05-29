@@ -302,10 +302,6 @@ Bool_t SimulationCore::Run()
       const Int_t multiplicity=vertex.GetVerticeMult();
 
       // Transport code.
-      // Bool_t FirstFlag=kFALSE;
-      // Bool_t SecndFlag=kFALSE;
-
-
       for(Int_t j=0;j<multiplicity;++j) {
          direction.SetAllAngles(ThetaFromEta(histEtaptr,-2,2),2*gRandom->Rndm()
             *TMath::Pi());
@@ -313,8 +309,7 @@ Bool_t SimulationCore::Run()
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate from vertex and add it to the TClonesArray.
-         tHitBP=Hit::HitOnCylFromVertex(vertex,direction,fBeampipe.fPipeRad,
-            j);
+         tHitBP=Hit::HitOnCylFromVertex(vertex,direction,fBeampipe.fPipeRad,j);
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate to 1st detector and add it to the proper
@@ -367,17 +362,18 @@ Bool_t SimulationCore::Run()
       // second layer.
       if(rhitsfirst.GetEntries()!=0&&rhitssecond.GetEntries()!=0) {
          vertex.SetVerticeGoodness(kTRUE);
-         //////////////////////////////////////////////////////////////////////////
+         ///////////////////////////////////////////////////////////////////////
          // Fill trees.
-         // Clear TClonesArrays.
-         if(!(kDryRun)) {
+         // Write on file if the Z coordinate belong to a specified range.
+
+         if(!kDryRun&&TMath::Abs(vertex.GetPuntoZ())<=164.6/2) {
             EventsTree.Fill();
+            i+=1;
          }
-         i+=1;
       } else { 
          vertex.SetVerticeGoodness(kFALSE);
       }
-
+      // Clear TClonesArrays.
       rhitsfirstptr->Delete();
       rhitssecondptr->Delete();
 

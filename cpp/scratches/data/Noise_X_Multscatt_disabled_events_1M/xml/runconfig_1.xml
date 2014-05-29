@@ -7,7 +7,7 @@
       <multiplicity from="distribution">hmul</multiplicity>
       <eta from="distribution">heta</eta>
    </infile>
-   <vertices debug="0" noise="6" smearing="kFALSE" num="1000000">
+   <vertices debug="0" noise="6" smearing="kTRUE" num="1000000">
       <!-- If "gaussian" attr is specified, the node value will correspond
       to the distribution rms, else a fixed coordinate value -->
       <x type="gaussian">0.1</x>

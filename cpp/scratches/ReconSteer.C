@@ -8,7 +8,7 @@
 
 void ReconSteer(const TString Selector="ReconSelector.cxx+", 
    const Bool_t Proof=kFALSE,
-   const TString Target="data/AllDisabled_ZeroNoise.root",
+   TString Target="data/AllDisabled_ZeroNoise.root",
    const TString Treename="Events Tree",
    const TString Option="force")
 {
@@ -21,18 +21,19 @@ void ReconSteer(const TString Selector="ReconSelector.cxx+",
    gSystem->CompileMacro("Vertice.cxx",option);
    gSystem->CompileMacro("Hit.cxx",option);
 
+   Target=Target;
    TChain *EventChain=new TChain(Treename.Data());
    TString FileName;
-   /*for(Int_t i=0;i<6;++i) {
-      TString Prefix="data/Noise_X_Multscatt_disabled_events_100K/";
-      FileName.Form("%sNoise_%d_Multscatt_disabled_events_100K.root",
+   for(Int_t i=0;i<6;++i) {
+      TString Prefix="data/Noise_X_Multscatt_disabled_events_1M/";
+      FileName.Form("%sNoise_%d_Multscatt_disabled_events_1M.root",
          Prefix.Data(),i*6);
       EventChain->Add(FileName.Data());
       Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",FileName.Data());
-   }*/
-   EventChain->Add(Target);
-   Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",Target.Data());
-   
+   }
+   // EventChain->Add(Target);
+   // Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",Target.Data());
+
    if(Proof) {
       Printf("\x1B[31m +++ Beginning Reconstruction +++\x1B[0m");
       Printf("\x1B[31m +++ Analyzed tree name:   %s\x1B[0m",Treename.Data());

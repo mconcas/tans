@@ -16,7 +16,7 @@ void SimulationSteer(TString ConfigFile="data/Noise_X_Multscatt_disabled_events_
 void ChainedSimulation() {
    for(Int_t i=0;i<=5;++i) {
       TString Buffer;
-      Buffer.Form("data/Noise_X_Multscatt_disabled_events_100K/xml/runconfig_%d.xml",i);
+      Buffer.Form("data/Noise_X_Multscatt_disabled_events_1M/xml/runconfig_%d.xml",i);
       SimulationSteer(Buffer);
    }
 }

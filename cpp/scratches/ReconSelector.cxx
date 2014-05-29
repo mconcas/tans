@@ -6,7 +6,7 @@
 #include <TF1.h>
 #include <TH1I.h>
 #include <TH1F.h>
-#include <TH2F.h>
+#include <TH2D.h>
 #include <TStyle.h>
 #include <TMath.h>
 #include <TNtuple.h>
@@ -32,11 +32,12 @@ ReconSelector::ReconSelector(TTree *) :
    fChain(0),
    fRecZetaHistptr(0),
    fResidualZetaptr(0),
+   fResultsNtuple(0),
    fReconVertices(0),
    // Precision settings.
    fDeltaPhi(/*0.001866*/0.005),
-   fBinSizeRoughHist(1.5),             // mm
-   fBinSizeFineHist(0.01)            // mm
+   fBinSizeRoughHist(1.),             // mm
+   fBinSizeFineHist(0.001)            // mm
    {
       fAnaVertex=new Vertice();
       fHitClonesArray_FL=new TClonesArray("Hit",kMaxFirstlayer);
@@ -66,17 +67,13 @@ void ReconSelector::Begin(TTree *)
    Printf("\x1B[31m\n\t++ +++ ++ ++ ++++ +++ ++ +++ +++ ++\x1B[0m");
    Printf("\x1B[31m\t+     Reconstruction Selector     +\x1B[0m");
    Printf("\x1B[31m\t+ ++ +++ + + ++ ++ +++ + ++ ++ ++ +\x1B[0m\n\n");
-
-   // fCounter=0;
-   // fReconVCounter=0;
-   // fResidualZetaptr
 }
 
 void ReconSelector::SlaveBegin(TTree *)
 {
    fNBinsRoughHist=(Int_t)(164.6/fBinSizeRoughHist);
    fNBinsFineHist=(Int_t)(164.6/fBinSizeFineHist);
-   fRecZetaHistptr=new TH1F("Reconstructed","Zrecostructed",30000,-82.3,82.3);
+   fRecZetaHistptr=new TH1F("Reconstructed","Zreconstructed",100000,-82.3,82.3);
    fResidualZetaptr=new TH1F("Residual Zeta","Z Residuals",50000,-82.3,82.3);
    fResultsNtuple=new TNtuple("ResNtuple","Results",
       "ZTruth:ZRecon:ReconGood:ZResidual:Noise:Multiplicity");
@@ -138,12 +135,14 @@ Bool_t ReconSelector::Process(Long64_t entry)
    // If any problem, edit XtrapolateZeta definition.
    XtrapolateZeta(RoughHist,FineHist,fZetaFound);
    fResidualZetaptr->Fill( fZetaFound.fCoord-fAnaVertex->GetPuntoZ() );
-   fRecZetaHistptr->Fill( fZetaFound.fCoord );
+   if(fZetaFound.fGood) fRecZetaHistptr->Fill(fZetaFound.fCoord);
    // Performance analysis can start here.
    // Fill Ntuple.
+   Double_t Truthflag=-1;
+   if(fZetaFound.fGood) Truthflag=1.;
    fResultsNtuple->Fill(fAnaVertex->GetPuntoZ(),    // Z Montecarlo.
       fZetaFound.fCoord,                            // Z Reconstructed.
-      (Double_t)fZetaFound.fGood,                   // Is a good reconstruction.
+      Truthflag,                                    // Is a good reconstruction.
       fAnaVertex->GetPuntoZ()-fZetaFound.fCoord,    // Zm-Zr -> Residual.
       fAnaVertex->GetVerticeNL(),                   // Noise level.
       fAnaVertex->GetVerticeMult());                // Multiplicity.
@@ -167,44 +166,43 @@ void ReconSelector::Terminate()
 {
    if(fOutput->IsEmpty()) Printf("[debug >[WARNING!] TList is empty!");
    // Otherwise retrieve Ntuple.
-   fResultsNtuple=static_cast<TNtuple*>(fOutput->FindObject(fResultsNtuple));
+   // fResultsNtuple=static_cast<TNtuple*>(fOutput->FindObject(fResultsNtuple));
    // Analysis
    // Residuals vs Noise.
-//    TGraphErrors ResidualVsNoiseGraph=ResidualVsNoise(fResultsNtuple,6);
-// 
-//    // Efficiency vs Noise.
-//    TGraphAsymmErrors EfficiencyVsNoiseGraph=EfficiencyVsNoise(fResultsNtuple,6);
-// 
-//    // Residual vs Z position.
-//    TGraphErrors ResidualVsCoordZGraph=ResidualVsCoordZ(fResultsNtuple,7);
-// 
-//    // Efficiency vs Z position.
-//    TGraphAsymmErrors EfficiencyVsCoordZGraph=EfficiencyVsCoordZ(fResultsNtuple,
-//       5);
-//    
-//    // Residual vs Multiplicity.
-//    TGraphErrors ResidualVsMultiplicityGraph=ResidualVsMultiplicity(
-//       fResultsNtuple,40);
-//    
-//    // Efficiency vs Multiplicity.
-//    TGraphAsymmErrors EfficiencyVsMultiplicityGraph=EfficiencyVsMultiplicity(
-//       fResultsNtuple,40);
-//    // Save data.
-//    TFile outfile("Analysis.root","RECREATE");
-//       if(outfile.IsZombie()) {
-//       Printf("A problem occured creating file");
-//    }
-// 
-//    ResidualVsNoiseGraph.Write();
-//    EfficiencyVsNoiseGraph.Write();
-//    ResidualVsCoordZGraph.Write();
-//    EfficiencyVsCoordZGraph.Write();
-//    ResidualVsMultiplicityGraph.Write();
-//    EfficiencyVsMultiplicityGraph.Write();
-   TFile outfile("Cristodio.root","RECREATE");
-      if(outfile.IsZombie()) {
+   TGraphErrors ResidualVsNoiseGraph=ResidualVsNoise(fResultsNtuple,6);
+ 
+   // Efficiency vs Noise.
+   TGraphAsymmErrors EfficiencyVsNoiseGraph=EfficiencyVsNoise(fResultsNtuple,6); 
+   
+   // Residual vs Z position.
+   TGraphErrors ResidualVsCoordZGraph=ResidualVsCoordZ(fResultsNtuple,7);
+
+   // Efficiency vs Z position.
+   TGraphAsymmErrors EfficiencyVsCoordZGraph=EfficiencyVsCoordZ(fResultsNtuple,
+      9);
+    
+   // Residual vs Multiplicity.
+   TGraphErrors ResidualVsMultiplicityGraph=ResidualVsMultiplicity(
+      fResultsNtuple,40);
+  
+   // Efficiency vs Multiplicity.
+   TGraphAsymmErrors EfficiencyVsMultiplicityGraph=EfficiencyVsMultiplicity(
+      fResultsNtuple,40);
+
+   // Save data.
+   TString Prefix="data/Noise_X_Multscatt_disabled_events_1M/analysis/";
+   TFile outfile(Prefix+"Analysis_1M_No_MS.root","RECREATE");
+   if(outfile.IsZombie()) {
       Printf("A problem occured creating file");
    }
+
+   ResidualVsNoiseGraph.Write();
+   EfficiencyVsNoiseGraph.Write();
+   ResidualVsCoordZGraph.Write();
+   EfficiencyVsCoordZGraph.Write();
+   ResidualVsMultiplicityGraph.Write();
+   EfficiencyVsMultiplicityGraph.Write();
+   
    Printf("Maximum Value: %f",fRecZetaHistptr->GetMaximum());
    fRecZetaHistptr->Write();
    fResidualZetaptr->Write();
@@ -214,7 +212,7 @@ void ReconSelector::Terminate()
 /*                           Functions definition                             */
 /******************************************************************************/
 
-
+// Retrieve track(let)s intersections with Z axis.
 Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer)
 {
    Double_t result=(OnFirstlayer.GetPuntoZ()
@@ -282,23 +280,13 @@ void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound)
          SecondMaxFine=Fine.GetBinContent(Iterator2);
          SecondMaxFineBin=Iterator2;
          Iterator2--;
-      } while(SecondMaxFine<FirstMaxFine ||
+      } while(SecondMaxFine<FirstMaxFine||
          Fine.GetBinLowEdge(SecondMaxFineBin)>UpLimit);
-
-      // It ensures that the maximum is found in the defined range of interest
-      // arbitrarily defined and hardcoded.
-      /*if(SecondMaxFineBin-FirstMaxFineBin<=10) {
-         ZetaFound.fCoord=Fine.GetBinLowEdge(FirstMaxFineBin)
-            +(Fine.GetBinLowEdge(SecondMaxFineBin)+BinSizeFineHist-
-               Fine.GetBinLowEdge(FirstMaxFineBin))/2;
-         ZetaFound.fError=(Fine.GetBinLowEdge(SecondMaxFineBin)+
-            BinSizeFineHist-Fine.GetBinLowEdge(FirstMaxFineBin))/2;
-         ZetaFound.fGood=kTRUE;
-      }*/
       Fine.SetAxisRange(Fine.GetBinLowEdge(FirstMaxFineBin),
-         Fine.GetBinLowEdge(SecondMaxFineBin)+BinSizeFineHist);
+      Fine.GetBinLowEdge(SecondMaxFineBin)+BinSizeFineHist);
       ZetaFound.fCoord=Fine.GetMean(1);
       ZetaFound.fError=Fine.GetMeanError(1);
+      // if(TMath::Abs(ZetaFound.fCoord)<=164.6/2) 
       ZetaFound.fGood=kTRUE;
    }
 }
@@ -336,16 +324,16 @@ TGraphErrors ResidualVsNoise(TNtuple *Ntuple, Int_t ArrDim)
    ResidualVsNoise.GetXaxis()->SetTitle("Noise lvl");
    ResidualVsNoise.GetYaxis()->SetTitle("Residuals (mm)");
    EditGraph(ResidualVsNoise);
+
    return ResidualVsNoise;
 }
 
 TGraphAsymmErrors EfficiencyVsNoise(TNtuple *Ntuple, Int_t Bins)
 {
-   TH1I verticesimulated("verticesimulated","vertices",Bins,0,40);
-   TH1I verticesreconstructed("verticesreconstructed","vertices",Bins,0,
-      40);
-   Ntuple->Draw("(Noise)>>verticesimulated","Multiplicity>15");
-   Ntuple->Draw("(Noise)>>verticesreconstructed","ReconGood==1&&Multiplicity>15");
+   TH1I verticesimulated("verticesimulated","vertices",Bins,0,31);
+   TH1I verticesreconstructed("verticesreconstructed","vertices",Bins,0,31);
+   Ntuple->Draw("(Noise)>>verticesimulated");
+   Ntuple->Draw("(Noise)>>verticesreconstructed","ReconGood==1");
    TGraphAsymmErrors EfficiencyVsNoise(&verticesreconstructed,
       &verticesimulated);
    EfficiencyVsNoise.SetNameTitle("EfficiencyVsNoise",
@@ -368,7 +356,7 @@ TGraphErrors ResidualVsCoordZ(TNtuple *Ntuple, Int_t ArrDim) {
    for(Int_t j=0;j<ArrDim;++j) {
       TH1F ResidualHist("residual","Residual Z",300,-0.5,0.5);
       TString Formula;
-      Formula.Form("(ZRecon>%f&&ZTruth>%f)&&(ZRecon<=%f&&ZTruth<=%f)&&Multiplicity>15",
+      Formula.Form("(ZRecon>%f&&ZTruth>%f)&&(ZRecon<=%f&&ZTruth<=%f)",
          RangeLimits[j],RangeLimits[j],RangeLimits[j+1],RangeLimits[j+1]);
       TCut Cut(Formula.Data());
       Ntuple->Draw("(ZResidual)>>residual",Cut);
@@ -397,11 +385,8 @@ TGraphAsymmErrors EfficiencyVsCoordZ(TNtuple* Ntuple, Int_t Bins) {
       82.3);
    TH1D verticesreconstructed("verticesreconstructed","vertices",Bins,
       -82.3,82.3);
-   Ntuple->Draw("ZTruth>>verticesimulated","Multiplicity>15");
-   Ntuple->Draw("ZRecon>>verticesreconstructed","ReconGood==1&&Multiplicity>15");
-   TFile file("santamadonna.root","RECREATE");
-   verticesimulated.Write();
-   verticesreconstructed.Write();
+   Ntuple->Draw("ZTruth>>verticesimulated");
+   Ntuple->Draw("ZRecon>>verticesreconstructed","ReconGood==1");
    for(Int_t i=1;i<=Bins;i++) {
       Printf("%f",verticesreconstructed.GetBinContent(i)/verticesimulated.GetBinContent(i));
    }
