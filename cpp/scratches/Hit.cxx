@@ -91,7 +91,7 @@ Hit Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
       // θo = (13.6 MeV/β*c*p)*Z*(√(x/X_0))[1+0.038*Ln(x/X_0)]
       //////////////////////////////////////////////////////////////////////////
       // Get the Radiation Length: X_0
-      const Double_t X_0 = Material.GetRadLength();
+      const Double_t X_0=Material.GetRadLength();
 
       //////////////////////////////////////////////////////////////////////////
       // WARNING!
@@ -152,5 +152,6 @@ Hit Hit::NoiseOnCyl(Double_t CRadius,Double_t ZetaMin,Double_t ZetaMax)
    Noise.SetPuntoZ(ZetaMin+(ZetaMax-ZetaMin)*gRandom->Rndm());
    Noise.SetPuntoPhi(2*TMath::Pi()*gRandom->Rndm());
    Noise.SetHitID(-1);
+
    return Noise;
 }

@@ -45,20 +45,21 @@ class SimulationCore : public TObject {
       XMLNodePointer_t    fIndexNodeptr;       // Index running on XML element.
 
       // Parameters
+      Int_t               kDebug;              // Debug flag.
+      Bool_t              kMultipleScat;       // Enable/Disable multiple scatt.
+      Bool_t              kDryRun;             // Dry run flag.
+      Bool_t              kSmearing;           // Enable/Disable gaus smearing.
       TString             fSimulationName;     // Item Name.
-      Int_t               fDebug;              // Debug flag.
       TString             fInputData;          // Input file.
       Int_t               fFixedMult;          // Fixed multiplicity, if exists.
       TString             fMultDist;           // Multiplicity histogram name.
       TString             fEtaDist;            // η histogram name.
       Int_t               fNumVertices;        // Number of events to generate.
       Int_t               fNoiseLevel;         // Noise level.
-      Bool_t              fMultipleScat;       // Flag for multiple scattering.
       pipe_t              fBeampipe;           // Beampipe struct.
       pipe_t              fFirstLayer;         // First detector struct.
       pipe_t              fSecondLayer;        // Second detector struct.
-      Bool_t              fDryRun;             // Dry run flag.
-      // Bool_t              fMontecarloTruth;    // Save Montecarlo truth flag.
+      
       TString             fOutFileName;        // Output file name.
       Double_t            fRmsX;               // Rms of X coordinate.
       Double_t            fRmsY;               // Rms of Y coordinate.

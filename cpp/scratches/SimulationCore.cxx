@@ -87,8 +87,11 @@ Bool_t SimulationCore::Initialize()
    fIndexNodeptr=FromChildToNextParent(fXMLEngine,fIndexNodeptr);
 
    // Get vertices parameters.
-   fDebug=fXMLEngine->GetIntAttr(fIndexNodeptr,"debug");
+   kDebug=fXMLEngine->GetIntAttr(fIndexNodeptr,"debug");
    fNoiseLevel=fXMLEngine->GetIntAttr(fIndexNodeptr,"noise");
+   if((TString)fXMLEngine->GetAttr(fIndexNodeptr,"smearing")=="kFALSE")
+      kSmearing=kFALSE;
+   else kSmearing=kTRUE;
    fNumVertices=fXMLEngine->GetIntAttr(fIndexNodeptr,"num");
    fIndexNodeptr=fXMLEngine->GetChild(fIndexNodeptr);
    fIndexNodeptr=fXMLEngine->GetNext(fIndexNodeptr);
@@ -107,8 +110,8 @@ Bool_t SimulationCore::Initialize()
 
    // Check if Multiple scattering is enabled.
    if((TString)fXMLEngine->GetAttrValue(fXMLEngine->GetFirstAttr(fIndexNodeptr))
-      =="true") fMultipleScat=kTRUE;
-   else fMultipleScat=kFALSE;
+      =="true") kMultipleScat=kTRUE;
+   else kMultipleScat=kFALSE;
 
    // Configure cylindrical detectors.
    fIndexNodeptr=fXMLEngine->GetNext(fIndexNodeptr);
@@ -127,8 +130,8 @@ Bool_t SimulationCore::Initialize()
 
    // Other parameters.
    if((TString)fXMLEngine->GetAttr(fIndexNodeptr,"dryrun")=="kFALSE")
-      fDryRun=kFALSE;
-   else fDryRun=kTRUE;
+      kDryRun=kFALSE;
+   else kDryRun=kTRUE;
 
    fOutFileName=(TString)fXMLEngine->GetNodeContent(fIndexNodeptr);
 
@@ -159,8 +162,8 @@ Bool_t SimulationCore::Status()
    Printf("\x1B[31m\nSimulation %s status:\x1B[0m", fSimulationName.Data());
    Printf("Fixed multiplicity value: %d",fFixedMult);
    Printf("Number of vertices: %d",fNumVertices);
-   if(fMultipleScat) Printf("Multiple scattering: enabled.");
-   else Printf("Multiple scattering: disabled.");
+   Printf("Multiple scattering: %s.",kMultipleScat ? "enabled" : "disabled");
+   Printf("Gaussian smearing: %s.",kSmearing ? "enabled" : "disabled");
    Printf("Noise level: %d",fNoiseLevel);
    Printf("Beampipe data:\n\t\
       Layer:      %d \n\t\
@@ -192,7 +195,7 @@ Bool_t SimulationCore::Status()
 
 Bool_t SimulationCore::Run()
 {
-   gDebug=fDebug;
+   gDebug=kDebug;
    TFile outfile(fOutFileName.Data(),"RECREATE");
    if (outfile.IsZombie()) {
       Printf("A problem occured creating %s file",
@@ -236,15 +239,17 @@ Bool_t SimulationCore::Run()
    Printf("\t+                                             +");
    Printf("\t+++++++++++++++++++++++++++++++++++++++++++++++\n");
    Printf("\nSummary:");
-   Printf("Output file:              \t\t%s", fOutFileName.Data());
-   Printf("Number of events:         \t\t%d", fNumVertices);
+   Printf("Output file:              \t\t%s",fOutFileName.Data());
+   Printf("Number of events:         \t\t%d",fNumVertices);
    if( fFixedMult==0 )
-      Printf("Multiplicity picked from: \t\t%s", fInputData.Data());
-   else Printf("Multiplicity manually set to: \t\t%d", fFixedMult);
+      Printf("Multiplicity picked from: \t\t%s",fInputData.Data());
+   else Printf("Multiplicity manually set to: \t\t%d",fFixedMult);
 
-   Printf("Multiple Scattering:      \t\t%s", fMultipleScat ?
+   Printf("Multiple Scattering:      \t\t%s",kMultipleScat ?
       "\x1B[32menabled\x1B[0m" : "\x1B[31mdisabled\x1B[0m");
-   Printf("Noise Level:              \t\t%d", fNoiseLevel);
+   Printf("Gaussian smearing:        \t\t%s",kSmearing ? 
+      "\x1B[32menabled\x1B[0m" : "\x1B[31mdisabled\x1B[0m");
+   Printf("Noise Level:              \t\t%d",fNoiseLevel);
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
@@ -266,11 +271,20 @@ Bool_t SimulationCore::Run()
       printf("Progress status:     \t\t\t%d%% \r", percentage);
       Int_t u=0;
       Int_t v=0;
-
       if(fFixedMult==0)
          // static_cast<Int_t>() returns rounded-down values.
          vertex.SetVerticeMult(static_cast<Int_t>(hisMulptr->GetRandom()));
       else vertex.SetVerticeMult(fFixedMult);
+      // if(fFixedMult==0) {
+      //    // static_cast<Int_t>() returns rounded-down values.
+      //    Int_t mult;
+      //    do {
+      //       mult=static_cast<Int_t>(hisMulptr->GetRandom());
+      //    } while(mult<15);
+      //    vertex.SetVerticeMult(mult);
+      // } else { 
+      //    vertex.SetVerticeMult(fFixedMult);
+      // }
       vertex.SetVerticeID(i);
 
       //////////////////////////////////////////////////////////////////////////
@@ -310,25 +324,26 @@ Bool_t SimulationCore::Run()
          // deviation due the multiple scattering effect.
 
          tHitFL=tHitBP.GetHitOnCyl(direction,fFirstLayer.fPipeRad,
-              fBeampipe.fMaterial,fBeampipe.fThickness,fMultipleScat,1);
+              fBeampipe.fMaterial,fBeampipe.fThickness,kMultipleScat,1);
 
          // Reset Rotation bit.
-         if(fMultipleScat) direction.FlipBit();
+         if(kMultipleScat) direction.FlipBit();
 
          ///////////////////////////////////////////////////////////////////////
          // Propagate to 2nd cylinder and add it to the TClonesArray
          tHitSL=tHitFL.GetHitOnCyl(direction,fSecondLayer.fPipeRad,
-            fFirstLayer.fMaterial,fFirstLayer.fThickness,fMultipleScat,2);
+            fFirstLayer.fMaterial,fFirstLayer.fThickness,kMultipleScat,2);
 
          ///////////////////////////////////////////////////////////////////////
          // Register data.
+         // Smearing is applied in registering phase.
          if(TMath::Abs(tHitFL.GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
-            tHitFL.GausSmearing(40,0.12,0.03);
+            if(kSmearing)tHitFL.GausSmearing(40,0.12,0.03);
             new(rhitsfirst[u]) Hit(tHitFL);
             u+=1;
          }
          if(TMath::Abs(tHitSL.GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
-            tHitSL.GausSmearing(70,0.12,0.03);
+            if(kSmearing)tHitSL.GausSmearing(70,0.12,0.03);
             new(rhitssecond[v]) Hit(tHitSL);
             v+=1;
          }
@@ -355,7 +370,7 @@ Bool_t SimulationCore::Run()
          //////////////////////////////////////////////////////////////////////////
          // Fill trees.
          // Clear TClonesArrays.
-         if(!(fDryRun)) {
+         if(!(kDryRun)) {
             EventsTree.Fill();
          }
          i+=1;
@@ -371,7 +386,7 @@ Bool_t SimulationCore::Run()
 
    /////////////////////////////////////////////////////////////////////////////
    // Finalize the simulation.
-   if(!fDryRun) outfile.Write();
+   if(!kDryRun) outfile.Write();
    Printf("Progress status:     \t\t\t100%%");
    histEtaptr->TH1F::~TH1F();
    if(fFixedMult==0) hisMulptr->TH1F::~TH1F();

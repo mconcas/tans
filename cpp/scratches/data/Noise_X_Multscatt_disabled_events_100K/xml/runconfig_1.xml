@@ -7,12 +7,12 @@
       <multiplicity from="distribution">hmul</multiplicity>
       <eta from="distribution">heta</eta>
    </infile>
-   <vertices debug="0" noise="6" smearing="kFALSE" num="100000">
+   <vertices debug="0" noise="6" smearing="kFALSE" num="10000">
       <!-- If "gaussian" attr is specified, the node value will correspond
       to the distribution rms, else a fixed coordinate value -->
       <x type="gaussian">0.1</x>
       <y type="gaussian">0.1</y>
-      <z type="gaussian">53.</z>
+      <z type="gaussian">53</z>
    </vertices>
    <multiplescattering enabled="false"></multiplescattering>
    <pipe type="beampipe" layernum="0">

@@ -122,15 +122,15 @@ void Direzione::Rotate(Double_t Theta, Double_t Phi)
 
       // Define 2D Rotation Matrix
       Double_t mr[3][3];
-      mr[0][0] = -TMath::Sin(fPhi);
-      mr[1][0] = TMath::Cos(fPhi);
-      mr[2][0] = 0.;
-      mr[0][1] = -TMath::Cos(fPhi)*TMath::Cos(fTheta);
-      mr[1][1] = -TMath::Cos(fTheta)*TMath::Sin(fPhi);
-      mr[2][1] = TMath::Sin(fTheta);
-      mr[0][2] = TMath::Sin(fTheta)*TMath::Cos(fPhi);
-      mr[1][2] = TMath::Sin(fTheta)*TMath::Sin(fPhi);
-      mr[2][2] = TMath::Cos(fTheta);
+      mr[0][0]=-TMath::Sin(fPhi);
+      mr[1][0]=TMath::Cos(fPhi);
+      mr[2][0]=0.;
+      mr[0][1]=-TMath::Cos(fPhi)*TMath::Cos(fTheta);
+      mr[1][1]=-TMath::Cos(fTheta)*TMath::Sin(fPhi);
+      mr[2][1]=TMath::Sin(fTheta);
+      mr[0][2]=TMath::Sin(fTheta)*TMath::Cos(fPhi);
+      mr[1][2]=TMath::Sin(fTheta)*TMath::Sin(fPhi);
+      mr[2][2]=TMath::Cos(fTheta);
 
       // Extract coords form object and put them into an array.
       Double_t cdp[3];
@@ -142,9 +142,9 @@ void Direzione::Rotate(Double_t Theta, Double_t Phi)
       Double_t Cd[3];
 
       // Compute the product
-      for(Int_t i=0; i<3; ++i) {
+      for(Int_t i=0;i<3;++i) {
          Cd[i]=0;
-         for (Int_t j=0; j<3; ++j) Cd[i]+=mr[i][j]*cdp[j];
+         for (Int_t j=0;j<3;++j) Cd[i]+=mr[i][j]*cdp[j];
       }
       fDc1=Cd[0];
       fDc2=Cd[1];

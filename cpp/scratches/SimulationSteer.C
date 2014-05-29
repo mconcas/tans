@@ -4,7 +4,7 @@
 #endif
 
 
-void SimulationSteer(TString ConfigFile="xml/runconfig.xml")
+void SimulationSteer(TString ConfigFile="data/Noise_X_Multscatt_disabled_events_1M/xml/runconfig_0.xml")
 {  
    SimulationCore *core=new SimulationCore(ConfigFile);
    core->Initialize();
@@ -16,7 +16,7 @@ void SimulationSteer(TString ConfigFile="xml/runconfig.xml")
 void ChainedSimulation() {
    for(Int_t i=0;i<=5;++i) {
       TString Buffer;
-      Buffer.Form("xml/runconfig_%d.xml",i);
+      Buffer.Form("data/Noise_X_Multscatt_disabled_events_100K/xml/runconfig_%d.xml",i);
       SimulationSteer(Buffer);
    }
 }
