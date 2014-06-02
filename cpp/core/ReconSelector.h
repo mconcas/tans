@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Tue Apr  8 10:11:39 2014 by ROOT version 5.34/18
-// Written by Matteo Concas: mett1990@gmail.com
+// Modified by Matteo Concas: mett1990@gmail.com
 // Exam: «Tecniche di analisi numerica e simulazione»
 ////////////////////////////////////////////////////////////////////////////////
 

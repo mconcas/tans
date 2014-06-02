@@ -42,7 +42,7 @@ void ReconSteer(const TString Selector="ReconSelector.cxx+",
       Printf("\x1B[31m +++ Selector chosen:      %s\x1B[0m",Selector.Data());
  
       TString fWorkerString;
-      TProof::Open("workers=4");
+      TProof::Open("workers=2");
       // gProof->SetParameter("PROOF_FeedbackPeriod", (Long_t)14400000);
       EventChain->SetProof();
 

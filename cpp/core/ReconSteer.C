@@ -6,50 +6,56 @@
 #include "TSystem.h"
 #endif
 
-void ReconSteer(const Bool_t  fProof=kTRUE,
-   const TString fDataFile="events.root", const TString fTreeName="Events Tree",
-   const TString fSelectorName="DeltaPhiSelector.cxx+",
-   const TString fOption="force") 
-{
 
+void ReconSteer(TString DataDir="",TString Selector="ReconSelector.cxx+", 
+   const Bool_t Proof=kTRUE,
+   const Bool_t Chain=kTRUE,
+   const TString SingleFile="",
+   const Bool_t Mscat=kFALSE,
+   const TString Treename="Events Tree",
+   const TString Option="force")
+{
    // (Re)Compile classes, macros, etc.
    TString option;
-   if(fOption.Contains("force")) option="kfg";
+   if(Option.Contains("force")) option="kfg";
    else option="kg";
    gSystem->CompileMacro("Punto.cxx",option);
    gSystem->CompileMacro("Direzione.cxx",option);
    gSystem->CompileMacro("Vertice.cxx",option);
    gSystem->CompileMacro("Hit.cxx",option);
 
-   // Open data file.
-   TFile *fFile=TFile::Open(fDataFile.Data());
-   if(fFile->IsZombie()) {
-      Printf("[ERROR] There was a problem accessing %s file. Please\
-         check if it exists. ", fDataFile.Data());
-      return;
+   TChain *EventChain=new TChain(Treename.Data());
+   if(Chain) {
+      TString FileName;
+      for(Int_t i=0;i<6;++i) {
+         FileName.Form("%sNoise_%d_Multscatt_%s_events_1M.root",
+            DataDir.Data(),i*6,Mscat ? "enabled" : "disabled");
+         EventChain->Add(FileName.Data());
+         Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",FileName.Data());
+      }
+   } else {
+      EventChain->Add(SingleFile);
+      Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",SingleFile.Data());
    }
-   TChain *fEventChain=new TChain(fTreeName.Data());
-   fEventChain->Add(fDataFile.Data());
-   if(fProof) {
-      Printf(" +++ Beginning reconstruction +++");
-      Printf(" +++ Reading from file:    %s", fDataFile.Data());
-      Printf(" +++ Analyzed tree name:   %s", fTreeName.Data());
-      Printf(" +++ Proof master name:    %s", gSystem->HostName());
+   
+   if(Proof) {
+      Printf("\x1B[32m +++ Beginning Reconstruction +++\x1B[0m");
+      Printf("\x1B[32m +++ Analyzed tree name:   %s\x1B[0m",Treename.Data());
+      Printf("\x1B[32m +++ Proof master name:    %s\x1B[0m",
+         gSystem->HostName());
+      Printf("\x1B[32m +++ Selector chosen:      %s\x1B[0m",Selector.Data());
+ 
       TString fWorkerString;
       TProof::Open("workers=4");
-      fEventChain->SetProof();
+      EventChain->SetProof();
 
       gProof->Load("Punto.cxx+");
-      gProof->Load("Vertice.cxx+");
-      gProof->Load("Direzione.cxx+");
-      gProof->Load("Hit.cxx+");
+      gProof->Load("Vertice.cxx+");      
+      gProof->Load("Direzione.cxx+");    
+      gProof->Load("Hit.cxx+");      
 
-      fEventChain->Process(fSelectorName.Data());
+      EventChain->Process(Selector.Data());
+   } else {
+      EventChain->Process(Selector.Data());
    }
-   else {
-      TTree *SerTree = (TTree*)fFile->Get(fTreeName.Data());
-      SerTree->Process(fSelectorName.Data());
-   }
-
-   fFile->Close();
 }

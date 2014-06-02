@@ -16,6 +16,7 @@
 // kTRUE=1
 // kFALSE=0
 // Utility functions prototypes.
+TString DATA_PATH="/Users/matteoconcas/Documents/Universita/Tans/cpp/data/";
 Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer);
 void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound);
 void CustomizeGraph(TGraph &Graph);
@@ -128,7 +129,7 @@ Bool_t ReconSelector::Process(Long64_t entry)
    }
    // TString String;
    // String.Form("RoughandFine_%lld.root",entry);
-   // TFile Filetto(String.Data(),"RECREATE");
+   
    // FineHist.Write();
    // RoughHist.Write();
    // Filetto.Close();
@@ -147,7 +148,8 @@ Bool_t ReconSelector::Process(Long64_t entry)
       fAnaVertex->GetPuntoZ()-fZetaFound.fCoord,    // Zm-Zr -> Residual.
       fAnaVertex->GetVerticeNL(),                   // Noise level.
       fAnaVertex->GetVerticeMult());                // Multiplicity.
-
+   Filetto.cd();
+   fResultsNtuple->Write();
    return kTRUE;
 }
 
@@ -170,6 +172,10 @@ void ReconSelector::Terminate()
    // fResultsNtuple=static_cast<TNtuple*>(fOutput->FindObject(fResultsNtuple));
    // Analysis
    // Residuals vs Noise.
+   TFile Filetto("Ntupla.root","RECREATE");
+   fResultsNtuple->Write();
+   Filetto.Close();  
+
    TGraphErrors ResidualVsNoiseGraph=ResidualVsNoise(fResultsNtuple,6);
  
    // Efficiency vs Noise.
@@ -191,7 +197,7 @@ void ReconSelector::Terminate()
       fResultsNtuple,51);
 
    // Save data.
-   TString Prefix="data/Noise_X_Multscatt_disabled_events_1M/analysis/";
+   TString Prefix=DATA_PATH+"Noise_X_Multscatt_disabled_events_1M/analysis/";
    TFile outfile(Prefix+"Analysis_1M_No_MS_No_Noise.root","RECREATE");
    if(outfile.IsZombie()) {
       Printf("A problem occured creating file");
@@ -438,8 +444,8 @@ TGraphErrors ResidualVsMultiplicity(TNtuple *Ntuple, Int_t ArrDim) {
       Formula.Form("(ReconGood==1)&&(Multiplicity==%d)",j);
       TCut Cut(Formula.Data());
       Ntuple->Draw("(ZResidual)>>residual",Cut);
-      Printf("------ Fit Number %d ------",j);
-      ResidualHist.Fit("gaus");
+      // Printf("------ Fit Number %d ------",j);
+      ResidualHist.Fit("gaus","Q");
       FitGaus=(TF1*)ResidualHist.GetFunction("gaus");
       Residual[j-2]=FitGaus->GetParameter(2);
       ErrResidual[j-2]=FitGaus->GetParError(2);
