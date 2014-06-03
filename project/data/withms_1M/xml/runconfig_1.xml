@@ -30,5 +30,5 @@
       <radius>70</radius>
       <material type="silicon" title="Si" A="28" Z="14" density="2.33" radl="9.37" inter="0">0.2</material>
    </pipe>
-   <outfile dryrun="kFALSE">/Users/matteoconcas/Documents/Universita/Tans/cpp/data/Noise_X_Multscatt_enabled_events_1M/Noise_6_Multscatt_enabled_events_1M.root</outfile>
+   <outfile dryrun="kFALSE">../data/with_1M//Noise_6_Multscatt_enabled_events_1M.root</outfile>
 </simulation>

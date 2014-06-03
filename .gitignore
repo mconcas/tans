@@ -1,4 +1,9 @@
 *.so
 *.d
 *.root
-fuffa.txt
+*.pdf
+*.ps
+*.aux
+*.log
+*.out
+*.gz
