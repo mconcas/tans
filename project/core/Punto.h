@@ -1,8 +1,7 @@
 //////////////////////////////////////////////////////////////////////
-//class Punto: basic geometric class.
+// 
+// Class Punto: basic geometric class.
 //
-//Written by Matteo Concas: mett1990@gmail.com
-//Exam: «Tecniche di analisi numerica e simulazione»
 //////////////////////////////////////////////////////////////////////
 
 #ifndef PUNTO_H
@@ -13,7 +12,7 @@ Double_t CorrMachinePrecision(const Double_t value);
 class Punto : public TObject {
 
    public:
-      //____________{Con,Des}tructors____________
+   
       Punto();
       Punto(Double_t X, Double_t Y, Double_t Z);
       virtual ~Punto() { };
@@ -33,20 +32,18 @@ class Punto : public TObject {
       void SetPuntoCRadius(const Double_t CRadius);
       void SetPuntoSRadius(const Double_t SRadius);
 
-      //____________Inline_Getters_______________
-      Double_t GetPuntoX() {return fX;}
-      Double_t GetPuntoY() {return fY;}
-      Double_t GetPuntoZ() {return fZ;}
-      Double_t GetPuntoTheta() {return fTheta;}
-      Double_t GetPuntoPhi() {return fPhi;}
-      Double_t GetPuntoSRadius() {return fSRadius;}
-      Double_t GetPuntoCRadius() {return fCRadius;}
+      //_____________Getters_______________
+      Double_t GetPuntoX() const {return fX;}
+      Double_t GetPuntoY() const {return fY;}
+      Double_t GetPuntoZ() const {return fZ;}
+      Double_t GetPuntoTheta() const {return fTheta;}
+      Double_t GetPuntoPhi() const {return fPhi;}
+      Double_t GetPuntoSRadius() const {return fSRadius;}
+      Double_t GetPuntoCRadius() const {return fCRadius;}
       static Double_t GetDistance(Punto &PointOne, Punto &PointTwo);
       static Double_t GetDeltaPhi(Punto &FirstPunto, Punto &SecondPunto);
 
    private:
-
-   //___________Special_Setters_______________
       void CartesiantoCylindrical();
       void CartesiantoSpherical();
       void SphericaltoCartesian();

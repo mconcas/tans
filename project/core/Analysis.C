@@ -88,7 +88,7 @@ TGraphErrors ResidualVsNoise(TNtuple *Ntuple, Int_t ArrDim)
    TF1 *FitGaus=new TF1();
    for(Int_t i=0;i<ArrDim;++i) {
       Noise[i]=i*ArrDim;
-      TH1F ResidualHist("residual","Residual Z",3000,-1.5,1.5);
+      TH1F ResidualHist("residual","Residual Z",3000,-0.15,0.15);
       TString Formula;
       Formula.Form("ReconGood==1&&Noise==%d&&Multiplicity>15",i*ArrDim);
       TCut Cut(Formula.Data());
@@ -101,7 +101,7 @@ TGraphErrors ResidualVsNoise(TNtuple *Ntuple, Int_t ArrDim)
    TGraphErrors ResidualVsNoise(ArrDim,Noise,Residual,ErrNoise,ErrResidual);
    ResidualVsNoise.SetNameTitle("ResidualsVsNoise","Residuals vs Noise");
    ResidualVsNoise.GetXaxis()->SetTitle("Noise lvl");
-   ResidualVsNoise.GetYaxis()->SetTitle("Residuals (mm)");
+   ResidualVsNoise.GetYaxis()->SetTitle("Residuals (cm)");
    CustomizeGraph(ResidualVsNoise);
 
    return ResidualVsNoise;
@@ -134,15 +134,15 @@ TGraphAsymmErrors EfficiencyVsNoise(TNtuple *Ntuple, Int_t Bins)
 TGraphErrors ResidualVsCoordZ(TNtuple *Ntuple, Int_t ArrDim) 
 {
    Printf("\x1B[32m Evaluating Residual vs Z position...\x1B[0m");
-   Double_t ZCoord[7]={-69.9,-46,-23,0,23,46,69.9};
+   Double_t ZCoord[7]={-6.99,-4.6,-2.3,0,2.3,4.6,6.99};
    Double_t ErrZCoord[ArrDim];
    for(Int_t i=0;i<ArrDim;++i) ErrZCoord[i]=0.;
-   Double_t RangeLimits[8]={-82.3,-57.5,-34.5,-11.5,11.5,34.5,57.5,82.3};
+   Double_t RangeLimits[8]={-8.23,-5.75,-3.45,-1.15,1.15,3.45,5.75,8.23};
    Double_t Residual[ArrDim];
    Double_t ErrResidual[ArrDim];
    TF1 *FitGaus=new TF1();
    for(Int_t j=0;j<ArrDim;++j) {
-      TH1F ResidualHist("residual","Residual Z",3000,-0.5,0.5);
+      TH1F ResidualHist("residual","Residual Z",3000,-0.05,0.05);
       TString Formula;
       Formula.Form("(ZRecon>%f&&ZTruth>%f)&&(ZRecon<=%f&&ZTruth<=%f)",
          RangeLimits[j],RangeLimits[j],RangeLimits[j+1],RangeLimits[j+1]);
@@ -161,8 +161,8 @@ TGraphErrors ResidualVsCoordZ(TNtuple *Ntuple, Int_t ArrDim)
 
    TGraphErrors ResidualVsCoordZ(ArrDim,ZCoord,Residual,ErrResidual);
    ResidualVsCoordZ.SetNameTitle("ResidualsVsZ","Residuals vs Z coordinate");
-   ResidualVsCoordZ.GetXaxis()->SetTitle("Z coord (mm)");
-   ResidualVsCoordZ.GetYaxis()->SetTitle("Residuals (mm)");
+   ResidualVsCoordZ.GetXaxis()->SetTitle("Z coord (cm)");
+   ResidualVsCoordZ.GetYaxis()->SetTitle("Residuals (cm)");
    CustomizeGraph(ResidualVsCoordZ);
 
    return ResidualVsCoordZ;
@@ -174,17 +174,17 @@ TGraphErrors ResidualVsCoordZ(TNtuple *Ntuple, Int_t ArrDim)
 TGraphAsymmErrors EfficiencyVsCoordZ(TNtuple* Ntuple, Int_t Bins) 
 {
    Printf("\x1B[32m Evaluating Efficiency vs Z position...\x1B[0m");
-   TH1D verticesimulated("verticesimulated","vertices",Bins,-82.3,
-      82.3);
+   TH1D verticesimulated("verticesimulated","vertices",Bins,-8.23,
+      8.23);
    TH1D verticesreconstructed("verticesreconstructed","vertices",Bins,
-      -82.3,82.3);
+      -8.23,8.23);
    Ntuple->Draw("ZTruth>>verticesimulated","","goff");
    Ntuple->Draw("ZRecon>>verticesreconstructed",
       "ReconGood==1","goff");
    TGraphAsymmErrors EfficiencyVsCoordZ(&verticesreconstructed,
       &verticesimulated);
    EfficiencyVsCoordZ.SetNameTitle("EfficiencyVsZ","Efficiency vs Z coord");
-   EfficiencyVsCoordZ.GetXaxis()->SetTitle("Z coord (mm)");
+   EfficiencyVsCoordZ.GetXaxis()->SetTitle("Z coord (cm)");
    EfficiencyVsCoordZ.GetYaxis()->SetTitle("Efficiency");
    CustomizeGraph(EfficiencyVsCoordZ);
    
@@ -207,17 +207,15 @@ TGraphErrors ResidualVsMultiplicity(TNtuple *Ntuple, Int_t MultMax)
       ErrMultiplicity[i]=0.;
    }
    for(Int_t i=0;i<4;++i){
-      Printf("%d,%d,%d",MultMax,i,ArrDim);
       Multiplicity[ArrDim-i-1]=MultMax-i*3-1;
    }
-   for(int y=0;y<ArrDim;y++) Printf("arr[%d]=%d",y,(int)Multiplicity[y]);
    Double_t Residual[ArrDim];
    Double_t ErrResidual[ArrDim];
    TF1 *FitGaus=new TF1();
 
    // j iterator now loops over multiplicity values.
    for(Int_t j=2;j<=MultMax-12;j++) {
-      TH1F ResidualHist("residual","Residual Z",300,-1.5,1.5);
+      TH1F ResidualHist("residual","Residual Z",300,-0.15,0.15);
       TString Formula;
          Formula.Form("(ReconGood==1)&&(Multiplicity==%d)",j);
          TCut Cut(Formula.Data());
@@ -229,7 +227,7 @@ TGraphErrors ResidualVsMultiplicity(TNtuple *Ntuple, Int_t MultMax)
    }
    Int_t temp=ArrDim-4;
    for(Int_t j=MultMax-12;j<MultMax;j+=3) {
-      TH1F ResidualHist("residual","Residual Z",300,-1.5,1.5);
+      TH1F ResidualHist("residual","Residual Z",300,-0.15,0.15);
       TString Formula;
       Formula.Form("(ReconGood==1)&&(Multiplicity>%d)&&(Multiplicity<=%d)",
          j,j+3);
@@ -246,7 +244,7 @@ TGraphErrors ResidualVsMultiplicity(TNtuple *Ntuple, Int_t MultMax)
    ResidualVsMultiplicity.SetNameTitle("ResidualVsMultiplicity",
       "Residuals vs Multiplicity");
    ResidualVsMultiplicity.GetXaxis()->SetTitle("Multiplicity");
-   ResidualVsMultiplicity.GetYaxis()->SetTitle("Residuals (mm)");
+   ResidualVsMultiplicity.GetYaxis()->SetTitle("Residuals (cm)");
    CustomizeGraph(ResidualVsMultiplicity);
    return ResidualVsMultiplicity;
 } 

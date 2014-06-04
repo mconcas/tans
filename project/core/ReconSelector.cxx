@@ -30,8 +30,8 @@ ReconSelector::ReconSelector(TTree *) :
    fDebugZetaGenerated(0),
    fReconVertices(0),
    fDeltaPhi(0.005),                  // [rad]
-   fBinSizeRoughHist(1.),             // mm
-   fBinSizeFineHist(0.005)            // mm
+   fBinSizeRoughHist(0.1),            // cm
+   fBinSizeFineHist(0.0005)           // cm
    {
       fAnaVertex=new Vertice();
       fHitClonesArray_FL=new TClonesArray("Hit",kMaxFirstlayer);
@@ -64,13 +64,13 @@ void ReconSelector::Begin(TTree *)
 
 void ReconSelector::SlaveBegin(TTree *)
 {
-   fNBinsRoughHist=(Int_t)(164.6/fBinSizeRoughHist);
-   fNBinsFineHist=(Int_t)(164.6/fBinSizeFineHist);
-   fRecZetaHistptr=new TH1F("Reconstructed","Zreconstructed",50000,-82.3,82.3);
-   fResidualZetaptr=new TH1F("Residual Zeta","Z Residuals",50000,-82.3,82.3);
+   fNBinsRoughHist=(Int_t)(16.46/fBinSizeRoughHist);
+   fNBinsFineHist=(Int_t)(16.46/fBinSizeFineHist);
+   fRecZetaHistptr=new TH1F("Reconstructed","Zreconstructed",50000,-8.23,8.23);
+   fResidualZetaptr=new TH1F("Residual Zeta","Z Residuals",50000,-8.23,8.23);
    fResultsNtuple=new TNtuple("ResNtuple","Results",
       "ZTruth:ZRecon:ReconGood:ZResidual:Noise:Multiplicity");
-   fDebugZetaGenerated=new TH1F("Generated","ZGenerated",50000,-82.3,82.3);
+   fDebugZetaGenerated=new TH1F("Generated","ZGenerated",50000,-8.23,8.23);
    // Add to Output list.
    fOutput->Add(fResidualZetaptr);
    fOutput->Add(fRecZetaHistptr);
@@ -100,8 +100,8 @@ Bool_t ReconSelector::Process(Long64_t entry)
    // We find the cluster in the first histogram. Once localized the area of
    // interest, one can continue with the Z reconstruction, refining the 
    // analysis.
-   TH1F RoughHist=TH1F("Rough HistZ","Z",fNBinsRoughHist,-82.3,82.3);
-   TH1F FineHist=TH1F("Fine HistZ","Z",fNBinsFineHist,-82.3,82.3);
+   TH1F RoughHist=TH1F("Rough HistZ","Z",fNBinsRoughHist,-8.23,8.23);
+   TH1F FineHist=TH1F("Fine HistZ","Z",fNBinsFineHist,-8.23,8.23);
 
    // Loop over the TClonesArrays and fill the Histograms.
    for(Int_t v=0;v<fEntriesLTwo;v++) {
@@ -111,7 +111,7 @@ Bool_t ReconSelector::Process(Long64_t entry)
          // Tolerance fixed to an integer multiple of Δϕ.
          if(Punto::GetDeltaPhi(*fAnaHitFrst,*fAnaHitScnd)<=fDeltaPhi) {
             Double_t ZetaRecon=ZEvaluation(*fAnaHitFrst,*fAnaHitScnd);
-            if(TMath::Abs(ZetaRecon)<=82.3) {
+            if(TMath::Abs(ZetaRecon)<=8.23) {
                RoughHist.Fill(ZetaRecon);
                FineHist.Fill(ZetaRecon);
             }
@@ -162,8 +162,7 @@ void ReconSelector::Terminate()
    fResultsNtuple->Write();
    OutNtuple.Close();  
 
-   // Save Debug Histos. >>! REMOVE !<<
-   
+   // Save Debug Histos. >>! REMOVE IN FINAL VERSION!<<
    TFile outfile("./results/Debug.root","RECREATE");
    if(outfile.IsZombie()) {
       Printf("A problem occured creating file");

@@ -1,6 +1,5 @@
 #if !defined (__CINT__) || defined (__MAKECINT__)
 #include <TXMLEngine.h>
-#include <TObject.h>
 #include <TClonesArray.h>
 #include <TFile.h>
 #include <TH1F.h>
@@ -28,7 +27,7 @@ XMLNodePointer_t DrainDetectorData(pipe_t &pipe,TXMLEngine* engine,
 // Returns theta angle from a distribution Histogram.
 Double_t ThetaFromEta(TH1F* etahist,Double_t low,Double_t high);
 
-// Class.
+// Simulation Class.
 ClassImp(SimulationCore)
 
 SimulationCore::SimulationCore() :
@@ -167,28 +166,28 @@ Bool_t SimulationCore::Status()
    Printf("Noise level: %d",fNoiseLevel);
    Printf("Beampipe data:\n\t\
       Layer:      %d \n\t\
-      Length:     %f \n\t\
-      Thickness:  %f \n\t\
-      Pipe Rad:   %f \n\t",
+      Length:     %3.2f [cm]\n\t\
+      Thickness:  %3.2f  [cm]\n\t\
+      Pipe Rad:   %3.2f  [cm]\n\t",
       fBeampipe.fLayer,fBeampipe.fZetaLen,fBeampipe.fThickness,
       fBeampipe.fPipeRad);
    Printf("Firstlayer data: \n\t\
       Layer:      %d \n\t\
-      Length:     %f \n\t\
-      Thickness:  %f \n\t\
-      Pipe Rad:   %f \n\t",
+      Length:     %3.2f [cm]\n\t\
+      Thickness:  %3.2f  [cm]\n\t\
+      Pipe Rad:   %3.2f  [cm]\n\t",
       fFirstLayer.fLayer,fFirstLayer.fZetaLen,fFirstLayer.fThickness,
       fFirstLayer.fPipeRad);
    Printf("Secondlayer data: \n\t\
       Layer:      %d \n\t\
-      Length:     %f \n\t\
-      Thickness:  %f \n\t\
-      Pipe Rad:   %f \n\t",
+      Length:     %3.2f [cm]\n\t\
+      Thickness:  %3.2f  [cm]\n\t\
+      Pipe Rad:   %3.2f  [cm]\n\t",
       fSecondLayer.fLayer,fSecondLayer.fZetaLen,fSecondLayer.fThickness,
       fSecondLayer.fPipeRad);
-   Printf("Rms X: %f",fRmsX);
-   Printf("Rms Y: %f",fRmsY);
-   Printf("Rms Z: %f",fRmsZ);
+   Printf("Rms X: %3.2f [cm]",fRmsX);
+   Printf("Rms Y: %3.2f [cm]",fRmsY);
+   Printf("Rms Z: %3.2f [cm]",fRmsZ);
 
    return kTRUE;
 }
@@ -333,12 +332,12 @@ Bool_t SimulationCore::Run()
          // Register data.
          // Smearing is applied in registering phase.
          if(TMath::Abs(tHitFL.GetPuntoZ())<=fFirstLayer.fZetaLen/2) {
-            if(kSmearing)tHitFL.GausSmearing(40,0.12,0.03);
+            if(kSmearing)tHitFL.GausSmearing(4,0.012,0.003);
             new(rhitsfirst[u]) Hit(tHitFL);
             u+=1;
          }
          if(TMath::Abs(tHitSL.GetPuntoZ())<=fSecondLayer.fZetaLen/2) {
-            if(kSmearing)tHitSL.GausSmearing(70,0.12,0.03);
+            if(kSmearing)tHitSL.GausSmearing(7,0.012,0.003);
             new(rhitssecond[v]) Hit(tHitSL);
             v+=1;
          }
@@ -366,7 +365,7 @@ Bool_t SimulationCore::Run()
          // Fill trees.
          // Write on file if the Z coordinate belong to a specified range.
 
-         if(!kDryRun&&TMath::Abs(vertex.GetPuntoZ())<=164.6/2) {
+         if(!kDryRun&&TMath::Abs(vertex.GetPuntoZ())<=16.46/2) {
             EventsTree.Fill();
             i+=1;
          }
@@ -413,6 +412,7 @@ XMLNodePointer_t FromChildToNextParent(TXMLEngine* engine,
    return index;
 }
 
+// Wrap some commands
 XMLNodePointer_t DrainDetectorData(pipe_t &pipe,TXMLEngine* engine,
    XMLNodePointer_t index)
 {

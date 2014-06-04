@@ -20,21 +20,13 @@
 %----------------------------------------------------------------------------------------
 
 \documentclass{article}
-%\usepackage{listings}
 \usepackage{minted}
-%\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
-\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
 \usepackage[utf8]{inputenc} % Il problema delle accentate è così risolto, per MacOSX.
 \usepackage{fontenc}        % La codifica è importante.
-\usepackage{graphicx} % Required for the inclusion of images
-\usepackage{natbib} % Required to change bibliography style to APA
-\usepackage{amsmath} % Required for some math elements 
+\usepackage{graphicx} % Required for the inclusion of images 
 \usepackage[italian]{babel}
-\setlength\parindent{0pt} % Removes all indentation from paragraphs
 \usepackage[colorlinks=true]{hyperref}
-
-\renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
-
+\usepackage{subfigure}
 \usepackage{times} % Uncomment to use the Times New Roman font
 
 %----------------------------------------------------------------------------------------
@@ -58,14 +50,16 @@ Docente: Prof. Massimo Masera
 
 % If you wish to include an abstract, uncomment the lines below
 \begin{abstract}
-Scopo della prova pratica dell'esame è costruire la simulazione Montecarlo, tramite l'ausilio del framework di analisi \href{http://root.cern.ch/drupal/}{ROOT},
-di un collider p-p e raccogliere i dati di \textit{hits} lasciati su due rivelatori cilindrici coassiali con l'asse del fascio e concentrici dalle tracce di generate da particelle cariche.
-Nonostante la verosimile presenza di un campo magnetico la traiettoria delle particelle cariche uscenti è stata assunta rettilinea.
-Questo è giustificato dal fatto che l'intensità del campo e la distanza dei rivelatori dal vertice primario di impatto sono tali da poter, localmente, fare tale approssimazione.
-In una seconda parte del programma ci si occupa della ricostruzione \textit{"fast"} della coordinata z lungo l'asse del fascio del vertice primario di impatto.
-Durante la fase di \textbf{simulazione} si è tenuto conto di effetti sperimentali quali la distribuzione degli z di impatto, l'effetto di multiplo \textit{scattering} dovuto all'interazione di particelle cariche con elementi strutturali, come la \textit{beampipe} dell'acceleratore e con i rivelatori stessi. 
-\'E stato anche tenuto conto di effetti di \textit{smearing} dovuti alla discretizzazione delle superfici sensibili di rivelazione.
-\'E stato anche incluso un algoritmo di generazione di rumore in cui sono stati fatti confluire fattori come i punti lasciati da particelle di basso momento (non incluse nella cinematica della generazione) ed eventuali effetti di accensione spontanea di cellette dei rivelatori. 
+Scopo della prova pratica dell'esame è scrivere un programma di simulazione Montecarlo, tramite l'ausilio del framework di analisi \href{http://root.cern.ch/drupal/}{ROOT},
+per un collider p-p e raccogliere i dati corrispondenti agli \textit{hits} lasciati su due rivelatori cilindrici, coassiali con l'asse del fascio e concentrici, dalle particelle cariche.
+Nonostante la verosimile presenza di un campo magnetico, la traiettoria delle particelle cariche uscenti è stata assunta rettilinea.
+Questo è giustificato dal fatto che l'intensità del campo, la distanza dei rivelatori dal vertice primario di impatto e l'alto momento delle particelle sono tali da poter localmente fare questa approssimazione.\\
+Durante la fase di \textbf{simulazione} si tiene conto di effetti sperimentali quali la distribuzione degli z di impatto (eventualmente gaussiana), l'effetto di multiplo \textit{scattering} dovuto all'interazione delle particelle cariche con elementi strutturali, come la \textit{beampipe} dell'acceleratore e con i rivelatori stessi. 
+Si è anche tenuto conto di effetti di \textit{smearing} dovuti alla discretizzazione delle superfici sensibili di rivelazione, e alle successive medie effettuate dall'ipotetico apparato sperimentale.
+\'E stato anche incluso un algoritmo di generazione di rumore in cui sono stati fatti confluire fattori come i punti lasciati da particelle di basso momento, a traiettoria elicoidale quindi fuori dall'approssimazione (non incluse nella cinematica che fornisce le condizioni al contorno della generazione), ed eventuali effetti di accensione spontanea di alcune cellette dei rivelatori. 
+Con tale algoritmo si è quindi applicata la generazione uniforme e casuale sui due rivelatori dello stesso numero di punti (hits).\\ 
+\indent Nella seconda parte del programma ci si occupa della \textbf{ricostruzione} \textit{"fast"} della coordinata z lungo l'asse del fascio del vertice primario di impatto a partire dai dati Montecarlo.\\
+\indent Nella terza parte si analizzano le \textit{performances} e i risultati ottenuti.
 \end{abstract}
 
 %----------------------------------------------------------------------------------------
@@ -74,14 +68,15 @@ Durante la fase di \textbf{simulazione} si è tenuto conto di effetti sperimenta
 
 \section{Struttura del programma}
 \subsection{Simulazione}
-Sono state create alcune classi geometriche base, come le classi \textit{Punto, Direzione}.
-Da queste sono state derivate alcune sottoclassi apposite per la tematica sperimentale trattata, come ade esempio le classi \textit{Vertice, Hit}.\newline
-Questo approccio è valido poiché permetterebbe, in un eventuale futuro, di estendere le suddette nell'eventualità di applicazioni simili ma con specifiche del problema diverse (Rivelatori di forma non cilindrica, materiali diversi da qelli impiegati in questa implementazione, cinematiche diverse, etc.).\newline
-La classe \textit{SimulationCore} è anch'essa pensata in quest'ottica:
-i suoi metodi principali, \textit{SimulationCore::Initialize(), SimulationCore::Run()}, possono essere generalizzati o modificati facilmente, a seconda delle esigenze.
+Sono state create alcune classi geometriche base, come le classi \textit{Punto} e \textit{Direzione}.
+Da queste sono state derivate alcune sottoclassi apposite per la tematica sperimentale trattata, come ad esempio le classi \textit{Vertice} e  \textit{Hit}.\newline
+\'E stato adottato questo approccio poiché permette, in un eventuale futuro, di estendere le suddette nell'eventualità di applicazioni con specifiche diverse (rivelatori di forma non cilindrica, materiali diversi da quelli impiegati in questa implementazione, cinematiche diverse, etc.).\newline
+Quanto concerne la simulazione è astratto nella classe \textit{SimulationCore}, che è anch'essa pensata in quest'ottica.
+I suoi metodi principali, \textit{SimulationCore::Initialize(), SimulationCore::Run()} consentono l'inizializzazione e l'esecuzione della simulazione e possono essere generalizzati e/o modificati facilmente, a seconda delle esigenze.
 Sia la simulazione, sia la ricostruzione sono gestite da due macro chiamate \textit{*Steer.C}.\newline
-Nel caso della simulazione lo steer crea un'istanza della classe di simulazione e chiama il metodo di inizializzazione, \textit{Initialize()}, che altro non fa che leggere il file di configurazione \textit{.xml} della simulazione voluta e configurare l'oggetto "simulazione".\newline
-Il motivo per cui si è optato per un'interfaccia di inizializzazione statica, senza possibilità di interazione diretta col programma da parte dell'utilizzatore in fase di \textit{runtime} piuttosto che una dinamica (interattiva), è legato alla ricerca dello sviluppare un software almeno grossolanamente non \textit{standalone}. Infatti la capacità di passare i parametri scelti tramite files xml lascia aperta la possibilità di dialogo con eventuali (non è ovviamente questo il caso) \textit{front-end} o terzi programmi in generale, oltre a snellire le operazioni di avvio di simulazione. \newline
+Nel caso della simulazione lo \textit{steer} crea un'istanza della classe di simulazione e chiama il metodo di inizializzazione, \textit{Initialize()}, che legge il file di configurazione \textit{(e.g. runconfig\_\#.xml)} della simulazione voluta e inizializza i datamembers dell'oggetto "simulazione".\newline
+Si è optato per un metodo di inizializzazione statico, senza possibilità di interazione diretta col programma da parte dell'utilizzatore in fase di esecuzione, piuttosto che uno dinamico, dove l'utente inserisce i parametri manualmente in modo interattivo. Tale scelta è legata al tentativo di scrivere un software, almeno in prima battuta, non \textit{standalone}. Infatti la capacità di leggere i parametri scelti tramite files .\textit{xml} lascia aperta la possibilità di interfacciarsi con eventuali (sebbene non sia questo il caso) \textit{front-end} o programmi terzi in generale. 
+Una doppia implementazione sarebbe stata ridondante e questo permette inoltre di snellire le operazioni di avvio della simulazione. \newline
 Il metodo \textit{Run()} si occupa di processare la simulazione e produrre i file con la verità Montecarlo.
 \subsubsection{Utilizzare la Simulazione}
 \noindent Per avviare una simulazione, supponendo di essere in una directory opportuna:
@@ -96,19 +91,20 @@ Il metodo \textit{Run()} si occupa di processare la simulazione e produrre i fil
 
 \subsection{Ricostruzione}
 \subsubsection{Ricostruzione tramite Proof}
-Sempre rimanendo all'interno delle features di ROOT, si è scelto di implementare, a puro scopo accademico, un'analisi dei dati condotta in parallelo, tramite l'utilizzo dell strumento denominato \href{http://root.cern.ch/drupal/content/proof}{Proof} (\textit{Parallel Root Facility}) e, nel caso di un'analisi locale, tramite il tool \textit{\href{http://root.cern.ch/drupal/content/proof-multicore-desktop-laptop-proof-lite}{ProofLite}}. 
-Non si è, tuttavia, volta particolare attenzione alla ricerca di performances, nè tantomeno verranno discussi in questa sede particolari tecnici inerenti implementazione di Proof in quanto tali argomenti esulano dai prerequisti dell'esame.\newline
-Le motivazioni di questa scelta sono principalmente due: la prima è senz'altro di performance e di ottimizzazione del consumo delle risorse disponibili, in quanto la possibilità di effettuare un'analisi di questo tipo, appartenente alla categoria dei problemi \textit{embarrassingly parallel}, su macchine multicore piuttosto che su cluster, porta a vantaggi evidenti anche su dataset esigui e su analisi "semplificate" (confrontati con dataset e algoritmi provenienti da esperimenti veri).  
-La seconda, probabilmente in questo caso anche la più importante, è la possibilità di affrontare un'analisi tramite procedure più o meno \textit{canoniche} e/o \textit{standardizzate}, utilizzando il maggior numero possibile di concetti, strutture e strumenti software \textbf{già disponibili} per la comunità. Come risultato, invece di produrre una ricostruzione con una struttura \textit{naïf} si è cercato, almeno come primo intento, di implementare un approccio già esistente, avendo come ritorno l'apprendimento dello stesso.
+Sempre rimanendo all'interno delle features di ROOT, si è scelto di implementare, a puro scopo accademico, un'analisi dei dati condotta in parallelo, tramite l'utilizzo dell strumento \href{http://root.cern.ch/drupal/content/proof}{Proof} (\textit{Parallel Root Facility}), più precisamente nel caso di un'analisi locale, tramite il tool \textit{\href{http://root.cern.ch/drupal/content/proof-multicore-desktop-laptop-proof-lite}{ProofLite}}. 
+Non si è, tuttavia, rivolta particolare attenzione alla ricerca di performances, n\'e tantomeno verranno discussi in questa sede particolari tecnici inerenti l'implementazione di Proof, in quanto esulano dalle tematiche coperte dall'esame.\newline
+Le motivazioni di questa scelta sono principalmente due: la prima è senz'altro di performance e di ottimizzazione del consumo delle risorse disponibili, in quanto la possibilità di effettuare un'analisi di questo tipo, appartenente alla categoria dei problemi \textit{embarrassingly parallel}, su macchine multicore piuttosto che su cluster, porta a vantaggi evidenti anche su dataset esigui e su analisi semplici, con codice non particolarmente ottimizzato (in confronto a dataset e algoritmi provenienti da esperimenti veri).  
+La seconda, probabilmente in questo caso anche la più importante, è la possibilità di affrontare un'analisi tramite procedure più o meno \textit{canoniche} e/o \textit{standardizzate}, utilizzando il maggior numero possibile di concetti, strutture e strumenti software \textbf{già disponibili} per la comunità. Come risultato, invece di produrre una ricostruzione con una struttura \textit{naïf}, si è cercato almeno come primo intento di implementare un approccio già esistente, avendo come ritorno l'apprendimento dello stesso.
 \subsubsection{Struttura della ricostruzione}
 Appurato che il contenuto del file con verità Montecarlo consta sostanzialmente di un
 \textit{\href{http://root.cern.ch/root/html/TTree.html}{TTree}} 
 le cui entries costituiscono gli eventi generati, la ricostruzione avviene tramite l'utilizzo del metodo \textit{TTree::Process(void* selector,...)} che accetta come argomento un'istanza della classe \textit{\href{http://root.cern.ch/root/html/TSelector.html}{TSelector}}.
-al punto di vista implementativo esso può essere generato \textit{ad-hoc} dato un TTree, e modificato per poter inserire i tipi di analisi che si vogliano praticare su ciascuna entry.
+Dal punto di vista implementativo esso può essere generato \textit{ad-hoc} dato un TTree, e modificato per poter inserire i tipi di analisi che si vogliano praticare su ciascuna entry.
 Concretamente parlando, il metodo \textit{TSelector::Process(Long\_t entry)} si fa carico dell'analisi vera e propria sull'entry specificata.
 L'analisi può essere condotta in modo seriale o paralella a seconda se venga aperta o meno una sessione di Proof. Il TSelector è esattamente lo stesso in entrambi i casi.
 Anche in questo caso si fa uso di un \textit{ReconsSteer.C} per avviare la ricostruzione. In questo caso la macro provvede a riunire in una \href{http://root.cern.ch/root/html/TChain.html}{TChain} i TTree contenuti nei files e a caricare tutto ciò di cui l'ambiente Proof ha bisogno.
-La ricostruzione produce come output un file con un'\textit{\href{http://root.cern.ch/root/html/TNtuple.html}{Ntupla}} contentente, ad esempio:\\
+La ricostruzione produce come output un file con un'\textit{\href{http://root.cern.ch/root/html/TNtuple.html}{Ntupla}} contentente risultati e parametri utili per una successiva analisi dell'algoritmo.
+Ad esempio:\\
 \begin{table}[h]
    \begin{tabular}{ c || c | c | c | c | c | c }
       \hline
@@ -133,21 +129,70 @@ La ricostruzione produce come output un file con un'\textit{\href{http://root.ce
 \newpage
 \section{Analisi dei risultati}
 La terza parte si occupa di diagnosticare come l'algoritmo di ricostruzione sia efficiente e quanto sia preciso al variare dei parametri forniti alla simulazione.
-Infatti, grazie al confronto con la verità montecarlo, si è in grado di stimare il rendimento in vari intervalli di rumore/molteplicità/coordinata Z. 
+Infatti, grazie al confronto con la verità Montecarlo, si è in grado di stimare il rendimento in vari intervalli di rumore/molteplicità/coordinata Z. 
 \subsection{Avviare l'analisi}
 \noindent L'analisi consiste in una macro (\textit{Analysis.C}) che pratica opportuni tagli alle entries dell'Ntupla e produce un file di output contenente sei grafici.
 \begin{minted}{bash}
   > root -l (-b) 'Analysis.C+'
-  root [] Analysis("FILE_NTUPLA","FILE_OUTPUT")
+  root [] Analysis("FILE_NTUPLA_INPUT","FILE_GRAPHS_OUTPUT")
   ...
 \end{minted}
+
 \subsection{Discussione dei risultati}
 Per questa analisi sono stati generati due set di dati.
 Il primo set consta di sei file diversi, ciascuno con un livello di rumore \textbf{fissato}, crescente da file a file per passi di 6, da 0 a 30 con multiplo scattering (d'ora in avanti MS) \textbf{disabilitato}.
 Il secondo invece consta di sei file diversi, ciascuno con un livello di rumore \textbf{fissato}, crescente da file a file per passi di 6, da 0 a 30 con multiplo scattering \textbf{abilitato}.
-Le due grandezze di cui si è andati a misurare l'andamento sono: l'\textbf{\textit{efficienza}}, ovvero il rapporto tra il numero di vertici generati e il numero di vertici ricostruiti; la \textbf{\textit{risoluzione}}, intesa come la $\sigma$ di un fit gaussiano sulla distribuzione dei residui.
+Le due grandezze di cui si è andati a misurare l'andamento sono: l'\textbf{\textit{efficienza}}, ovvero il rapporto tra il numero di vertici generati e il numero di vertici ricostruiti; la \textbf{\textit{risoluzione}}, intesa come la $\sigma$ di un fit gaussiano effettuato sulla distribuzione dei residui.
 
-\subsubsection{Studio dell'Efficienza con MS disabilitato}
+\subsubsection{Studio dell'Efficienza in funzione di Noise, Molteplicità e Z Montecarlo}
+Sono riportati di seguito i grafici inerenti lo studio dell'efficienza in funzione di alcuni parametri, prima su set di eventi con multiplo scattering disattivato, poi su un set di dati con multiplo scattering attivato.\\
+\indent Ciascun set di dati è costituito da un totale di 
+$6\times$ $10^{6}$ eventi, ciascuno con molteplicità estratta da distribuzione \href{http://personalpages.to.infn.it/~masera/tans/tans2013/miscellanea/kinem.root}{data}, con estremi $2\leq Molt \leq 52$. La coordinata $z$ del vertice è generata da una distribuzione gaussiana, avente $\sigma=5.3cm$. Le coordinate $x$ e $y$ sono generate da distribuzioni gaussiane, aventi $\sigma=0.01cm$. Sono stati accesi, in entrambe le $\ll$prese dati$\gg$, gli effetti di \textit{smearing} di tipo gaussiano, con $120 \mu m$ in direzione  $z$ e $30 \mu m$ in direzione $r\phi$. 
 
+\begin{figure}
+\includegraphics[scale=0.60]{GraficiRelazione/EffVsNoise.pdf}
+\caption{M. Scattering=kFALSE}
+\includegraphics[scale=0.60]{GraficiRelazione/EffVsNoise_2.pdf}
+\caption{M. Scattering=kTRUE}
+\end{figure}
+\begin{figure}
+\includegraphics[scale=0.60]{GraficiRelazione/EffVsZCoord.pdf}
+\caption{M. Scattering=kFALSE}
+\includegraphics[scale=0.60]{GraficiRelazione/EffVsZCoord_2.pdf}
+\caption{M. Scattering=kTRUE}
+\end{figure}
+\begin{figure}
+\includegraphics[scale=0.60]{GraficiRelazione/EffVsMult.pdf}
+\caption{M. Scattering=kFALSE}
+\includegraphics[scale=0.60]{GraficiRelazione/EffVsMult_2.pdf}
+\caption{M. Scattering=kTRUE}
+\end{figure}
+
+\newpage
+\subsubsection{Studio dei residui in funzione di Noise, Molteplicità e Z Montecarlo}
+Sono riportati di seguito i grafici inerenti lo studio dei residui in funzione di alcuni parametri, prima su set di eventi con multiplo scattering disattivato, poi su un set di dati con multiplo scattering attivato.\\
+\indent Ciascun set di dati è costituito da un totale di 
+$6\times$ $10^{6}$ eventi, ciascuno con molteplicità estratta da distribuzione data, con estremi $2\leq Molt \leq 52$. La coordinata $z$ del vertice è generata da una distribuzione gaussiana, avente $\sigma=5.3cm$. Le coordinate $x$ e $y$ sono generate da distribuzioni gaussiane, aventi $\sigma=0.01cm$. Sono stati accesi, in entrambe le $\ll$prese dati$\gg$, gli effetti di \textit{smearing} di tipo gaussiano, con $120 \mu m$ in direzione  $z$ e $30 \mu m$ in direzione $r\phi$.
+
+\begin{figure}
+\includegraphics[scale=0.60]{GraficiRelazione/ResVsNoise.pdf}
+\caption{M. Scattering=kFALSE}
+\includegraphics[scale=0.60]{GraficiRelazione/ResVsNoise_2.pdf}
+\caption{M. Scattering=kTRUE}
+\end{figure}
+\begin{figure}
+\includegraphics[scale=0.60]{GraficiRelazione/ResVsZCoord.pdf}
+\caption{M. Scattering=kFALSE}
+\includegraphics[scale=0.60]{GraficiRelazione/ResVsZCoord_2.pdf}
+\caption{M. Scattering=kTRUE}
+\end{figure}
+\begin{figure}
+\includegraphics[scale=0.60]{GraficiRelazione/ResVsMult.pdf}
+\caption{M. Scattering=kFALSE}
+\includegraphics[scale=0.60]{GraficiRelazione/ResVsMult_2.pdf}
+\caption{M. Scattering=kTRUE}
+\end{figure}
+\newpage
+\section{Conclusioni}
 
 \end{document}

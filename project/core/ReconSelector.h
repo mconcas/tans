@@ -17,9 +17,9 @@
 
 // Header file for the classes stored in the TTree if any.
 #include <TClonesArray.h>
-#include "./Punto.h"
-#include "./Vertice.h"
-#include "./Hit.h"
+#include "Punto.h"
+#include "Vertice.h"
+#include "Hit.h"
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 const Int_t kMaxFirstlayer=50;

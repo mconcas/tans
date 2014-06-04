@@ -1,7 +1,6 @@
 #if !defined (__CINT__) || defined (__MAKECINT__)
 #include <TMath.h>
 #include "Punto.h"
-#include <TObject.h>
 #include <TString.h>
 #include <TSystem.h>
 #endif
@@ -11,10 +10,10 @@
 Double_t CorrMachinePrecision(const Double_t value)
 {  
    Double_t kZero=1/TMath::Tan(TMath::Pi()/2);
-   if(value<0 && (value-(Int_t)value)>-kZero)
+   if(value<0.f && (value-(Int_t)value)>-kZero)
    return static_cast<Double_t>(static_cast<Int_t>(value+0.5));
    else {
-      if(value>0 && (value-(Int_t)value)<kZero )
+      if(value>0.f && (value-(Int_t)value)<kZero )
       return static_cast<Double_t>(static_cast<Int_t>(value+0.5));
       else return value;
    }
@@ -93,23 +92,10 @@ void Punto::SetPuntoZ(const Double_t Z)
    fZ=Z;
    CartesiantoSpherical();
    CartesiantoCylindrical();
-   // Please note that is not necessary to update cylindrical
-   // coordinates because Z is the same coord.
 }
 
 void Punto::SetPuntoTheta(const Double_t Theta)
 {
-
-   ///////////////////////////////////////////////////////////////////
-   //Theta is a spherical parameter. We have to invert the spherical
-   //relations due to be effective the cartesian coords update.
-   //For some reason one might have to modify just one spherical
-   //coordinate. It is fine, if just working with sph coordinates.
-   //To keep consistency it is necessary to update the cartesian ones.
-   //Then it's possible apply a CartesiantoCylindrical conversion for
-   //an update to cylindrical coords.
-   ///////////////////////////////////////////////////////////////////
-
    fTheta=Theta;
    SphericaltoCartesian();
    CartesiantoCylindrical();
@@ -117,18 +103,6 @@ void Punto::SetPuntoTheta(const Double_t Theta)
 
 void Punto::SetPuntoPhi(const Double_t Phi)
 {
-
-   ///////////////////////////////////////////////////////////////////
-   //fPhi is a spherical and a cylindrical parameter.
-   //We have to invert the cylindrical relations due to make effective
-   //the cartesian coords update.
-   //For some reason one might have to modify just a cylindrical
-   //coordinate. It is fine, if just working with cyl coordinates.
-   //To keep consistency it is necessary to update the cartesian ones.
-   //Then it's possible apply a CartesiantoCylindrical conversion for
-   //an update to cylindrical coords.
-   ///////////////////////////////////////////////////////////////////
-
    fPhi=Phi;
    CylindricaltoCartesian();
    CartesiantoSpherical();
@@ -140,11 +114,11 @@ void Punto::SetPuntoCRadius(const Double_t CRadius)
    CylindricaltoCartesian();
    CartesiantoSpherical();
    if (gDebug) Printf("Debug: \n X=%f\n Y=%f\n Z=%f",fX,fY,fZ);
-   if (gDebug && fX==0 && fY==0)
+   if (gDebug && fX==0.f && fY==0.f)
       Printf("Warning: Cartesian variables X=Y=0! \
-             \n This assignment is probably \
-             \n going to make a mess with datamembers! \
-             \n Please, check your intentions and the source code!");
+         \n This assignment is probably \
+         \n going to make a mess with datamembers! \
+         \n Please, check your intentions and the source code!");
 }
 
 void Punto::SetPuntoSRadius(const Double_t SRadius)
@@ -153,20 +127,20 @@ void Punto::SetPuntoSRadius(const Double_t SRadius)
    SphericaltoCartesian();
    CartesiantoCylindrical();
    if (gDebug) Printf("Debug: \n X=%f\n Y=%f\n Z=%f",fX,fY,fZ);
-   if (gDebug && fX==0 && fY==0 && fZ==0)
+   if (gDebug && fX==0.f && fY==0.f && fZ==0.f)
       Printf("Warning: Cartesian variables X=Y=Z=0! \
-               \n This assignment is probably \
-               \n going to make a mess with datamembers! \
-               \n Please, check your tasks and the source code!");
+         \n This assignment is probably \
+         \n going to make a mess with datamembers! \
+         \n Please, check your tasks and the source code!");
 }
 
 Double_t Punto::GetDistance(Punto &PointOne, Punto &PointTwo)
 {
    return TMath::Sqrt((PointOne.GetPuntoX()-PointTwo.GetPuntoX())*
-      (PointOne.GetPuntoX()-PointTwo.GetPuntoX())+(PointOne.GetPuntoY()
-         -PointTwo.GetPuntoY())*(PointOne.GetPuntoY()-PointTwo.GetPuntoY())+
-      (PointOne.GetPuntoZ()-PointTwo.GetPuntoZ())*(PointOne.GetPuntoZ()
-         -PointTwo.GetPuntoZ()));
+            (PointOne.GetPuntoX()-PointTwo.GetPuntoX())+(PointOne.GetPuntoY()
+            -PointTwo.GetPuntoY())*(PointOne.GetPuntoY()-PointTwo.GetPuntoY())+
+            (PointOne.GetPuntoZ()-PointTwo.GetPuntoZ())*(PointOne.GetPuntoZ()
+            -PointTwo.GetPuntoZ()));
 }
 
 Double_t Punto::GetDeltaPhi(Punto &FirstPunto, Punto &SecondPunto)
@@ -174,7 +148,7 @@ Double_t Punto::GetDeltaPhi(Punto &FirstPunto, Punto &SecondPunto)
    return TMath::Abs(FirstPunto.GetPuntoPhi()-SecondPunto.GetPuntoPhi());
 };
 
-//___________Coordinates_Tools__________
+// Update Coordinates and RS converters
 void Punto::CartesiantoCylindrical() {
    // Update spherical coordinates, managing exceptions and
    // singularities. Note that the third component [i.e "Z"] is not

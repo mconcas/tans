@@ -53,7 +53,7 @@ Hit Hit::HitOnCylFromVertex(Vertice& Origin,Direzione& Direct,Double_t Radius,
 
       //////////////////////////////////////////////////////////////////////////
       // Manage the ϑ=0 exception
-      if( theta==0 || theta==TMath::Pi()) {
+      if( theta==0.f || theta==TMath::Pi()) {
          Hit OnCyl;
          if (gDebug) Printf("ϑ=0 exception -> no scattering.");
          return OnCyl;
@@ -118,7 +118,7 @@ Hit Hit::GetHitOnCyl(Direzione& Direct,Double_t Radius,TMaterial& Material,
 
    /////////////////////////////////////////////////////////////////////////////
    // Manage the ϑ=0 exception
-   if(theta==0||TMath::Abs(theta)==TMath::Pi()) {
+   if(theta==0.f||TMath::Abs(theta)==TMath::Pi()) {
       Hit OnCyl;
       if (gDebug) Printf("ϑ=0 exception -> no scattering.");
 

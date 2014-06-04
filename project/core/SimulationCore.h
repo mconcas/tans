@@ -18,8 +18,6 @@ struct pipe_t {
 class SimulationCore : public TObject {
 
    public:
-
-      //____________{Con,Des}tructors____________
       SimulationCore();
       SimulationCore(TString Pardatafile,TString SimName="Default");
       virtual ~SimulationCore() { };
@@ -29,8 +27,8 @@ class SimulationCore : public TObject {
       Bool_t Initialize();
 
       //____________Inline_Getters_______________
-      TString             GetParamFile() {return fParDataFileName;}
-      XMLDocPointer_t     GetXMLDocPointer() {return fXmlDocFileptr;}
+      TString             GetParamFile() const {return fParDataFileName;}
+      XMLDocPointer_t     GetXMLDocPointer() const {return fXmlDocFileptr;}
 
       //____________Run_Simulation_______________
       Bool_t Status();

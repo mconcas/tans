@@ -29,7 +29,8 @@ void ReconSteer(TString DataDir="",TString Selector="ReconSelector.cxx+",
       TString FileName;
       for(Int_t i=0;i<6;++i) {
          FileName.Form("%sNoise_%d_Multscatt_%s_events_1M.root",
-            DataDir.Data(),i*6,Mscat ? "enabled" : "disabled");
+            DataDir.Data(),i*6,Mscat ? "enabled" : 
+               "disabled");
          EventChain->Add(FileName.Data());
          Printf("\x1B[34mAdded %s to the TChain.\x1B[0m",FileName.Data());
       }
