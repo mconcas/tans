@@ -8,7 +8,6 @@
 #include <TH1F.h> 
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
-#include <TMultiGraph.h>
 #include <TFile.h>
 #endif
 
@@ -23,12 +22,12 @@ TGraphErrors ResidualVsNoise(TNtuple* Ntuple, Int_t ArrDim);
 TGraphAsymmErrors EfficiencyVsNoise(TNtuple* Ntuple, Int_t ArrDim);
 TGraphErrors ResidualVsCoordZ(TNtuple* Ntuple, Int_t ArrDim);
 TGraphAsymmErrors EfficiencyVsCoordZ(TNtuple* Ntuple, Int_t Bins);
-TMultiGraph* ResidualVsMultiplicity(TNtuple* Ntuple, Int_t MultMax);
+TGraphErrors ResidualVsMultiplicity(TNtuple* Ntuple, Int_t MultMax);
 TGraphAsymmErrors EfficiencyVsMultiplicity(TNtuple* Ntuple, Int_t Bins);
 
 // This function produce an output file with results 
 
-void Analysis(const TString InFileName="Ntupla.root", 
+void Analysis3(const TString InFileName="Ntupla.root", 
    const TString OutFileName="") 
 {
    TFile InFile(InFileName.Data(),"READ");
@@ -47,7 +46,7 @@ void Analysis(const TString InFileName="Ntupla.root",
    // Efficiency vs Z position.
    TGraphAsymmErrors EfficiencyVsCoordZGraph=EfficiencyVsCoordZ(Ntuple,9);
    // Residual vs Multiplicity.
-   TMultiGraph* ResidualVsMultiplicityGraph=ResidualVsMultiplicity(Ntuple,52);
+   TGraphErrors ResidualVsMultiplicityGraph=ResidualVsMultiplicity(Ntuple,52);
    // Efficiency vs Multiplicity.
    TGraphAsymmErrors EfficiencyVsMultiplicityGraph=EfficiencyVsMultiplicity(
       Ntuple,52);
@@ -62,7 +61,7 @@ void Analysis(const TString InFileName="Ntupla.root",
    EfficiencyVsNoiseGraph.Write();
    ResidualVsCoordZGraph.Write();
    EfficiencyVsCoordZGraph.Write();
-   ResidualVsMultiplicityGraph->Write();
+   ResidualVsMultiplicityGraph.Write();
    EfficiencyVsMultiplicityGraph.Write();
 }
 
@@ -197,73 +196,59 @@ TGraphAsymmErrors EfficiencyVsCoordZ(TNtuple* Ntuple, Int_t Bins)
 //------------------------------------------------------------------------------
 // The last classes are take larger because of the less number of entries.
 
-TMultiGraph* ResidualVsMultiplicity(TNtuple *Ntuple, Int_t MultMax) 
+TGraphErrors ResidualVsMultiplicity(TNtuple *Ntuple, Int_t MultMax) 
 {
    Printf("\x1B[32m Evaluating Residual vs Multiplicity...\x1B[0m");
-   TMultiGraph* mGraph=new TMultiGraph("Residuivsmult","Residui Vs Mult");
-   Int_t ArrDim=MultMax-9;
-   Double_t Multiplicity[ArrDim];
-   Double_t ErrMultiplicity[ArrDim];
-   for(Int_t i=0;i<ArrDim;i++) { 
-      Multiplicity[i]=i+2;
-      ErrMultiplicity[i]=0.;
-   }
-   for(Int_t i=0;i<4;++i){
-      Multiplicity[ArrDim-i-1]=MultMax-i*3-1;
-   }
-   Double_t Residual[ArrDim];
-   Double_t ErrResidual[ArrDim];
+   // Int_t ArrDim=MultMax-9;
+   Double_t Multiplicity[MultMax-1];
+   Double_t ErrMultiplicity[MultMax-1];
+    for(Int_t i=0;i<MultMax;i++) { 
+       Multiplicity[i]=i+2;
+       ErrMultiplicity[i]=0.;
+    }
+   // for(Int_t i=0;i<4;++i){
+   //    Multiplicity[ArrDim-i-1]=MultMax-i*3-1;
+   // }
+   Double_t Residual[MultMax-1];
+   Double_t ErrResidual[MultMax-1];
    // TF1 *FitGaus=new TF1();
-   for(Int_t n=0;n<=30;n+=6) {
-      for(Int_t j=2;j<=MultMax-12;j++) {
-         TH1F ResidualHist("residual","Residual Z",300,-0.15,0.15);
-         TString Formula;
-         Formula.Form("(ReconGood==1)&&(Multiplicity==%d&&Noise==0%d)",j,n);
+
+   // j iterator now loops over multiplicity values.
+   for(Int_t j=2;j<=MultMax;j++) {
+      TH1F ResidualHist("residual","Residual Z",300,-0.15,0.15);
+      TString Formula;
+         Formula.Form("(ReconGood==1)&&(Multiplicity==%d)",j);
          TCut Cut(Formula.Data());
          Ntuple->Draw("(ZResidual)>>residual",Cut,"goff");
-         /*ResidualHist.Fit("gaus","Q");
-         TString Histname;
-         Histname.Form("results/hists/res_partial_mult_%d.root",j);
-         TFile filepart(Histname.Data(),"RECREATE");
-         ResidualHist.Write();
-         filepart.Close();
-         FitGaus=(TF1*)ResidualHist.GetFunction("gaus");*/
+         // ResidualHist.Fit("gaus","Q");
+         // FitGaus=(TF1*)ResidualHist.GetFunction("gaus");
+         // Residual[j-2]=FitGaus->GetParameter(2);
+         // ErrResidual[j-2]=FitGaus->GetParError(2);
          Residual[j-2]=/*FitGaus->GetParameter(2);*/ResidualHist.GetRMS();
          ErrResidual[j-2]=/*FitGaus->GetParError(2);*/ResidualHist.GetRMSError();
-      }
-      Int_t temp=ArrDim-4;
-      for(Int_t j=MultMax-12;j<MultMax;j+=3) {
-         TH1F ResidualHist("residual","Residual Z",300,-0.15,0.15);
-         TString Formula;
-         Formula.Form("(ReconGood==1)&&(Multiplicity>%d)&&(Multiplicity<=%d&&Noise==%d)",
-            j,j+3,n);
-         TCut Cut(Formula.Data());
-         Ntuple->Draw("(ZResidual)>>residual",Cut,"goff");
-         /*ResidualHist.Fit("gaus","Q");
-         TString Histname;
-         Histname.Form("results/hists/res_partial_mult_%d.root",j+2);
-         TFile filepart(Histname.Data(),"RECREATE");
-         ResidualHist.Write();
-         filepart.Close();
-         FitGaus=(TF1*)ResidualHist.GetFunction("gaus");*/
-         Residual[temp]=/*FitGaus->GetParameter(2);*/ResidualHist.GetRMS();
-         ErrResidual[temp]=/*FitGaus->GetParError(2);*/ResidualHist.GetRMSError();
-         temp+=1;
-      }
-      TString Name, Title;
-      Name.Form("RvMvN_%d",n);
-      Title.Form("Residuals vs Multiplicity");
-      TGraphErrors* ResidualVsMultiplicity=new TGraphErrors(ArrDim,Multiplicity,
-         Residual,ErrMultiplicity,ErrResidual);
-      ResidualVsMultiplicity->SetNameTitle(Name.Data(),Title.Data());
-      ResidualVsMultiplicity->GetXaxis()->SetTitle("Multiplicity");
-      ResidualVsMultiplicity->GetYaxis()->SetTitle("Residuals (cm)");
-      CustomizeGraph(*ResidualVsMultiplicity);
-      mGraph->Add(ResidualVsMultiplicity);
    }
-   
-
-   return mGraph;
+   // Int_t temp=ArrDim-4;
+   // for(Int_t j=MultMax-12;j<MultMax;j+=3) {
+   //    TH1F ResidualHist("residual","Residual Z",300,-0.15,0.15);
+   //    TString Formula;
+   //    Formula.Form("(ReconGood==1)&&(Multiplicity>%d)&&(Multiplicity<=%d)",
+   //       j,j+3);
+   //    TCut Cut(Formula.Data());
+   //    Ntuple->Draw("(ZResidual)>>residual",Cut,"goff");
+   //    ResidualHist.Fit("gaus","Q");
+   //    FitGaus=(TF1*)ResidualHist.GetFunction("gaus");
+   //    Residual[temp]=FitGaus->GetParameter(2);
+   //    ErrResidual[temp]=FitGaus->GetParError(2);
+   //    temp+=1;
+   // }
+   TGraphErrors ResidualVsMultiplicity(MultMax-1,Multiplicity,Residual,
+      ErrMultiplicity,ErrResidual);
+   ResidualVsMultiplicity.SetNameTitle("ResidualVsMultiplicity",
+      "Residuals vs Multiplicity");
+   ResidualVsMultiplicity.GetXaxis()->SetTitle("Multiplicity");
+   ResidualVsMultiplicity.GetYaxis()->SetTitle("Residuals (cm)");
+   CustomizeGraph(ResidualVsMultiplicity);
+   return ResidualVsMultiplicity;
 } 
 
 //------------------------------------------------------------------------------

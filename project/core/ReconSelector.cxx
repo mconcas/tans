@@ -20,7 +20,11 @@
 
 // Utility functions references.
 Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer);
-void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound);
+void CenterHistRange(TH1 &Hist, Double_t Extremals[2], 
+   Double_t Center, Double_t Enlargement=0.f);
+void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound, 
+   Bool_t RecursionFlag=kFALSE);
+
 
 ReconSelector::ReconSelector(TTree *) :
    fChain(0),
@@ -30,7 +34,7 @@ ReconSelector::ReconSelector(TTree *) :
    fDebugZetaGenerated(0),
    fReconVertices(0),
    fDeltaPhi(0.005),                  // [rad]
-   fBinSizeRoughHist(0.1),            // cm
+   fBinSizeRoughHist(0.2),            // cm
    fBinSizeFineHist(0.0005)           // cm
    {
       fAnaVertex=new Vertice();
@@ -188,32 +192,40 @@ Double_t ZEvaluation(Hit &OnFirstlayer, Hit &OnSecondlayer)
    return result;
 }
 
-void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound)
+void CenterHistRange(TH1 &Hist, Double_t Extremals[2], Double_t Center, 
+   Double_t Enlargement)
 {
-   // ATM I'm not sure if it's useful that ZetaFound struct is a
-   // datamaber.
+   // swap/order array.
+   if(Extremals[0]>Extremals[1]) {
+      Double_t temp=Extremals[0];
+      Extremals[0]=Extremals[1];
+      Extremals[1]=temp;
+   }
+   Double_t RangeWidth=TMath::Abs(Extremals[1]-Extremals[0])+
+      Enlargement*TMath::Abs(Extremals[1]-Extremals[0]);
+   Extremals[0]=Center-RangeWidth/2;
+   Extremals[1]=Center+RangeWidth/2;
+   Hist.SetAxisRange(Extremals[0],Extremals[1]);
+}
+
+void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound, 
+   Bool_t RecursionFlag)
+{
    ZetaFound.fCoord=0.;
    ZetaFound.fError=0.;
    ZetaFound.fGood=kFALSE;
 
    // Find 1st Maximum (bin) in Rough, starting from the left margin.
    Double_t FirstMaxRough=Rough.GetMaximum();
-   
-   // In case of empty histograms return.
    if(FirstMaxRough==0) {return;}
-
    Int_t NBinsRough=Rough.GetNbinsX();
-   Int_t NBinsFine=Fine.GetNbinsX();
    Double_t BinSizeRoughHist=Rough.GetBinWidth(2);
-   Double_t BinSizeFineHist=Fine.GetBinWidth(2);
-
-
    Int_t FirstMaxRoughBin=Rough.GetMaximumBin();
+
+   // Find 2nd Maximum (bin) in Rough, starting from the right margin.
    Double_t SecondMaxRough=0;
    Int_t SecondMaxRoughBin=0;
    Int_t Iterator=NBinsRough;
-
-   // Find 2nd Maximum (bin) in Rough, starting from the right margin.
    do {
       SecondMaxRough=Rough.GetBinContent(Iterator);
       SecondMaxRoughBin=Iterator;
@@ -221,42 +233,51 @@ void XtrapolateZeta(TH1F &Rough,TH1F &Fine,ZReal_t &ZetaFound)
    } while(SecondMaxRough<FirstMaxRough);
 
    /////////////////////////////////////////////////////////////////////////////
-   // From the comparison between two found maximum positions one cane make
+   // From the comparison between two found maximum positions one cane take
    // some choices:
    // In this particulare case we ask that the two maximums can be the same or,
    // at most, be adjacent.
    
-   if(SecondMaxRoughBin-FirstMaxRoughBin<2) {
-      // Shrink the refined histogram range of interest. Add arbitrarily large
-      // margins.
-      Int_t OffsetLeft=0;
-      Int_t OffsetRight=0;
-      if(Rough.GetBinContent(FirstMaxRoughBin-1)!=0) OffsetLeft=-1;
-      if(Rough.GetBinContent(SecondMaxRoughBin+1)!=0) OffsetRight=1;
-      Double_t LowLimit=Rough.GetBinLowEdge(FirstMaxRoughBin+OffsetLeft);
-      Double_t UpLimit=Rough.GetBinLowEdge(SecondMaxRoughBin+OffsetRight)
-         +BinSizeRoughHist;
-        
-      Fine.SetAxisRange(LowLimit,UpLimit);
-      // Henceforth the procedure is similar to the one adopted on raw data,
-      // but with a different tolerance range.
-      Double_t FirstMaxFine=Fine.GetMaximum();
-      if(FirstMaxFine==0) {return;}
-      Int_t FirstMaxFineBin=Fine.GetMaximumBin();
-      Double_t SecondMaxFine=0;
-      Int_t SecondMaxFineBin=0;
-      Int_t Iterator2=NBinsFine;
-      // Find 2nd Maximum (bin) in Fine, starting from the right.
-      do {
-         SecondMaxFine=Fine.GetBinContent(Iterator2);
-         SecondMaxFineBin=Iterator2;
-         Iterator2--;
-      } while(SecondMaxFine<FirstMaxFine||
-         Fine.GetBinLowEdge(SecondMaxFineBin)>UpLimit);
-      Fine.SetAxisRange(Fine.GetBinLowEdge(FirstMaxFineBin),
-      Fine.GetBinLowEdge(SecondMaxFineBin)+BinSizeFineHist);
-      ZetaFound.fCoord=Fine.GetMean(1);
-      ZetaFound.fError=Fine.GetMeanError(1);
-      ZetaFound.fGood=kTRUE;
+   Double_t ArrLimits[2]={Rough.GetBinLowEdge(FirstMaxRoughBin),
+      Rough.GetBinLowEdge(SecondMaxRoughBin)+BinSizeRoughHist};
+   TH1F* Roughptr=&Rough;
+   Double_t Center=0.f;
+   switch(SecondMaxRoughBin-FirstMaxRoughBin) {
+      case 0:
+         // Printf("case: %d",SecondMaxRoughBin-FirstMaxRoughBin);
+         do {
+            Fine.SetAxisRange(ArrLimits[0],ArrLimits[1]);
+            ZetaFound.fCoord=Fine.GetMean(1);
+            ZetaFound.fError=Fine.GetMeanError(1);
+            ZetaFound.fGood=kTRUE;
+            Center=ArrLimits[0]+(ArrLimits[1]-ArrLimits[0])/2;
+            // Printf("<looped, fCoord=%f, Center=%f>",ZetaFound.fCoord,Center);
+            CenterHistRange(Fine,ArrLimits,ZetaFound.fCoord,0.2);
+         } while(TMath::Abs(ZetaFound.fCoord-Center)>=0.0001/*cm*/);
+         // Printf("Out from while() loop: z=%f c=%f",ZetaFound.fCoord,Center);           
+         break;
+      case 1:
+         // Printf("case: %d",SecondMaxRoughBin-FirstMaxRoughBin);
+         do {
+            Fine.SetAxisRange(ArrLimits[0],ArrLimits[1]);
+            ZetaFound.fCoord=Fine.GetMean(1);
+            ZetaFound.fError=Fine.GetMeanError(1);
+            ZetaFound.fGood=kTRUE;
+            Center=ArrLimits[0]+(ArrLimits[1]-ArrLimits[0])/2;
+            // Printf("<looped, fCoord=%f, Center=%f>",ZetaFound.fCoord,Center);
+            CenterHistRange(Fine,ArrLimits,ZetaFound.fCoord,0.2);
+         } while(TMath::Abs(ZetaFound.fCoord-Center)>=0.0001/*cm*/);
+         // Printf("Out from while() loop: z=%f c=%f",ZetaFound.fCoord,Center); 
+         break;
+      case 2:
+         // Printf("case: %d",SecondMaxRoughBin-FirstMaxRoughBin);
+         if(RecursionFlag) return;
+         // Double BinSize.
+         Roughptr=(TH1F*)Rough.Rebin(2);
+         XtrapolateZeta(*Roughptr,Fine,ZetaFound,kTRUE);
+         break;
+      default:
+         // Printf("case: %d",SecondMaxRoughBin-FirstMaxRoughBin);
+         return;
    }
 }
