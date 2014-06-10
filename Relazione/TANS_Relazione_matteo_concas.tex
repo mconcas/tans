@@ -142,7 +142,7 @@ Infatti, grazie al confronto con la verità Montecarlo, si è in grado di stimar
 Per questa analisi sono stati generati due set di dati.
 Il primo set consta di sei file diversi, ciascuno con un livello di rumore \textbf{fissato}, crescente da file a file per passi di 6, da 0 a 30 con multiplo scattering (d'ora in avanti MS) \textbf{disabilitato}.
 Il secondo invece consta di sei file diversi, ciascuno con un livello di rumore \textbf{fissato}, crescente da file a file per passi di 6, da 0 a 30 con multiplo scattering \textbf{abilitato}.
-Le due grandezze di cui si è andati a misurare l'andamento sono: l'\textbf{\textit{efficienza}}, ovvero il rapporto tra il numero di vertici generati e il numero di vertici ricostruiti; la \textbf{\textit{risoluzione}}, intesa come la $\sigma$ di un fit gaussiano effettuato sulla distribuzione dei residui.
+Le due grandezze di cui si è andati a misurare l'andamento sono: l'\textbf{\textit{efficienza}}, ovvero il rapporto tra il numero di vertici generati e il numero di vertici ricostruiti; la \textbf{\textit{risoluzione}}, intesa come l'\textit{rms} della distribuzione dei residui.
 
 \subsubsection{Studio dell'Efficienza in funzione di Noise, Molteplicità e Z Montecarlo}
 Sono riportati di seguito i grafici inerenti lo studio dell'efficienza in funzione di alcuni parametri, prima su set di eventi con multiplo scattering disattivato, poi su un set di dati con multiplo scattering attivato.\\
@@ -158,14 +158,18 @@ $6\times$ $10^{6}$ eventi, ciascuno con molteplicità estratta da distribuzione 
 \begin{figure}
 \includegraphics[scale=0.60]{GraficiRelazione/EffVsZCoord.pdf}
 \caption{M. Scattering=kFALSE}
+\label{fig:effvszcoord}
 \includegraphics[scale=0.60]{GraficiRelazione/EffVsZCoord_2.pdf}
 \caption{M. Scattering=kTRUE}
+\label{fig:effvszcoord_2}
 \end{figure}
 \begin{figure}
 \includegraphics[scale=0.60]{GraficiRelazione/EffVsMult.pdf}
 \caption{M. Scattering=kFALSE}
+\label{fig:effvsmolt}
 \includegraphics[scale=0.60]{GraficiRelazione/EffVsMult_2.pdf}
 \caption{M. Scattering=kTRUE}
+\label{fig:effvsmolt_2}
 \end{figure}
 
 \newpage
@@ -194,5 +198,9 @@ $6\times$ $10^{6}$ eventi, ciascuno con molteplicità estratta da distribuzione 
 \end{figure}
 \newpage
 \section{Conclusioni}
-
+Dal confronto tra i grafici emerge, come ragionevolmente ci si aspetta, che l'accensione del MS provoca un aumento globale del valore dei residui, da leggersi come una traslazione verso l'alto di ogni grafico ResiduiVs*.\\
+L'effetto di \textit{smearing} è acceso in entrambe le prese dati, perciò si può considerare un \textit{offset} mediamente uguale.\\
+\indent Per quanto riguarda le efficienze esse non sembrano variare molto, all'accensione del MS. Questo probabilmente ha due ragioni: la prima è che evidentemente le deviazioni sugli zeta ricostruiti non sono tali da causare drastiche esclusioni di \textit{tracklets} potenzialmente buone dagli intervalli fissati come parametri di ricostruzione. La seconda è che le efficienze sono comunque molto elevate, essendo questa la simulazione di un vertexer semplificato, dove sono stati esclusi elementi importanti come i vertici secondari, effetti vari di rumore proveniente da particelle a basso momento, la seppur lieve curvatura delle traiettorie dovuta al campo magnetico, etc.  
+Qundi, salvo particolari situazioni estremali (i.e. vertici ricostruiti con Z molto vicini ai bordi dei rivelatori come in fig.
+\ref{fig:effvszcoord} e \ref{fig:effvszcoord_2}, oppure molteplicità molto basse  come in fig. \ref{fig:effvsmolt} e \ref{fig:effvsmolt_2}) l'efficienza tende facilmente al $100\%$.
 \end{document}

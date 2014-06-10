@@ -55,19 +55,31 @@ void ReconSelector::Init(TTree *tree)
 Bool_t ReconSelector::Notify()
 {
    // Notify function.
-   Printf("Notify() function called.");
+   Printf("[Notify] New TTree Loaded.");
    return kTRUE;
 }
 
 void ReconSelector::Begin(TTree *)
 {
-   Printf("\x1B[32m\n\t++ +++ ++ ++ ++++ +++ ++ +++ +++ ++\x1B[0m");
+   Printf("\x1B[32m\n\t++-+++-++-++-++++-+++-++-+++-+++-++\x1B[0m");
    Printf("\x1B[32m\t+     Reconstruction Selector     +\x1B[0m");
-   Printf("\x1B[32m\t+ ++ +++ + + ++ ++ +++ + ++ ++ ++ +\x1B[0m\n\n");
+   Printf("\x1B[32m\t+     Parameters:                 +\x1B[0m");
+   Printf("\x1B[32m\t+     Δϕ = %1.5f    [rad]       +\x1B[0m",fDeltaPhi);
+   Printf("\x1B[32m\t+     BinWidths:                  +\x1B[0m");
+   Printf("\x1B[32m\t+     Rough = %1.5f [cm]        +\x1B[0m",
+      fBinSizeRoughHist);
+   Printf("\x1B[32m\t+     Fine  = %1.5f [cm]        +\x1B[0m",
+      fBinSizeFineHist);
+   Printf("\x1B[32m\t+-++-+++-+-+-++-++-+++-+-++-++-++-+\x1B[0m\n\n");
 }
 
 void ReconSelector::SlaveBegin(TTree *)
 {
+   // SlaveBegin() is called on each worker. Histograms (TH*) are mergeable 
+   // objects, thus, once created on a slave node they will be filled locally 
+   // and independently. At the end of computation they will be regrouped in 
+   // a single histogram. 
+   // It's important adding them to an output TList.
    fNBinsRoughHist=(Int_t)(16.46/fBinSizeRoughHist);
    fNBinsFineHist=(Int_t)(16.46/fBinSizeFineHist);
    fRecZetaHistptr=new TH1F("Reconstructed","Zreconstructed",50000,-8.23,8.23);
@@ -166,7 +178,7 @@ void ReconSelector::Terminate()
    fResultsNtuple->Write();
    OutNtuple.Close();  
 
-   // Save Debug Histos. >>! REMOVE IN FINAL VERSION!<<
+   // Save Debug Histos. >>! REMOVE IN FINAL VERSION !<<
    TFile outfile("./results/Debug.root","RECREATE");
    if(outfile.IsZombie()) {
       Printf("A problem occured creating file");

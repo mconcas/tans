@@ -14,8 +14,6 @@
 #include <TSelector.h>
 #include <TNtuple.h>
 #include <TH1F.h>
-
-// Header file for the classes stored in the TTree if any.
 #include <TClonesArray.h>
 #include "Punto.h"
 #include "Vertice.h"
@@ -44,7 +42,6 @@ public :
    Hit            *fAnaHitScnd;             // 2nd layer analyzed Hit ptr.
    TNtuple        *fResultsNtuple;          // TNtuple cointaining reults.
    TH1F           *fDebugZetaGenerated; 
-   // Int_t           fCounter;                // Debug iteration counter.
    Int_t           fReconVCounter;          // Counter of reconst. vertices.
    Int_t           fReconVertices;          // Counter for recons. vertices.
    Double_t        fDeltaPhi;               // Delta Phi limit.
@@ -68,7 +65,7 @@ public :
    virtual void    SetOption(const char *option) {fOption=option;}
    virtual void    SetObject(TObject *obj) {fObject = obj;}
    virtual void    SetInputList(TList *input) {fInput=input;}
-   virtual TList  *GetOutputList() const {return fOutput;}
+   virtual TList*  GetOutputList() const {return fOutput;}
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
