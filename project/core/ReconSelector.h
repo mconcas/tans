@@ -41,7 +41,7 @@ public :
    Hit            *fAnaHitFrst;             // 1st layer analyzed Hit ptr.
    Hit            *fAnaHitScnd;             // 2nd layer analyzed Hit ptr.
    TNtuple        *fResultsNtuple;          // TNtuple cointaining reults.
-   TH1F           *fDebugZetaGenerated; 
+   TH1F           *fDebugZetaGenerated;     // Debug histogram.
    Int_t           fReconVCounter;          // Counter of reconst. vertices.
    Int_t           fReconVertices;          // Counter for recons. vertices.
    Double_t        fDeltaPhi;               // Delta Phi limit.
